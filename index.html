@@ -149,6 +149,22 @@ h3{font-family:Georgia,serif;margin:14px 0 6px;font-size:17px}
 
 #lobby{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:22px;background:radial-gradient(ellipse at 50% 20%,rgba(58,105,145,.35),transparent 55%),linear-gradient(145deg,#0b1724,#142b40 60%,#101b2a);color:#edf4fb;overflow:auto}
 #lobby .lbox{width:min(100%,560px);margin:auto}#lobby .brand{text-align:center;margin-bottom:26px}#lobby .brand .sig{font-size:44px;line-height:1.2}#lobby h1{font:700 34px Georgia,serif;margin:8px 0 5px;letter-spacing:.5px}#lobby .sub{color:#a9bdcf;font-size:14px}#lobby .modes{display:grid;grid-template-columns:1fr;gap:12px}#lobby .mode{display:flex;align-items:center;gap:14px;width:100%;padding:16px;text-align:left;white-space:normal;border:1px solid #38536c;border-radius:15px;background:rgba(27,48,69,.92);color:#edf4fb;transition:transform .15s,border-color .15s}#lobby .mode:active{transform:scale(.985)}#lobby .mode .ico{font-size:34px;flex:none;width:48px;text-align:center}#lobby .mode b{display:block;font-size:17px;margin-bottom:3px}#lobby .mode small{display:block;color:#b4c5d3;font-size:12px;line-height:1.4}#lobby .mode .go{margin-left:auto;color:#f2c14e;font-size:22px}#lobby .note{text-align:center;color:#8ea5b8;font-size:11px;margin-top:18px}
+#game-guide[hidden]{display:none!important}
+#game-guide{z-index:115}
+#game-guide .guide-panel{max-width:700px}
+#game-guide .guide-body{padding:14px 16px 22px;line-height:1.55}
+.guide-lead{margin:0 0 14px;padding:11px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);font-size:13px}
+.guide-section{margin:0 0 16px;padding:0 0 13px;border-bottom:1px solid var(--bd)}
+.guide-section h3{margin:0 0 8px;font-size:15px;color:var(--ac)}
+.guide-section p{margin:6px 0;font-size:13px}
+.guide-section ul{margin:7px 0;padding-left:20px;font-size:13px}
+.guide-section li{margin:4px 0}
+.guide-stat{display:grid;grid-template-columns:minmax(112px, .34fr) 1fr;gap:8px;padding:8px 0;border-bottom:1px dashed var(--bd);font-size:12.5px}
+.guide-stat b{color:var(--tx)}
+.guide-stat span{color:var(--mu)}
+.guide-foot{font-size:12px;color:var(--mu);margin:0}
+@media(max-width:480px){#game-guide .guide-body{padding:12px}.guide-stat{grid-template-columns:1fr;gap:2px}.guide-stat span{padding-left:2px}}
+
 .rpideology{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(3,10,18,.78);backdrop-filter:blur(5px)}.rpideology[hidden]{display:none!important}.rpideology .ripanel{width:min(100%,620px);max-height:92%;overflow:auto;background:var(--sf);color:var(--tx);border:1px solid var(--bd);border-radius:16px;padding:16px;box-shadow:0 18px 60px rgba(0,0,0,.4)}.rpideology .ritop{text-align:center;border-bottom:1px solid var(--bd);padding-bottom:12px;margin-bottom:12px}.rpideology .ritop .riicon{font-size:34px}.rpideology h2{font:700 23px Georgia,serif;margin:5px 0}.rpideology .ridesc{color:var(--mu);font-size:13px}.rpideology .rioptions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.rpideology .rioption{white-space:normal;text-align:left;border:1px solid var(--bd);border-radius:11px;padding:10px;background:var(--bg);color:var(--tx)}.rpideology .rioption b{display:block;font-size:14px;margin-bottom:4px}.rpideology .rioption small{display:block;white-space:normal;font-size:11px;line-height:1.4}.rpideology .rireason{margin-top:10px;font-size:11px;color:var(--mu);text-align:center}@media(max-width:440px){.rpideology .rioptions{grid-template-columns:1fr}}
 .rpconfig{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:4px 0}.rpconfig label{display:flex;flex-direction:column;gap:5px;color:#c9d7e3;font-size:12px}.rpconfig input,.rpconfig select{width:100%;min-width:0;padding:10px;border:1px solid #38536c;border-radius:9px;background:#102235;color:#edf4fb;font:inherit}.rpconfig .rp-random{align-self:flex-start;padding:7px 11px;border:1px solid #526b80;border-radius:8px;background:rgba(52,79,101,.65);color:#edf4fb;font-size:12px;white-space:normal}.rpconfig .rp-random:active{transform:scale(.97)}.rpconfig .rp-random-all-wrap{grid-column:1/-1;display:flex;justify-content:center}.rpconfig .rp-random-all{width:100%;font-weight:700} .rpconfignote{grid-column:1/-1;color:#a9bdcf;font-size:12px;line-height:1.5;padding:8px 10px;border:1px solid #38536c;border-radius:9px;background:rgba(27,48,69,.7)}.rpconfigbuttons{grid-column:1/-1;display:flex;justify-content:space-between;gap:8px}.rpconfigbuttons button{white-space:normal}@media(max-width:440px){.rpconfig{grid-template-columns:1fr}.rpconfignote,.rpconfigbuttons{grid-column:1}}#gameover .pn{text-align:center;padding:26px 20px}#gameover .goicon{font-size:58px}#gameover h2{font:700 30px Georgia,serif;margin:8px 0;color:#d94b4b}#gameover p{color:var(--mu);margin:6px 0 18px}#gameover .gobtns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}#gameover .gobtns button{padding:10px 16px}
 
@@ -188,7 +204,60 @@ h3{font-family:Georgia,serif;margin:14px 0 6px;font-size:17px}
     padding-bottom: 24px;
   }
 }
-</style></head><body><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div><div id="app">
+</style></head><body><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
+<div id="game-guide" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="guide-title">
+ <div class="pn guide-panel">
+  <div class="ph"><b id="guide-title">📖 Cẩm nang Thần Giới</b><small>Giải thích cơ chế và chỉ số</small><button id="guide-close" aria-label="Đóng">✕</button></div>
+  <div class="ob guide-body">
+   <p class="guide-lead">Thần Giới mô phỏng sự hình thành và phát triển của các nền văn minh. Các chỉ số liên kết với nhau: dân số cần lương thực và nơi ở, kinh tế nuôi bộ máy quốc gia, còn công nghệ mở khóa những bước phát triển mới.</p>
+   <section class="guide-section"><h3>🌍 1. Bắt đầu và nhịp thời gian</h3>
+    <p><b>Chế độ tự do:</b> bạn tạo thế giới, đặt địa hình, sinh vật và dùng quyền năng để tác động lên các nền văn minh.</p>
+    <p><b>Chế độ nhập vai:</b> bạn chọn hoặc tạo một quốc gia để trực tiếp điều hành. Nhịp lịch sử được đặt chậm và chiến tranh ở mức tiêu chuẩn; bạn có thể điều chỉnh tốc độ mô phỏng bằng các nút ½× đến 10×.</p>
+    <p>Mỗi lượt mô phỏng tương ứng một tháng trong thế giới. Khi đủ 12 lượt, năm tăng thêm một đơn vị. Tạm dừng bằng nút ⏸.</p>
+   </section>
+   <section class="guide-section"><h3>📊 2. Các chỉ số quốc gia</h3>
+    <div class="guide-stat"><b>👥 Dân số</b><span>Quy mô dân cư. Tăng nhờ lương thực, sức chứa nhà ở và điều kiện phát triển; dân số lớn hỗ trợ mở rộng lãnh thổ nhưng cũng làm tăng nhu cầu sinh tồn.</span></div>
+    <div class="guide-stat"><b>🔬 Công nghệ</b><span>Đại diện trình độ tri thức. Tăng theo thời gian và dân số; giúp mở khóa công trình, phát minh và nâng sức mạnh quốc gia.</span></div>
+    <div class="guide-stat"><b>⚔️ Quân đội</b><span>Quy mô lực lượng vũ trang. Kết hợp với công nghệ, công trình quân sự, chủng tộc và lòng trung thành để tạo sức chiến đấu.</span></div>
+    <div class="guide-stat"><b>❤️ Lòng trung thành</b><span>Mức độ ủng hộ chính quyền. Chính sách khắc nghiệt, thất bại và biến động xã hội có thể làm giảm chỉ số; quá thấp sẽ tăng nguy cơ nổi dậy hoặc ly khai.</span></div>
+    <div class="guide-stat"><b>🏭 Công nghiệp</b><span>Năng lực sản xuất. Được thúc đẩy bởi công nghệ, công xưởng và đầu tư; góp phần vào sản lượng và nguồn thu.</span></div>
+    <div class="guide-stat"><b>💰 Ngân khố</b><span>Số tiền quốc gia đang có. Thu nhập đến từ hoạt động kinh tế và thương mại; quân đội, công trình và hoạt động sản xuất tạo ra chi phí.</span></div>
+    <div class="guide-stat"><b>📈 GDP</b><span>Chỉ số quy mô hoạt động kinh tế, được ước tính từ dân số, công nghiệp, nhà máy và dầu mỏ. Đây là chỉ số mô phỏng, không phải tiền mặt trong ngân khố.</span></div>
+    <div class="guide-stat"><b>👷 Thất nghiệp</b><span>Ước tính tỷ lệ lao động chưa được hấp thụ bởi nhà máy và năng lực công nghiệp. Xây dựng, phát triển sản xuất có thể cải thiện chỉ số này.</span></div>
+    <div class="guide-stat"><b>🛢️ Dầu mỏ</b><span>Nguồn tài nguyên khai thác từ mỏ trong lãnh thổ; có đóng góp vào kinh tế và hỗ trợ các hoạt động cần nhiên liệu.</span></div>
+   </section>
+   <section class="guide-section"><h3>🏘️ 3. Thành phố và công trình</h3>
+    <p>Mỗi quốc gia có thủ đô và có thể phát triển thêm thành phố. Thành phố có cấp độ, dân số, sức chứa và cân bằng lương thực riêng.</p>
+    <ul>
+     <li><b>Nhà ở:</b> tăng sức chứa dân cư.</li><li><b>Ruộng lúa, kho lương:</b> cung cấp và dự trữ lương thực.</li>
+     <li><b>Xưởng gỗ, mỏ đá:</b> khai thác vật liệu xây dựng.</li><li><b>Chợ, hải cảng:</b> hỗ trợ thương mại và thu nhập.</li>
+     <li><b>Doanh trại, tường thành, lò rèn:</b> tăng năng lực và phòng thủ quân sự.</li>
+     <li><b>Thư viện:</b> thúc đẩy tri thức; <b>đền thờ, cung điện:</b> củng cố các yếu tố xã hội và quyền lực; <b>y quán:</b> hỗ trợ sức khỏe; <b>công xưởng:</b> tăng sản xuất.</li>
+    </ul>
+    <p>Công trình cần đủ công nghệ, vật liệu và thời gian xây dựng. Chọn công trình rồi chạm vào ô đất phù hợp trong lãnh thổ để khởi công.</p>
+   </section>
+   <section class="guide-section"><h3>💹 4. Kinh tế và ngân sách</h3>
+    <p><b>Thu nhập / tháng</b> là tiền cộng vào ngân khố trong một lượt tháng; <b>chi tiêu / tháng</b> là khoản bị trừ; <b>thay đổi ngân khố</b> = thu nhập − chi tiêu.</p>
+    <p>Nếu thay đổi ngân khố âm kéo dài, tiền dự trữ sẽ cạn. Hãy cân nhắc quy mô quân đội, số công trình, đầu tư công nghiệp và các chính sách thuế. GDP tăng không đồng nghĩa ngân khố chắc chắn tăng.</p>
+    <p>Trong chế độ nhập vai, phần Vương quốc hiển thị chi tiết kinh tế, tài nguyên, thành phố, chính sách và các lựa chọn điều hành.</p>
+   </section>
+   <section class="guide-section"><h3>🏛️ 5. Mô hình xã hội</h3>
+    <p>Khi quốc gia đạt điều kiện lịch sử, sự kiện <b>Bước ngoặt của nền văn minh</b> xuất hiện. Mỗi mô hình có hệ số tác động khác nhau tới công nghệ, kinh tế, tăng trưởng dân số, lòng trung thành và quân sự.</p>
+    <ul><li><b>🏦 Tư bản chủ nghĩa:</b> thiên về công nghệ và kinh tế thị trường.</li><li><b>☭ Xã hội chủ nghĩa:</b> chú trọng phúc lợi và ổn định xã hội.</li><li><b>👑 Quân chủ:</b> quyền lực kế thừa, thiên về ổn định và quân đội.</li><li><b>🗳️ Cộng hòa:</b> thiết chế đại diện, nghiên cứu và ổn định.</li><li><b>⚑ Độc tài:</b> quyền lực tập trung, nhưng lòng trung thành chịu sức ép lớn.</li><li><b>⚒️ Phát xít:</b> quân sự hóa mạnh, đi kèm bất ổn xã hội.</li></ul>
+    <p>Bạn có thể chọn mô hình đủ điều kiện hoặc hoãn để chờ một mô hình khác đạt điều kiện. Sau khi xác lập, có thể xem các lựa chọn cải cách trong bảng điều hành.</p>
+   </section>
+   <section class="guide-section"><h3>⚖️ 6. Chính sách, ngoại giao và chiến tranh</h3>
+    <p>Chính sách có thể thay đổi ngân sách, lòng trung thành, công nghệ hoặc quân đội trong một khoảng thời gian. Hãy đọc chi phí và tác động trước khi ban hành.</p>
+    <p>Các quốc gia có thể thiết lập quan hệ, liên minh, giao thương hoặc chiến tranh. Chiến tranh gây tổn thất quân đội, lãnh thổ và kinh tế; sức mạnh quân sự không chỉ phụ thuộc số quân mà còn vào công nghệ và tinh thần.</p>
+    <p>Lòng trung thành thấp có thể dẫn tới nổi dậy, chia cắt hoặc ly khai. Hãy theo dõi biên niên sử 📜 để nắm các biến cố lớn.</p>
+   </section>
+   <section class="guide-section"><h3>✨ 7. Quyền năng trong chế độ tự do</h3>
+    <p>Bạn có thể tạo địa hình, sinh chủng tộc, chọn quốc gia để xem và dùng quyền năng như mưa, sét, ban phì nhiêu, chiến thần, thái bình, khai sáng hoặc thiên tai. Mỗi quyền năng tiêu hao thần lực; thần lực hồi theo số tín đồ.</p>
+   </section>
+   <p class="guide-foot">Mẹo: hãy mở bảng 👑 Vương quốc trong lúc chơi để xem chỉ số thực tế và mô tả chi tiết của từng mục. Các con số là đơn vị mô phỏng nội bộ của trò chơi.</p>
+  </div>
+ </div>
+</div><div id="app">
 <div id="mapw"><canvas id="cv"></canvas></div>
 </div><div id="tb"><div id="tbi">
 <div class="row" id="r1"><div id="st"><b id="yr"></b><span id="mn"></span></div><span class="sp"><button data-s="0" aria-label="Dừng" title="Dừng">⏸</button><button data-s="1" title="Tốc độ 0.5">½×</button><button data-s="2" title="Tốc độ 1">1×</button><button data-s="3" title="Tốc độ 2">2×</button><button data-s="4" title="Tốc độ 3">3×</button><button data-s="5" title="Tốc độ 5">5×</button><button data-s="6" title="Tốc độ 10">10×</button></span><button id="tg" aria-label="Thu gọn thanh công cụ" aria-expanded="true">▾</button></div>
@@ -1166,12 +1235,18 @@ function grantPlayerOil(k){
  const e=econOf(k);e.oil=Math.max(e.oil,65);e.cash=Math.max(e.cash,90);
  log('🛢️ Ưu thế quốc gia: '+k.name+' sở hữu '+count+' mỏ dầu trữ lượng lớn cùng ngân khố khởi đầu dồi dào.');
 }
+function openGameGuide(){const g=$('#game-guide');if(g)g.hidden=false;}
+function closeGameGuide(){const g=$('#game-guide');if(g)g.hidden=true;}
+$('#guide-close').onclick=closeGameGuide;
+$('#game-guide').addEventListener('click',e=>{if(e.target===$('#game-guide'))closeGameGuide()});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#game-guide').hidden)closeGameGuide()});
 function showMainMenu(){
  clearInterval(tm);document.body.classList.remove('rp-mode');$('#rp-ideology-event').hidden=true;if(W)W.playerId=0;$('#gameover').hidden=true;const box=$('#lobby');box.hidden=false;
  box.querySelector('.brand h1').textContent='THẦN GIỚI';box.querySelector('.brand .sub').textContent='Chọn cách bạn muốn kiến tạo thế giới';
  const modes=box.querySelector('.modes');modes.innerHTML='<button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button>';
  box.querySelector('.note').textContent='Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.';
- modes.onclick=e=>{const b=e.target.closest('#mode-free,#mode-roleplay');if(b)startGame(b.id==='mode-free'?'free':'roleplay')};
+ modes.insertAdjacentHTML('beforeend','<button class="mode" id="mode-guide"><span class="ico">📖</span><span><b>Cẩm nang cơ chế & chỉ số</b><small>Giải thích cách vận hành thế giới, ý nghĩa các chỉ số và mẹo quản lý quốc gia.</small></span><span class="go">›</span></button>');
+ modes.onclick=e=>{const b=e.target.closest('#mode-free,#mode-roleplay,#mode-guide');if(!b)return;if(b.id==='mode-guide'){openGameGuide();return;}startGame(b.id==='mode-free'?'free':'roleplay')};
 }
 function showRoleSelection(){
  const box=$('#lobby');box.hidden=false;
