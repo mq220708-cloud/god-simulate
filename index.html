@@ -180,7 +180,7 @@ function tile(i){const xi=i%N,yi=i/N|0,x0=xi*C,y0=yi*C,t=T[i],xv=X[i],h=Math.imu
  else{F(xv===2?'#cfd8e0':'#7e8a6a');const L=xv===2?'#aeb8c2':'#9ea3ab',D='#4f535c';P(4,1,2,1,L);P(3,2,4,1,L);P(2,3,6,1,L);P(2,4,6,1,L);P(1,5,8,2,L);P(0,7,10,2,L);P(5,2,2,1,D);P(5,3,3,1,D);P(5,4,3,1,D);P(5,5,4,2,D);P(5,7,5,2,D);if(xv===2||e<5){P(4,1,2,1,'#fff');P(3,2,3,1,'#fff');P(3,3,2,1,'#fff')}}
  if(RV[i]&&t!==6){const rc='#3f95d8';P(3,3,4,4,rc);if(xi>0&&wt(i-1))P(0,3,3,4,rc);if(xi<N-1&&wt(i+1))P(7,3,3,4,rc);if(yi>0&&wt(i-N))P(3,0,4,3,rc);if(yi<H-1&&wt(i+N))P(3,7,4,3,rc);P(4,4,2,2,'#8ccaf2')}}
 function renderT(){if(TL.width!==N*C||TL.height!==H*C){TL.width=N*C;TL.height=H*C;TD=1}if(TD){for(let i=0;i<N*H;i++)tile(i);TD=0;DQ=[]}else if(DQ.length){const s=new Set();for(const i of DQ){s.add(i);for(const j of nb(i))s.add(j)}s.forEach(tile);DQ=[]}}
-const FX=[],SH=[],AR=[];let VER=1,OS=null,TLS={},RQ=0,DBL=[];const LY={},LT={},EC={};
+const FX=[],SH=[],AR=[];let VER=1,OS=null,TLS={},RQ=0,DBL=[],OLVER=-1;const LY={},LT={},EC={};
 function warSet(){const s=new Set();for(const k of W.ks)if(k.alive&&Object.keys(k.war).some(i=>k.war[i]&&K(i).alive))s.add(k.id);return s}
 function nWar(){let c=0;for(const k of W.ks)if(k.alive)for(const i in k.war)if(k.war[i]&&+i>k.id&&K(i).alive)c++;return c}
 // ---- Quốc kỳ ngẫu nhiên ----
@@ -333,8 +333,8 @@ function paintO(g,i){const xi=i%N,yi=i/N|0,x=xi*C,y=yi*C,o=O[i];g.globalAlpha=.4
 function updOL(){const c=layer('ol'),g=c.g;if(!OS||OS.length!==N*H||LT.ol===0){OS=new Uint16Array(N*H);LT.ol=1;g.clearRect(0,0,c.width,c.height);for(let i=0;i<N*H;i++)if(O[i])paintO(g,i);OS.set(O);return 1}
  const d=[];for(let i=0;i<N*H;i++)if(O[i]!==OS[i])d.push(i);if(!d.length)return 0;const q=new Set();for(const i of d){q.add(i);for(const j of nb(i))q.add(j)}q.forEach(i=>{g.clearRect(i%N*C,(i/N|0)*C,C,C);if(O[i])paintO(g,i)});OS.set(O);return 1}
 function draw(){if(RQ)return;RQ=1;requestAnimationFrame(()=>{RQ=0;paint()})}
-function paint(){renderT();if(updOL())VER++;const sc=(cv.clientWidth/cv.width)||.5,V=VER+'|'+N+'|'+C;
- cx.drawImage(TL,0,0);cx.drawImage(layer('ol'),0,0);if(W.oil){cx.globalAlpha=.9;for(let i=0;i<W.oil.length;i++)if(W.oil[i]>0){const x=(i%N+.5)*C,y=((i/N|0)+.5)*C;cx.fillStyle='#252525';cx.beginPath();cx.arc(x,y,Math.max(1.2,C*.16),0,Math.PI*2);cx.fill();cx.fillStyle='#f5c542';cx.fillRect(x-1,y-1,2,2)}}cx.globalAlpha=1;
+function paint(){renderT();if(OLVER!==VER){if(updOL())VER++;OLVER=VER}const sc=(cv.clientWidth/cv.width)||.5,V=VER+'|'+N+'|'+C;
+ cx.drawImage(TL,0,0);cx.drawImage(layer('ol'),0,0);if(W.oil){const oil=lyr('oil',W.seed+'|'+N+'|'+H,()=>{for(let i=0;i<W.oil.length;i++)if(W.oil[i]>0){const x=(i%N+.5)*C,y=((i/N|0)+.5)*C;cx.fillStyle='#252525';cx.beginPath();cx.arc(x,y,Math.max(1.2,C*.16),0,Math.PI*2);cx.fill();cx.fillStyle='#f5c542';cx.fillRect(x-1,y-1,2,2)}},1000);cx.globalAlpha=.9;cx.drawImage(oil,0,0);cx.globalAlpha=1}
  if(CBon)cx.drawImage(lyr('cb',V,drawCB,150),0,0);
  cx.drawImage(lyr('rd',V,drawRoads,150),0,0);drawTrade();drawArmies();
  const at=warSet();if(at.size){const wl=lyr('wl',V,()=>{cx.fillStyle='#ff1e1e';for(let i=0;i<N*H;i++){const o=O[i];if(!o||!at.has(o))continue;const kw=K(o).war,xi=i%N,yi=i/N|0,x=xi*C,y=yi*C,E2=j=>O[j]&&O[j]!==o&&kw[O[j]];
@@ -865,5 +865,5 @@ cv.onpointerdown=e=>{if(pan)return;down=1;const[x,y]=pt(e);use(cur,x,y,0);draw()
 cv.onpointermove=e=>{if(down){const[x,y]=pt(e);use(cur,x,y,1);draw()}};
 addEventListener('pointerup',()=>{down=0;ui()});
 function run(){clearInterval(tm);const ms=[0,1800,900,450,300,180,90][W.sp];if(ms)tm=setInterval(()=>{step();draw();ui()},ms)}
-wpUI();gen();draw();ui();run();setInterval(()=>{if(W.sel||FX.length||SH.length||AR.length||warSet().size||seaOn())draw()},80);
+wpUI();gen();draw();ui();run();setInterval(()=>{if(W.sel||FX.length||SH.length||AR.length||warSet().size||seaOn())draw()},N*H>90000?130:N*H>40000?105:80);
 </script></body></html>
