@@ -1030,7 +1030,81 @@ function checkWorldConquest(){
  k.ideo='dict';k.flag={dict:1};k.loy=Math.min(k.loy,12);
  log('🏴 '+title(k)+' đã thống nhất toàn bộ thế giới! Chính quyền chuyển sang chế độ độc tài khắc nghiệt: quyền tự do bị siết chặt, lòng trung thành của dân chúng giảm mạnh; quốc kỳ và huy hiệu mới được ban hành.');
 }
-function step(){W.month=(W.month|0)+1;if(W.month>=12){W.month=0;W.year++}updateFactions();for(let i=FX.length;i--;)if(--FX[i][1]<=0)FX.splice(i,1);for(let i=SH.length;i--;)if(--SH[i].l<=0)SH.splice(i,1);DBL=BL.filter(b=>b.p>=b.n&&bd(b.t)[10]==='d');const fe=new Float64Array(W.ks.length+1),n=new Uint32Array(W.ks.length+1),pr=new Map(),BP=new Map(),tl={};let tp=0;const rb=[],sc=[];
+
+/* ===== CIVILIZATION ENGINE · ROLEPLAY ONLY · PHASE 1 ===== */
+const CIV_AGES=[
+ {id:'stone',name:'Đồ đá',icon:'🪨',threshold:0},
+ {id:'neolithic',name:'Đồ đá mới',icon:'🌾',threshold:.35},
+ {id:'bronze',name:'Đồ đồng',icon:'🥉',threshold:.78},
+ {id:'iron',name:'Đồ sắt',icon:'⚒️',threshold:1.32}
+];
+function makeCivilization(k,index){
+ const x=k.cap%N,origin=x<N*.43?'east':x>N*.57?'west':'mixed';
+ const n=Math.max(1,k.n||9),fertility=tilesOf(k).reduce((a,i)=>a+fer(i),0)/n;
+ return {id:'civ-'+k.id,polityId:k.id,type:'tribe',origin,era:0,
+  technology:{agriculture:0,metallurgy:0,construction:0,military:0,administration:0,trade:0,knowledge:0},
+  population:k.pop,stability:70,centralization:origin==='east'?18:origin==='west'?10:14,
+  culture:{east:origin==='east'?65:origin==='west'?10:40,west:origin==='west'?65:origin==='east'?10:40,hybrid:origin==='mixed'?20:5},
+  society:{classes:{hunters:45,gatherers:30,herders:15,leaders:10}},
+  resources:{food:Math.max(20,k.pop*7),wood:n*1.8,stone:n*1.2,copper:0,tin:0,iron:0,l livestock:0},
+  natural:{food:Math.max(30,n*fertility*8),wood:n*5,stone:n*4,copper:n*.15,tin:n*.08,iron:n*.2},
+  production:{food:0,wood:0,stone:0},lastEventYear:0};
+}
+function ensureCivilizations(){
+ if(!W||!W.playerId)return;
+ W.civs??=[];
+ for(const k of W.ks||[])if(k.alive&&!W.civs.some(c=>c.polityId===k.id))W.civs.push(makeCivilization(k,W.civs.length));
+}
+function civFor(k){return (W.civs||[]).find(c=>c.polityId===k.id)}
+function civilizationTick(){
+ if(!W.playerId)return;
+ ensureCivilizations();
+ const annual=W.month===0;
+ for(const c of W.civs){
+  const k=K(c.polityId);if(!k||!k.alive)continue;
+  c.population=k.pop;
+  const owned=tilesOf(k),count=Math.max(1,owned.length);
+  let fertility=0,forest=0,hills=0;
+  for(const i of owned){fertility+=fer(i);if(T[i]===4)forest++;if(T[i]===5||T[i]===6)hills++}
+  fertility/=count;
+  const farm=Math.max(.2,c.technology.agriculture+.35);
+  c.production.food=count*fertility*.035*farm;
+  c.production.wood=forest*.025+count*.004;
+  c.production.stone=hills*.018+count*.003;
+  c.resources.food=Math.max(0,Math.min(99999,c.resources.food+c.production.food-k.pop*.018));
+  c.resources.wood=Math.max(0,Math.min(99999,c.resources.wood+c.production.wood));
+  c.resources.stone=Math.max(0,Math.min(99999,c.resources.stone+c.production.stone));
+  if(annual){
+   const surplus=Math.max(0,c.resources.food-k.pop*3);
+   const support=Math.min(.018,surplus/(Math.max(1,k.pop)*1200));
+   const base=.027+Math.min(60,k.pop)*.00028+support;
+   const branches=c.technology;
+   branches.agriculture+=base*(fertility>.8?1.12:.88);
+   branches.metallurgy+=base*(c.resources.stone>8?1.02:.72);
+   branches.construction+=base*.88;
+   branches.military+=base*.82;
+   branches.administration+=base*(c.origin==='east'?1.08:.9);
+   branches.trade+=base*(Object.keys(k.rel||{}).filter(id=>(k.rel[id]||0)>10&&!k.war[id]).length?1.12:.78);
+   branches.knowledge+=base*.92;
+   const avg=Object.values(branches).reduce((a,v)=>a+v,0)/7;
+   const next=CIV_AGES.reduce((a,e,i)=>avg>=e.threshold?i:a,0);
+   if(next>c.era){c.era=next;const age=CIV_AGES[next];log('📜 '+title(k)+' bước vào thời kỳ '+age.name+' theo tiến trình văn minh riêng.');}
+   if(c.type==='tribe'&&k.pop>=22&&c.era>=1)c.type='tribal_confederation';
+   if(c.type==='tribal_confederation'&&k.pop>=48&&c.era>=2&&c.resources.food>k.pop*2)c.type='early_state';
+   if(c.type==='early_state'&&k.pop>=90&&c.era>=3)c.type='kingdom';
+   // Diffusion: knowledge spreads gradually through peaceful, positive relations.
+   for(const id in k.rel){const other=K(id),oc=other&&civFor(other);if(!oc||!other.alive||k.war[id]||(k.rel[id]||0)<18)continue;
+    for(const key of Object.keys(branches)){const gap=oc.technology[key]-branches[key];if(gap>0)branches[key]+=Math.min(.012,gap*.012);}
+    c.culture.hybrid=Math.min(100,c.culture.hybrid+.08);
+   }
+   c.stability=Math.max(15,Math.min(100,c.stability+(surplus>k.pop?0.25:-.18)));
+   if(c.origin==='east')c.centralization=Math.min(100,c.centralization+.025);
+   else if(c.origin==='west')c.centralization=Math.min(100,c.centralization+.012);
+  }
+ }
+}
+
+function step(){W.month=(W.month|0)+1;if(W.month>=12){W.month=0;W.year++}civilizationTick();updateFactions();for(let i=FX.length;i--;)if(--FX[i][1]<=0)FX.splice(i,1);for(let i=SH.length;i--;)if(--SH[i].l<=0)SH.splice(i,1);DBL=BL.filter(b=>b.p>=b.n&&bd(b.t)[10]==='d');const fe=new Float64Array(W.ks.length+1),n=new Uint32Array(W.ks.length+1),pr=new Map(),BP=new Map(),tl={};let tp=0;const rb=[],sc=[];
  for(let i=0;i<N*H;i++){const a=O[i];if(!a)continue;n[a]=(n[a]||0)+1;(tl[a]||(tl[a]=[])).push(i);fe[a]=(fe[a]||0)+fer(i)*(K(a).race.pt.includes(T[i])?1.4:1);
   const j=i%N<N-1?i+1:-1;if(j>=0){const b=O[j];if(b&&b!==a){const q=Math.min(a,b)*1000+Math.max(a,b);pr.set(q,[a,b]);if(K(a).war[b]){let l=BP.get(q);if(!l)BP.set(q,l=[]);l.push(i,j)}}}const d=i+N;if(d<N*H){const b=O[d];if(b&&b!==a){const q=Math.min(a,b)*1000+Math.max(a,b);pr.set(q,[a,b]);if(K(a).war[b]){let l=BP.get(q);if(!l)BP.set(q,l=[]);l.push(i,d)}}}}
  TLS=tl;
@@ -1105,6 +1179,7 @@ function roleplayDashboard(k){
  return '<section class="rpboard"><div class="rptop"><div><b>🏛 TỔNG QUAN QUỐC GIA</b><small>'+flagSVG(k,16)+' '+k.name+' · '+ideology+'</small></div><button data-rp="manage">Quản lý ›</button></div>'+
  '<div class="rpstats">'+stat('Dân số','👥 '+fmt(k.pop*100),k.n+' ô lãnh thổ','👨‍👩‍👧')+stat('Quân đội','🛡 '+fmt(k.army*100),wars?'Đang tham chiến: '+wars:'Không có chiến tranh','⚔️')+stat('Ngân khố','💰 '+Math.round(e.cash),'GDP '+Math.round(e.gdp),'🏦')+stat('Công nghiệp','⚙️ '+e.industry.toFixed(1),'Thất nghiệp '+e.unemployment.toFixed(1)+'%','🏭')+'</div>'+
  '<div class="rpsection"><div class="rplabel"><b>❤️ TÌNH HÌNH TRONG NƯỚC</b><strong style="color:'+loyColor+'">'+loy+'/100 · '+status+'</strong></div><div class="rpbar"><i style="width:'+loy+'%;background:'+loyColor+'"></i></div><div class="rpfoot"><span>👑 '+rt(k)+' '+k.king.n+'</span><span>📜 '+(policy?policy.n+' · '+k.pol.l+' lượt':'Chưa có chính sách')+'</span></div></div>'+
+ '<div class="rpsection"><b>🌍 TIẾN TRÌNH VĂN MINH</b>'+(()=>{const c=civFor(k);if(!c)return '<small class="mu">Dữ liệu văn minh chưa khởi tạo.</small>';const a=CIV_AGES[c.era]||CIV_AGES[0],t=c.technology;return '<div class="rpfoot"><span>'+a.icon+' '+a.name+'</span><span>'+({east:'Ảnh hưởng phương Đông',west:'Ảnh hưởng phương Tây',mixed:'Giao thoa văn hóa'}[c.origin])+'</span></div><small>🏕 '+({tribe:'Bộ lạc',tribal_confederation:'Liên minh bộ lạc',early_state:'Nhà nước sơ khai',kingdom:'Vương quốc'}[c.type]||'Bộ lạc')+' · Dân số '+Math.round(c.population*100)+'</small><div class="rpfoot"><span>🌾 Nông nghiệp '+t.agriculture.toFixed(2)+'</span><span>⚒️ Luyện kim '+t.metallurgy.toFixed(2)+'</span></div><small class="mu">Công nghệ phát triển độc lập; có thể lan truyền qua giao thương và quan hệ hòa bình.</small>'})()+'</div>'+
  '<div class="rpcols"><div class="rpmini"><b>🤝 ĐỐI NGOẠI</b><strong>'+allies+' hiệp ước · '+(factionOf(k)?.name||'Chưa có phe')+'</strong><small>'+wars+' cuộc chiến đang diễn ra</small></div><div class="rpmini"><b>🔬 PHÁT TRIỂN</b><strong>'+ERA[Math.min(5,k.tech|0)]+'</strong><small>💡 Công nghệ '+k.tech.toFixed(1)+' · 🏙 '+(k.cities?.length||0)+' thành phố</small></div></div>'+
  '<div class="rpsection"><div class="rplabel"><b>📰 BIẾN ĐỘNG GẦN ĐÂY</b><span class="mu">3 tin mới nhất</span></div>'+(recent.length?recent.map(x=>'<div class="rpnews">'+x+'</div>').join(''):'<small class="mu">Chưa có sự kiện đáng chú ý.</small>')+'</div>'+
  '<div class="rpsection"><b>⌛ NHỊP ĐỘ THẾ GIỚI</b><div class="rpfoot"><span>🐢 Lịch sử: Chậm</span><span>⚔️ Chiến tranh: Tiêu chuẩn</span></div><small class="mu">Phát triển dân số, công nghệ, xây dựng và mở rộng lãnh thổ diễn ra chậm hơn; chiến tranh giữ mức tiêu chuẩn.</small></div>'+'<div class="rpactions"><button data-rp="manage">👑 Mở bảng điều hành</button><small>Ban hành chính sách, quản lý quân đội và ngoại giao.</small></div></section>';
@@ -1235,6 +1310,7 @@ function createRoleplayWorld(config){
  const player=place(config.race,config.name,config.leader);
  for(let i=0;i<races.length&&W.ks.length<8;i++)place(races[i],null,null);
  if(!player){toast('Không tìm được vị trí khởi đầu phù hợp, hãy thử bản đồ nhỏ hơn.');showRoleplaySetup();return;}
+ W.civs=[];for(const k of W.ks.filter(v=>v.alive))W.civs.push(makeCivilization(k,W.civs.length));
  document.body.classList.add('rp-mode');W.playerId=player.id;W.rpPace='slow';W.rpWar='standard';W.rpIdeologyPending=false;W.rpIdeologyChosen=false;grantPlayerOil(player);
  log('👑 '+player.king.n+' chính thức nắm quyền lãnh đạo '+title(player)+'. Vận mệnh quốc gia giờ nằm trong tay bạn.');
  $('#lobby').hidden=true;kv=player.id;W.sel=player.id;W.sp=1;$('#kg').hidden=false;draw();ui();run();
