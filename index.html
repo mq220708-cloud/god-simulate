@@ -199,7 +199,7 @@ h3{font-family:Georgia,serif;margin:14px 0 6px;font-size:17px}
 </div></div>
 <div id="kg" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="kgt"><div class="pn"><div class="ph"><button id="kback" hidden aria-label="Quay lại">←</button><b id="kgt">👑 Vương quốc</b><small></small><button id="kgx" aria-label="Đóng">✕</button></div><div class="ob"><div id="kl"></div><div id="kd" hidden></div><small id="khint" class="mu">Chạm hoặc kéo trên bản đồ để dùng quyền năng. Bấm 🔎 để phóng to, ✋ để cuộn bản đồ. Thần lực hồi theo số tín đồ. Khu trong thành: ⭐ trung tâm · 🏠 dân cư · ⚒ sản xuất · 🛡 phòng thủ.</small></div></div></div>
 <div id="wm" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="wmt"><div class="pn"><div class="ph"><b id="wmt">🌍 Thế giới mới</b><small></small><button id="wx" aria-label="Đóng">✕</button></div><div class="ob"><div id="wp"></div></div></div></div>
-<div id="rp-ideology-event" class="rpideology" hidden role="dialog" aria-modal="true" aria-labelledby="rp-ideology-title"><div class="ripanel"><div class="ritop"><div class="riicon">🏛️</div><h2 id="rp-ideology-title">BƯỚC NGOẶT CỦA NỀN VĂN MINH</h2><div class="ridesc">Xã hội đã phát triển đến một bước ngoặt. Những tư tưởng và lực lượng chính trị mới đang định hình tương lai quốc gia. Hãy lựa chọn con đường phù hợp với hoàn cảnh hiện tại.</div></div><div id="rp-ideology-options" class="rioptions"></div><div id="rp-ideology-reason" class="rireason">Thời gian mô phỏng sẽ tạm dừng trong lúc bạn đưa ra quyết định.</div></div></div><div id="gameover" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="got"><div class="pn"><div class="goicon">💀</div><h2 id="got">GAME OVER</h2><p id="goresult">Vương quốc của bạn đã bị hủy diệt hoàn toàn.</p><div class="gobtns"><button id="gohome">🏠 Về màn hình chính</button><button id="goretry" class="on">🔄 Chơi lại</button></div></div></div><div id="nf" role="status" aria-live="polite"></div><div id="ch" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="cht"><div class="pn"><div class="ph"><b id="cht">📜 Biên niên sử</b><small id="cc"></small><button id="chx" aria-label="Đóng">✕</button></div><div id="chb"><div id="lg"></div></div></div></div><div id="toast"></div>
+<div id="rp-ideology-event" class="rpideology" hidden role="dialog" aria-modal="true" aria-labelledby="rp-ideology-title"><div class="ripanel"><div class="ritop"><div class="riicon">🏛️</div><h2 id="rp-ideology-title">BƯỚC NGOẶT CỦA NỀN VĂN MINH</h2><div class="ridesc">Xã hội đã phát triển đến một bước ngoặt. Những tư tưởng và lực lượng chính trị mới đang định hình tương lai quốc gia. Hãy lựa chọn con đường phù hợp với hoàn cảnh hiện tại.</div></div><div id="rp-ideology-options" class="rioptions"></div><button type="button" class="rioption" data-rp-ideology-defer style="width:100%;margin-top:10px;border:1px dashed var(--ac);background:transparent;color:var(--tx)">⏳ Chưa chọn – chờ mô hình khác đủ điều kiện</button><div id="rp-ideology-reason" class="rireason">Thời gian mô phỏng sẽ tạm dừng trong lúc bạn đưa ra quyết định.</div></div></div><div id="gameover" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="got"><div class="pn"><div class="goicon">💀</div><h2 id="got">GAME OVER</h2><p id="goresult">Vương quốc của bạn đã bị hủy diệt hoàn toàn.</p><div class="gobtns"><button id="gohome">🏠 Về màn hình chính</button><button id="goretry" class="on">🔄 Chơi lại</button></div></div></div><div id="nf" role="status" aria-live="polite"></div><div id="ch" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="cht"><div class="pn"><div class="ph"><b id="cht">📜 Biên niên sử</b><small id="cc"></small><button id="chx" aria-label="Đóng">✕</button></div><div id="chb"><div id="lg"></div></div></div></div><div id="toast"></div>
 <script>
 let N=88,H=88,C=10;const $=s=>document.querySelector(s),cv=$('#cv');let cx=cv.getContext('2d');cv.width=N*C;cv.height=H*C;
 const PAL=['#ff1744','#ff6d00','#f50087','#9c27ff','#ff80ab','#5b2bff','#1b1b1b','#c2185b'],TC=['#1d3f72','#2f6fb0','#d9c58a','#5a9e4b','#2f6b35','#8a7a5a','#d5d8de'],FERT=[0,0,.3,1,.6,.5,.2];
@@ -1085,10 +1085,21 @@ const RP_IDEOLOGY=[
 function availableRoleplayIdeologies(k){return RP_IDEOLOGY.filter(x=>x.condition(k));}
 function checkPlayerIdeology(){
  const k=K(W.playerId);if(!k||!k.alive||k.ideo||W.rpIdeologyChosen||W.rpIdeologyPending)return;
- const options=availableRoleplayIdeologies(k);if(!options.length)return;
- W.rpIdeologyPending=true;W.sp=0;$('#rp-ideology-options').innerHTML=options.map(x=>'<button class="rioption" data-rp-ideology="'+x.id+'"><b>'+x.icon+' '+x.name+'</b><small>'+x.desc+'</small></button>').join('');
- $('#rp-ideology-reason').textContent='Điều kiện đã đạt: '+options.map(x=>x.name).join(' · ')+'. Thời gian mô phỏng đang tạm dừng.';
+ const eligible=availableRoleplayIdeologies(k);
+ const deferred=W.rpIdeologyDeferred||(W.rpIdeologyDeferred=[]);
+ const options=eligible.filter(x=>!deferred.includes(x.id));if(!options.length)return;
+ W.rpIdeologyPending=true;W.sp=0;
+ $('#rp-ideology-options').innerHTML=options.map(x=>'<button class="rioption" data-rp-ideology="'+x.id+'"><b>'+x.icon+' '+x.name+'</b><small>'+x.desc+'</small></button>').join('');
+ $('#rp-ideology-reason').textContent='Điều kiện đã đạt: '+options.map(x=>x.name).join(' · ')+'. Bạn có thể chọn ngay hoặc chờ một mô hình khác xuất hiện.';
  $('#rp-ideology-event').hidden=false;
+}
+function deferRoleplayIdeology(){
+ const k=K(W.playerId);if(!k)return;
+ const deferred=W.rpIdeologyDeferred||(W.rpIdeologyDeferred=[]);
+ availableRoleplayIdeologies(k).forEach(x=>{if(!deferred.includes(x.id))deferred.push(x.id)});
+ W.rpIdeologyPending=false;$('#rp-ideology-event').hidden=true;
+ log('⏳ '+title(k)+' tạm hoãn việc xác lập mô hình xã hội, chờ một con đường chính trị khác đủ điều kiện.');
+ W.sp=1;ui();draw();run();
 }
 function chooseRoleplayIdeology(id){
  const k=K(W.playerId),choice=RP_IDEOLOGY.find(x=>x.id===id);
@@ -1101,11 +1112,11 @@ function chooseRoleplayIdeology(id){
  else if(id==='rep')k.loy=Math.min(100,k.loy+5);
  else k.loy=Math.max(0,k.loy-2);
  if(k.king){k.king.h=id==='fas'?'Quốc trưởng':k.king.h;const p=k.dynasty?.people?.find(v=>v.id===k.king.pid);if(p&&id==='fas')p.role='Quốc trưởng';}
- W.rpIdeologyChosen=true;W.rpIdeologyPending=false;$('#rp-ideology-event').hidden=true;
+ W.rpIdeologyChosen=true;W.rpIdeologyPending=false;W.rpIdeologyDeferred=[];$('#rp-ideology-event').hidden=true;
  log(choice.icon+' '+title(k)+' chính thức lựa chọn mô hình '+choice.name+'. Đây là bước ngoặt trong lịch sử quốc gia.');
  W.sp=1;ui();draw();run();
 }
-$('#rp-ideology-event').addEventListener('click',e=>{const b=e.target.closest('[data-rp-ideology]');if(b)chooseRoleplayIdeology(b.dataset.rpIdeology)});
+$('#rp-ideology-event').addEventListener('click',e=>{const b=e.target.closest('[data-rp-ideology],[data-rp-ideology-defer]');if(!b)return;if(b.hasAttribute('data-rp-ideology-defer'))deferRoleplayIdeology();else chooseRoleplayIdeology(b.dataset.rpIdeology)});
 function showRoleplaySetup(){
  const box=$('#lobby');box.hidden=false;
  box.querySelector('.brand h1').textContent='THIẾT LẬP VƯƠNG QUỐC';
