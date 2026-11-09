@@ -204,6 +204,10 @@ h3{font-family:Georgia,serif;margin:14px 0 6px;font-size:17px}
     padding-bottom: 24px;
   }
 }
+
+/* Roleplay: hide all god-mode map editing tools on desktop and mobile. */
+body.rp-mode #tabs,
+body.rp-mode #chips { display:none !important; }
 </style></head><body><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
 <div id="game-guide" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="guide-title">
  <div class="pn guide-panel">
@@ -1144,7 +1148,7 @@ let down=0;const pt=e=>{const r=cv.getBoundingClientRect();return[Math.floor((e.
 cv.onpointerdown=e=>{if(pan)return;down=1;const[x,y]=pt(e);use(cur,x,y,0);draw();ui()};
 cv.onpointermove=e=>{if(down){const[x,y]=pt(e);use(cur,x,y,1);draw()}};
 addEventListener('pointerup',()=>{down=0;ui()});
-function run(){clearInterval(tm);const ms=[0,220,120,65,46,32,22][W.sp];if(ms){const tick=()=>{if(!W||!W.sp)return;let failed=false;try{step()}catch(err){failed=true;W.sp=0;console.error('Thần Giới simulation tick failed:',err);toast('⚠️ Mô phỏng gặp lỗi, đã tạm dừng để tránh treo giao diện.')}finally{draw();try{ui(true)}catch(err){console.error('Thần Giới UI refresh failed:',err);toast('⚠️ Lỗi giao diện: '+(err&&err.message?err.message:String(err)).slice(0,110))}}if(failed||!$('#gameover').hidden)return;tm=setTimeout(tick,ms)};tm=setTimeout(tick,ms)}}
+function run(){clearInterval(tm);const ms=[0,600,420,280,210,160,120][W.sp];if(ms){const tick=()=>{if(!W||!W.sp)return;let failed=false;try{step()}catch(err){failed=true;W.sp=0;console.error('Thần Giới simulation tick failed:',err);toast('⚠️ Mô phỏng gặp lỗi, đã tạm dừng để tránh treo giao diện.')}finally{draw();try{ui(true)}catch(err){console.error('Thần Giới UI refresh failed:',err);toast('⚠️ Lỗi giao diện: '+(err&&err.message?err.message:String(err)).slice(0,110))}}if(failed||!$('#gameover').hidden)return;tm=setTimeout(tick,ms)};tm=setTimeout(tick,ms)}}
 
 function startGame(mode){
  clearTimeout(tm);clearInterval(tm);$('#gameover').hidden=true;
