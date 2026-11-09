@@ -37,6 +37,38 @@ h3{font-family:Georgia,serif;margin:14px 0 6px;font-size:17px}
 #toast{position:fixed;z-index:70;left:50%;bottom:calc(var(--tbh,150px) + 12px);transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:8px 14px;border-radius:8px;opacity:0;transition:opacity .2s;pointer-events:none}
 .econ{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:6px 0}.econ>div{background:var(--bg);border:1px solid var(--bd);border-radius:9px;padding:6px 8px}.econ b{display:block;font-size:14px}.econ small{font-size:11px}#wp[hidden]{display:none}#wp label{display:block;font-size:13px;margin:6px 0}#wp input[type=range]{width:100%}#wp select,#wp input[type=text]{font:inherit;width:100%;padding:6px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx)}
 
+
+/* Roleplay mobile scrolling: keep controls fixed and give the full dashboard its own touch-scroll area */
+@media (max-width: 700px) {
+  body.rp-mode #app { bottom: 42vh !important; bottom: 42dvh !important; }
+  body.rp-mode #tb {
+    height: 42vh !important;
+    height: 42dvh !important;
+    overflow: hidden !important;
+    touch-action: pan-y;
+  }
+  body.rp-mode #tbi {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+  body.rp-mode #tx { flex: 0 0 auto !important; }
+  body.rp-mode #tbs {
+    display: block !important;
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;
+    padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  }
+  body.rp-mode #rpview { min-height: min-content; }
+}
+
 /* Roleplay national dashboard */
 #tbs .rpboard{display:flex;flex-direction:column;gap:9px;padding:5px 1px 10px}
 .rptop{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -1002,7 +1034,7 @@ function run(){clearInterval(tm);const ms=[0,220,120,65,46,32,22][W.sp];if(ms){c
 
 function startGame(mode){
  clearTimeout(tm);clearInterval(tm);$('#gameover').hidden=true;
- if(mode==='free'){ $('#lobby').hidden=true;gen();draw();ui();run();return; }
+ if(mode==='free'){ document.body.classList.remove('rp-mode');$('#lobby').hidden=true;gen();draw();ui();run();return; }
  showRoleplaySetup();
 }
 const RP_IDEOLOGY=[
@@ -1067,7 +1099,7 @@ function createRoleplayWorld(config){
  const player=place(config.race,config.name,config.leader);
  for(let i=0;i<races.length&&W.ks.length<8;i++)place(races[i],null,null);
  if(!player){toast('Không tìm được vị trí khởi đầu phù hợp, hãy thử bản đồ nhỏ hơn.');showRoleplaySetup();return;}
- W.playerId=player.id;W.rpPace='slow';W.rpWar='standard';W.rpIdeologyPending=false;W.rpIdeologyChosen=false;grantPlayerOil(player);
+ document.body.classList.add('rp-mode');W.playerId=player.id;W.rpPace='slow';W.rpWar='standard';W.rpIdeologyPending=false;W.rpIdeologyChosen=false;grantPlayerOil(player);
  log('👑 '+player.king.n+' chính thức nắm quyền lãnh đạo '+title(player)+'. Vận mệnh quốc gia giờ nằm trong tay bạn.');
  $('#lobby').hidden=true;kv=player.id;W.sel=player.id;W.sp=1;$('#kg').hidden=false;draw();ui();run();
 }
@@ -1080,7 +1112,7 @@ function grantPlayerOil(k){
  log('🛢️ Ưu thế quốc gia: '+k.name+' sở hữu '+count+' mỏ dầu trữ lượng lớn cùng ngân khố khởi đầu dồi dào.');
 }
 function showMainMenu(){
- clearInterval(tm);$('#rp-ideology-event').hidden=true;if(W)W.playerId=0;$('#gameover').hidden=true;const box=$('#lobby');box.hidden=false;
+ clearInterval(tm);document.body.classList.remove('rp-mode');$('#rp-ideology-event').hidden=true;if(W)W.playerId=0;$('#gameover').hidden=true;const box=$('#lobby');box.hidden=false;
  box.querySelector('.brand h1').textContent='THẦN GIỚI';box.querySelector('.brand .sub').textContent='Chọn cách bạn muốn kiến tạo thế giới';
  const modes=box.querySelector('.modes');modes.innerHTML='<button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button>';
  box.querySelector('.note').textContent='Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.';
@@ -1093,7 +1125,7 @@ function showRoleSelection(){
  const modes=box.querySelector('.modes');
  modes.innerHTML=W.ks.filter(k=>k.alive).map(k=>'<button class="mode" data-country="'+k.id+'"><span class="ico">'+k.race.e+'</span><span><b>'+k.name+'</b><small>'+flagSVG(k,16)+' · '+rt(k)+' '+k.king.n+' · '+(k.ideo?IDE[k.ideo].n:'Chưa định hình đường lối')+'</small></span><span class="go">›</span></button>').join('');
  box.querySelector('.note').textContent='Bạn sẽ điều hành quốc gia đã chọn; các nước còn lại do AI quản lý.';
- modes.onclick=e=>{const b=e.target.closest('[data-country]');if(!b)return;const id=+b.dataset.country,k=K(id);if(!k||!k.alive)return;W.playerId=id;W.rpPace='slow';W.rpWar='standard';grantPlayerOil(k);box.hidden=true;log('👑 '+k.king.n+' chính thức nắm quyền lãnh đạo '+title(k)+'. Vận mệnh quốc gia giờ nằm trong tay bạn.');kv=id;W.sel=id;W.sp=1;$('#kg').hidden=false;draw();ui();run();};
+ modes.onclick=e=>{const b=e.target.closest('[data-country]');if(!b)return;const id=+b.dataset.country,k=K(id);if(!k||!k.alive)return;document.body.classList.add('rp-mode');W.playerId=id;W.rpPace='slow';W.rpWar='standard';grantPlayerOil(k);box.hidden=true;log('👑 '+k.king.n+' chính thức nắm quyền lãnh đạo '+title(k)+'. Vận mệnh quốc gia giờ nằm trong tay bạn.');kv=id;W.sel=id;W.sp=1;$('#kg').hidden=false;draw();ui();run();};
 }
 $('#mode-free').onclick=()=>startGame('free');
 $('#mode-roleplay').onclick=()=>startGame('roleplay');
