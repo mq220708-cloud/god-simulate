@@ -26,7 +26,7 @@ h3{font-family:Georgia,serif;margin:14px 0 6px;font-size:17px}
 #tb{position:fixed;left:0;right:0;bottom:0;height:20vh;height:20dvh;overflow:hidden;z-index:40;background:var(--sf);border-top:1px solid var(--bd);box-shadow:0 -3px 12px rgba(0,0,0,.18);padding:3px 8px calc(5px + env(safe-area-inset-bottom,0px))}#tbi{max-width:640px;margin:0 auto;height:100%;display:flex;flex-direction:column;min-height:0}#tx{flex:none}#tbs{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}#tbs h3{margin:4px 0;font-size:14px;display:flex;justify-content:space-between;align-items:center}#tbs h3 button{padding:2px 8px;font-size:12px}#tbs .hint{display:block;font-size:11px;line-height:1.3;margin:6px 0 2px}#tb .row{padding:2px 0}#tb button{padding:4px 9px;font-size:12.5px}#tg{display:none!important}#sys{flex-wrap:nowrap!important;overflow-x:auto!important}#kl{max-height:none}#kg .ob small{display:block;font-size:12px;line-height:1.4}#kg .card{font-size:14px;padding:9px 11px;margin-bottom:6px;cursor:pointer}#kg .card.on{border-color:var(--ac);background:var(--on)}#kg .card .hd{gap:8px}#kg .card .hd>.mu{font-size:18px}#khint{margin-top:10px}.flg{flex:none;border-radius:2px;vertical-align:middle}.kh{display:flex;align-items:center;gap:8px;font:600 17px Georgia,serif;margin-bottom:8px}.kst{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:8px}.kst>div{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:6px 10px}.kst small{margin:0!important;font-size:11px!important}.kst b{font-size:16px}#kd details{border-top:1px solid var(--bd);padding:2px 0}#kd summary{cursor:pointer;padding:9px 0;font-weight:600;font-size:14px}#kd details[open] summary{color:var(--ac)}#kd details small{margin:0 0 6px}#kd .rl{margin-top:4px}#kback{padding:3px 10px;font-size:16px}
 .dynrow{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.dynperson{background:var(--bg);border:1px solid var(--bd);border-radius:9px;padding:7px 9px;min-width:105px;flex:1}.dynperson b{display:block;font-size:13px}.dynperson small{display:block;font-size:11px;margin:2px 0 0}.dynperson.current{border-color:var(--ac);background:var(--on)}.dynline{text-align:center;color:var(--mu);font-size:12px;margin:2px 0}.dynmuted{opacity:.65}
 #tb .row{padding:3px 0;scrollbar-width:none}#tb .row::-webkit-scrollbar{display:none}#tb button{padding:5px 10px;font-size:13px;flex:none}#tr,#sys{overflow:visible!important}#tr{gap:3px}#tabs{display:flex;gap:3px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none}#tabs::-webkit-scrollbar{display:none}#tabs button{padding:5px 6px;font-size:12px}#sys{flex-wrap:wrap}#cb,#sy{font-size:15px!important;padding:3px 9px!important}
-#r1{align-items:center;gap:6px;overflow:visible!important}#st{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}#yr{font:700 15px Georgia,'Times New Roman',serif;margin-right:7px}#mn{color:var(--ac);font-weight:700}.sp{display:flex;gap:3px}.sp{gap:2px}.sp button,#tg{padding:4px 6px!important;border-radius:8px!important;min-width:26px}#tg{padding:4px 9px!important}
+#r1{align-items:center;gap:6px;overflow:visible!important}#st{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}#yr{font:700 15px Georgia,'Times New Roman',serif;margin-right:7px}#mn{color:var(--ac);font-weight:700}.sp{display:flex;gap:3px}.sp{gap:2px}.sp button,#tg{padding:4px 6px!important;border-radius:8px!important;min-width:26px}#tg{padding:4px 9px!important}#gamelobby,#fullscreen{padding:4px 7px!important;min-width:28px;border-radius:8px!important;font-size:17px!important;line-height:1.2}#gamelobby{flex:none}#fullscreen{flex:none}
 #ri{display:block;margin:0 0 2px;font-size:11.5px;line-height:1.3;max-height:2.7em;overflow:hidden;color:var(--mu)}#ri:empty{display:none}#sdl{align-self:center;padding-left:4px;white-space:nowrap}
 .ov{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(12px + env(safe-area-inset-bottom,0px));background:rgba(0,0,0,.5);animation:fi .2s ease-out}
 .ov .pn{display:flex;flex-direction:column;width:100%;max-width:560px;max-height:100%;overflow:hidden;background:var(--sf);border:1px solid var(--bd);border-radius:12px;animation:pop .24s cubic-bezier(.2,.8,.2,1)}
@@ -272,7 +272,7 @@ body.rp-mode #chips { display:none !important; }
 </div><div id="app">
 <div id="mapw"><canvas id="cv"></canvas></div>
 </div><div id="tb"><div id="tbi">
-<div class="row" id="r1"><div id="st"><b id="yr"></b><span id="mn"></span></div><span class="sp"><button data-s="0" aria-label="Dừng" title="Dừng">⏸</button><button data-s="1" title="Tốc độ 0.5">½×</button><button data-s="2" title="Tốc độ 1">1×</button><button data-s="3" title="Tốc độ 2">2×</button><button data-s="4" title="Tốc độ 3">3×</button><button data-s="5" title="Tốc độ 5">5×</button><button data-s="6" title="Tốc độ 10">10×</button></span><button id="tg" aria-label="Thu gọn thanh công cụ" aria-expanded="true">▾</button></div>
+<div class="row" id="r1"><div id="st"><b id="yr"></b><span id="mn"></span></div><span class="sp"><button data-s="0" aria-label="Dừng" title="Dừng">⏸</button><button data-s="1" title="Tốc độ 0.5">½×</button><button data-s="2" title="Tốc độ 1">1×</button><button data-s="3" title="Tốc độ 2">2×</button><button data-s="4" title="Tốc độ 3">3×</button><button data-s="5" title="Tốc độ 5">5×</button><button data-s="6" title="Tốc độ 10">10×</button></span><button id="gamelobby" type="button" title="Quay lại sảnh" aria-label="Quay lại sảnh">⌂</button><button id="fullscreen" type="button" title="Toàn màn hình" aria-label="Bật toàn màn hình">⛶</button><button id="tg" aria-label="Thu gọn thanh công cụ" aria-expanded="true">▾</button></div>
 <div id="tx"><div class="row" id="tr"><div id="tabs"></div><button id="kb" aria-label="Vương quốc" title="Vương quốc">👑</button><button id="cb" aria-label="Biên niên sử" title="Biên niên sử">📜</button><button id="sy" aria-label="Hệ thống: thế giới, bản đồ, lưu/tải" title="Hệ thống">⚙</button></div>
 <div class="row" id="chips"></div>
 <div class="row" id="sys" hidden><button id="nw">🌍 Thế giới mới</button><button id="zm">🔎 Phóng to</button><button id="pn">✋ Kéo bản đồ</button><button id="cbt" class="on">🏙 Biên giới TP</button><button id="sv">💾 Lưu</button><button id="ld">📂 Tải</button><small id="sdl" class="mu"></small></div></div>
@@ -1253,7 +1253,7 @@ $('#guide-close').onclick=closeGameGuide;
 $('#game-guide').addEventListener('click',e=>{if(e.target===$('#game-guide'))closeGameGuide()});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#game-guide').hidden)closeGameGuide()});
 function showMainMenu(){
- clearInterval(tm);document.body.classList.remove('rp-mode');$('#rp-ideology-event').hidden=true;if(W)W.playerId=0;$('#gameover').hidden=true;const box=$('#lobby');box.hidden=false;
+ clearTimeout(tm);clearInterval(tm);$('#game-guide').hidden=true;document.body.classList.remove('rp-mode');$('#rp-ideology-event').hidden=true;if(W)W.playerId=0;$('#gameover').hidden=true;const box=$('#lobby');box.hidden=false;
  box.querySelector('.brand h1').textContent='THẦN GIỚI';box.querySelector('.brand .sub').textContent='Chọn cách bạn muốn kiến tạo thế giới';
  const modes=box.querySelector('.modes');modes.innerHTML='<button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button>';
  box.querySelector('.note').textContent='Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.';
@@ -1272,6 +1272,21 @@ function showRoleSelection(){
 $('#mode-free').onclick=()=>startGame('free');
 $('#mode-roleplay').onclick=()=>startGame('roleplay');
 $('#gohome').onclick=showMainMenu;
+$('#gamelobby').onclick=showMainMenu;
+async function toggleFullscreen(){
+ try{
+  if(document.fullscreenElement){await document.exitFullscreen();}
+  else if(document.documentElement.requestFullscreen){await document.documentElement.requestFullscreen();}
+  else{toast('Trình duyệt này chưa hỗ trợ toàn màn hình.');}
+ }catch(err){toast('Không thể bật toàn màn hình. Hãy thử dùng menu trình duyệt.');}
+}
+$('#fullscreen').onclick=toggleFullscreen;
+document.addEventListener('fullscreenchange',()=>{
+ const b=$('#fullscreen');if(!b)return;
+ const active=!!document.fullscreenElement;b.textContent=active?'⛶':'⛶';
+ b.title=active?'Thoát toàn màn hình':'Toàn màn hình';
+ b.setAttribute('aria-label',active?'Thoát toàn màn hình':'Bật toàn màn hình');
+});
 $('#goretry').onclick=()=>showRoleplaySetup();
 wpUI();gen();draw();ui();setInterval(()=>{if(W&&(W.sel||FX.length||SH.length||AR.length||warSet().size||seaOn()))draw()},N*H>90000?130:N*H>40000?105:80);
 </script></body></html>
