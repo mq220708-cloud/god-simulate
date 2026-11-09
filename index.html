@@ -377,8 +377,8 @@ function paint(){renderT();if(OLVER!==VER){if(updOL())VER++;OLVER=VER}const sc=(
    wh=lyr('sw',SV,()=>{cx.fillStyle='#fff';for(const i of tilesOf(sk))cx.fillRect(i%N*C,(i/N|0)*C,C,C)},120);cx.globalAlpha=.14+.12*Math.sin(Date.now()/230);cx.drawImage(wh,0,0);cx.globalAlpha=1;cx.drawImage(yl,0,0)}
  cx.drawImage(lyr('top',V+'|'+sc.toFixed(2),()=>{for(const k of W.ks)if(k.alive)E(cx,R[k.rid].e,k.cap%N*C+C/2,(k.cap/N|0)*C+C/2+1,18);drawNames()},220),0,0);drawShips(sc)}
 function livingKingdomCount(){return W.ks.filter(k=>k.alive).length}
-function spawn(id,x,y){if(livingKingdomCount()>=8)return toast('🌍 Thế giới đã đạt giới hạn 8 vương quốc!');const k={id:W.ks.length+1,rid:id,race:R[id],name:rnd(SY)+rnd(SY).toLowerCase()+(Math.random()<.5?rnd(SY).toLowerCase():''),col:colFor(W.ks.length),pop:3,tech:0,era:0,rel:{},ally:{},war:{},alive:1,cap:y*N+x,n:0,army:.6,loy:70,fav:0,inv:[],bld:[],cname:rnd(SY)+rnd(SY).toLowerCase(),cities:[],bf:{food:0,war:0,peace:0}};
- W.ks.push(k);foundIdeology(k,null);for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const u=x+dx,v=y+dy;if(u<0||v<0||u>=N||v>=H)continue;const j=v*N+u;if(T[j]>=2&&T[j]!==6&&!O[j])O[j]=k.id}
+function spawn(id,x,y,suppressIdeology){if(livingKingdomCount()>=8)return toast('🌍 Thế giới đã đạt giới hạn 8 vương quốc!');const k={id:W.ks.length+1,rid:id,race:R[id],name:rnd(SY)+rnd(SY).toLowerCase()+(Math.random()<.5?rnd(SY).toLowerCase():''),col:colFor(W.ks.length),pop:3,tech:0,era:0,rel:{},ally:{},war:{},alive:1,cap:y*N+x,n:0,army:.6,loy:70,fav:0,inv:[],bld:[],cname:rnd(SY)+rnd(SY).toLowerCase(),cities:[],bf:{food:0,war:0,peace:0}};
+ W.ks.push(k);if(!suppressIdeology)foundIdeology(k,null);for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const u=x+dx,v=y+dy;if(u<0||v<0||u>=N||v>=H)continue;const j=v*N+u;if(T[j]>=2&&T[j]!==6&&!O[j])O[j]=k.id}
  log('🌱 '+k.race.e+' Một bộ tộc mới xuất hiện, lập nên '+title(k)+'.');mkKing(k)}
 function use(id,x,y,drag){VER++;if(x<0||y<0||x>=N||y>=H)return;const i=y*N+x,o=O[i],k=o&&K(o);
  if(id in TT){let ch=0;const tt=TT[id];for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const u=x+dx,v=y+dy;if(u<0||v<0||u>=N||v>=H)continue;const j=v*N+u;
@@ -1052,7 +1052,7 @@ function createRoleplayWorld(config){
    if(value>score){score=value;best=i;}
   }
   if(best<0)return null;
-  const x=best%N,y=best/N|0;chosen.push({x,y});spawn(race,x,y);
+  const x=best%N,y=best/N|0;chosen.push({x,y});spawn(race,x,y,!!name);
   const k=K(W.ks.length);if(name)k.name=name;
   
   if(leader&&k.king){k.king.n=leader;const p=k.dynasty?.people?.find(v=>v.id===k.king.pid);if(p){p.name=leader;p.role='Đương kim quân chủ';}}
