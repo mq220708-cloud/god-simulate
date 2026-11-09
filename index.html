@@ -229,23 +229,30 @@ function queueMarch(k,target){
  for(const i of ends){const d=Math.min(...starts.map(a=>dist(a,i)));if(d<best){best=d;end=i}}
  let start=starts[0];best=1e9;
  for(const i of starts){const d=dist(i,end);if(d<best){best=d;start=i}}
- const p=pathBfs(start,end,i=>O[i]===k.id,Math.min(5000,N*H));
- if(p&&p.length>1)queueMarchPath(k,p);
+ let p=pathBfs(start,end,i=>O[i]===k.id,Math.min(5000,N*H));
+ // Nếu không tìm được đường nội địa, vẫn cho một tiểu đội tiến từ ô tiền tuyến sang ô địch.
+ if(!p||p.length<2)p=[end];
+ if(p[p.length-1]!==target)p.push(target);
+ if(p.length>1)queueMarchPath(k,p);
 }
 function drawArmies(){
- const now=Date.now(),rate=[0,.5,1,2,3,5,10][W.sp]||0;
+ const now=Date.now(),rate=[0,.65,1,1.7,2.5,4,7][W.sp]||0;
  for(let z=AR.length-1;z>=0;z--){
   const a=AR[z],k=K(a.id);
   if(!k||!k.alive||a.p>=1){AR.splice(z,1);continue}
   const dt=Math.max(0,Math.min(100,now-a.last));a.last=now;
   if(rate>0)a.p=Math.min(1,a.p+dt*rate/a.duration);
   const n=a.pts.length-1;if(n<1){AR.splice(z,1);continue}
-  for(let unit=2;unit>=0;unit--){
-   const progress=Math.max(0,a.p-unit*.055);if(progress<=0&&a.p>0)continue;
+  // Bốn lính nối đuôi nhau, có quầng màu của vương quốc để dễ nhận ra trên bản đồ.
+  for(let unit=3;unit>=0;unit--){
+   const progress=Math.max(0,a.p-unit*.075);
+   if(progress<=0)continue;
    const pos=progress*n,ix=Math.min(n-1,Math.floor(pos)),u=pos-ix,A=a.pts[ix],B=a.pts[ix+1];
    const x=(A%N+(B%N-A%N)*u+.5)*C,y=((A/N|0)+((B/N|0)-(A/N|0))*u+.5)*C;
-   cx.globalAlpha=.35+progress*.65;cx.fillStyle=k.col||'#fff';cx.beginPath();cx.arc(x,y,Math.max(2,C*.22),0,Math.PI*2);cx.fill();
-   E(cx,unit===0?'🪖':unit===1?'⚔️':'🛡️',x,y,Math.max(10,Math.min(19,C*1.65)));
+   const radius=Math.max(2.8,C*.34);
+   cx.globalAlpha=.28;cx.fillStyle='#101820';cx.beginPath();cx.arc(x+1,y+1,radius+2,0,Math.PI*2);cx.fill();
+   cx.globalAlpha=.9;cx.fillStyle=k.col||'#ffe082';cx.beginPath();cx.arc(x,y,radius+1.5,0,Math.PI*2);cx.fill();
+   cx.globalAlpha=1;E(cx,unit%2===0?'🪖':'⚔️',x,y,Math.max(15,Math.min(23,C*2.15)));
   }
   cx.globalAlpha=1;
  }
