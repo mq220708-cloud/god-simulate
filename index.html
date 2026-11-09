@@ -854,12 +854,16 @@ function updateEconomy(k){const e=econOf(k),owned=tilesOf(k);let deposits=0,oilS
  const extracted=Math.min(deposits,oilSites*(.08+industrial*.035));
  if(extracted>0){let left=extracted;for(const i of owned){if(left<=0)break;const v=W.oil?.[i]||0;if(v>0){const take=Math.min(v,left);W.oil[i]-=take;left-=take}}}
  const produced=extracted,consumed=industrial*.035+k.army*.003;e.oil=Math.max(0,e.oil+produced-consumed);
- const taxBase=Math.max(.2,k.pop*.018+factories*.25+BL.filter(b=>O[b.i]===k.id&&b.p>=b.n&&b.t==='market').length*.12);
+ const isPlayerRP=!!W.playerId&&k.id===W.playerId;
+ const markets=BL.filter(b=>O[b.i]===k.id&&b.p>=b.n&&b.t==='market').length;
+ const taxBase=isPlayerRP?Math.max(.8,k.pop*.035+factories*.4+markets*.2+e.industry*.06):Math.max(.2,k.pop*.018+factories*.25+markets*.12);
  const trade=Object.keys(k.rel).filter(id=>k.rel[id]>10&&!k.war[id]).length*.08;
- const pb=k.playerBudget||{mil:1,ind:1,edu:1},tax=k.id===W.playerId?(k.playerTax||0):0;
+ const pb=k.playerBudget||{mil:1,ind:1,edu:1},tax=isPlayerRP?(k.playerTax||0):0;
  const revenue=taxBase*(k.ideo==='cap'?1.12:k.ideo==='soc'?1.02:1)*(1+tax);
- const expense=.12+k.army*.012+factories*.12+industrial*.08+((pb.mil+pb.ind+pb.edu)-3)*.12;
- e.cash=Math.max(0,Math.min(99999,e.cash+revenue+trade-expense));
+ const expense=isPlayerRP?Math.max(.05,.08+k.army*.006+factories*.07+industrial*.045+((pb.mil+pb.ind+pb.edu)-3)*.08):.12+k.army*.012+factories*.12+industrial*.08+((pb.mil+pb.ind+pb.edu)-3)*.12;
+ const totalIncome=revenue+trade,net=totalIncome-expense;
+ e.monthlyIncome=totalIncome;e.monthlyExpense=expense;e.monthlyNet=net;
+ e.cash=Math.max(0,Math.min(99999,e.cash+net));
  e.industry=Math.max(.2,Math.min(100,e.industry+((k.tech>=2?(.006+industrial*.002):.001)*(W.playerId&&W.rpPace==='slow'?.65:1))+(k.id===W.playerId?(pb.ind-1)*.004:0)- (k.tech<1?.002:0)));
  e.gdp=Math.max(0,(k.pop*1.8+e.industry*12+factories*8+e.oil*1.4));
  e.unemployment=Math.max(1,Math.min(45,12+Math.max(0,k.pop-factories*2-e.industry*1.5)*.08));
@@ -903,7 +907,9 @@ function detail(k){const g=k.king,a=k.pol&&pol(k.pol.id),ws=Object.keys(k.war).f
  for(const o of os){const r=k.rel[o.id]||0,d=' data-k="'+k.id+'" data-o="'+o.id+'"';dp+='<div class="rl"><span>'+o.race.e+' '+o.name+' <small style="display:inline">'+(r>0?'+':'')+(r|0)+(k.ally[o.id]?' 🤝':'')+(k.war[o.id]?' ⚔️':'')+(factionOf(o)?' 🏛':'')+'</small></span><button data-a="peace"'+d+'>🕊</button><button data-a="ally"'+d+'>🤝</button><button data-a="war"'+d+'>⚔️</button>'+(k.factionId&& !factionOf(o)?'<button data-fa="invite"'+d+'>➕Phe</button>':(!k.factionId&&factionOf(o)?'<button data-fa="join"'+d+' data-f="'+factionOf(o).id+'">Vào phe</button>':''))+'</div>'}
  h+=sec('fam','🌳 Gia phả & kế vị',dynastyHtml(k));
  const ec=econOf(k),oilTiles=tilesOf(k).filter(i=>(W.oil?.[i]||0)>0).length;
- let eh='<div class="econ"><div><small>GDP ước tính</small><b>📈 '+Math.round(ec.gdp)+'</b></div><div><small>Ngân khố</small><b>💰 '+Math.round(ec.cash)+'</b></div><div><small>Dầu dự trữ</small><b>🛢️ '+ec.oil.toFixed(1)+'</b></div><div><small>Công nghiệp</small><b>⚙️ '+ec.industry.toFixed(1)+'</b></div><div><small>Thất nghiệp</small><b>👷 '+ec.unemployment.toFixed(1)+'%</b></div><div><small>Mỏ dầu đang kiểm soát</small><b>⛽ '+oilTiles+'</b></div></div><small>Dầu được khai thác tự động từ các mỏ trong lãnh thổ. Nhà máy và công nghệ làm tăng năng lực công nghiệp; quân đội và nhà máy tiêu thụ ngân sách, nhiên liệu.</small>';
+ let eh='<div class="econ"><div><small>GDP ước tính</small><b>📈 '+Math.round(ec.gdp)+'</b></div><div><small>Ngân khố</small><b>💰 '+Math.round(ec.cash)+'</b></div><div><small>Dầu dự trữ</small><b>🛢️ '+ec.oil.toFixed(1)+'</b></div><div><small>Công nghiệp</small><b>⚙️ '+ec.industry.toFixed(1)+'</b></div><div><small>Thất nghiệp</small><b>👷 '+ec.unemployment.toFixed(1)+'%</b></div><div><small>Mỏ dầu đang kiểm soát</small><b>⛽ '+oilTiles+'</b></div></div>';
+  if(k.id===W.playerId)eh+='<div class="econ"><div><small>Thu nhập / tháng</small><b>📈 +'+(ec.monthlyIncome||0).toFixed(2)+'</b></div><div><small>Chi tiêu / tháng</small><b>📉 -'+(ec.monthlyExpense||0).toFixed(2)+'</b></div><div><small>Thay đổi ngân khố</small><b>'+(ec.monthlyNet>=0?'🟢 +':'🔴 ')+(ec.monthlyNet||0).toFixed(2)+'</b></div></div>';
+  eh+='<small>Dầu được khai thác tự động từ các mỏ trong lãnh thổ. Nhà máy và công nghệ làm tăng năng lực công nghiệp; quân đội và nhà máy tiêu thụ ngân sách, nhiên liệu.</small>';
  h+=sec('eco','📊 Kinh tế & dầu mỏ',eh);
  const policyButtons=ids=>'<div class="row2">'+POL.filter(p=>ids.includes(p.id)).map(p=>'<button class="pb" data-p="'+p.id+'" data-k="'+k.id+'">'+p.e+' '+p.n+' ❤'+(p.now>0?'+':'')+p.now+' · '+p.c+'</button>').join('')+'</div>';
  const armyPlan=eqHtml(k)+'<small>Biện pháp quân sự</small>'+policyButtons(['wall','draft']);
