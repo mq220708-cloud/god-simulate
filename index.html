@@ -664,7 +664,7 @@ function leaveFaction(k,silent){
  f.members=f.members.filter(id=>id!==k.id);delete k.factionId;
  for(const id of f.members){const o=K(id);if(o){delete k.ally[id];delete o.ally[k.id]}}
  if(f.leader===k.id&&f.members.length){const next=factionMembers(f).sort((a,b)=>(b.pop||0)-(a.pop||0))[0];f.leader=next?.id||f.members[0]}
- if(f.members.length<2)W.factions=W.factions.filter(x=>x.id!==f.id);
+ if(f.members.length<2){const last=K(f.members[0]);if(last)delete last.factionId;W.factions=W.factions.filter(x=>x.id!==f.id)}
  if(!silent)log('🚪 '+title(k)+' rời khỏi '+f.name+'.');
 }
 function inviteFaction(A,B){
@@ -675,7 +675,7 @@ function inviteFaction(A,B){
  if(joinFaction(B,f))log('🛡 '+title(B)+' cam kết hỗ trợ phòng thủ cho '+f.name+'.');
 }
 function updateFactions(){
- W.factions??=[];W.factions=W.factions.filter(f=>factionMembers(f).length>=2);
+ W.factions??=[];for(const k of W.ks)if(k.factionId&&!W.factions.some(f=>f.id===k.factionId))delete k.factionId;W.factions=W.factions.filter(f=>factionMembers(f).length>=2);
  for(const f of W.factions){f.members=factionMembers(f).map(k=>k.id);if(!f.members.includes(f.leader))f.leader=f.members[0]}
  const alive=W.ks.filter(k=>k.alive);
  if((W.month|0)!==0)return;
