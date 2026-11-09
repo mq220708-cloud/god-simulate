@@ -191,7 +191,7 @@ function mkTerrain(seed){const[n,c0]=SZ[CFG.size];N=H=n;C=c0;const NH=N*H,L=CFG.
  const nl=Math.round(CFG.river/100*land.length/700);for(let t=0;t<nl;t++)for(let a=0;a<40;a++){const i=land[rr()*land.length|0];if(tt[i]!==3&&tt[i]!==4)continue;let ok=1;for(let dy=-3;dy<=3&&ok;dy++)for(let dx=-3;dx<=3;dx++){const u=i%N+dx,v=(i/N|0)+dy;if(u<0||v<0||u>=N||v>=H||tt[v*N+u]<=1){ok=0;break}}if(ok){lakeAt(i,5+(rr()*10|0));break}}
  for(let i=0;i<NH;i++)if(tt[i]<2)rv[i]=0;T=tt;X=xx;RV=rv;O=new Uint16Array(NH)}
 function gen(seed){seed=(seed||'').trim()||Math.random().toString(36).slice(2,8);mkTerrain(seed);cv.width=N*C;cv.height=H*C;TD=1;DQ=[];FX.length=0;SH.length=0;clearN();VER++;OS=null;TLS={};CD={};BL=[];RD=[];LK=0;
- W={year:0,month:0,mana:80,ks:[],log:[],sel:0,sp:2,seed,oil:Array.from({length:N*H},(_,i)=>{const h=Math.imul(i+1,2654435761)>>>0;return T[i]>=2&&T[i]<=5&&((h^(h>>>13))%97===0)?80+((h>>>8)%120):0})};log('Hư vô tan biến, thế giới ra đời (seed: '+seed+'). Hãy gieo mầm sự sống!')}
+ W={year:0,month:0,mana:80,ks:[],factions:[],log:[],sel:0,sp:2,seed,oil:Array.from({length:N*H},(_,i)=>{const h=Math.imul(i+1,2654435761)>>>0;return T[i]>=2&&T[i]<=5&&((h^(h>>>13))%97===0)?80+((h>>>8)%120):0})};log('Hư vô tan biến, thế giới ra đời (seed: '+seed+'). Hãy gieo mầm sự sống!')}
 // ---- pixel art: vẽ địa hình vào canvas ẩn ----
 const S=v=>Math.round(v*C/10),TL=document.createElement('canvas'),tx=TL.getContext('2d');let TD=1,DQ=[];
 const fer=i=>{const t=T[i],x=X[i];let f=t===3?([1,.1,.12,.35][x]??1):t===4?(x===4?.75:.6):t===5?(x===1||x===2?.2:.5):t===6?.2:FERT[t];if(RV[i])f+=.45;return f};
@@ -645,6 +645,60 @@ function fillTerritoryHoles(){
  }
 }
 function alliance(A,B){A.ally[B.id]=B.ally[A.id]=1;sr(A,B,10);log('🤝 '+title(A)+' và '+title(B)+' ký kết liên minh.')}
+function factionOf(k){return (W.factions||[]).find(f=>f.id===k.factionId)||null}
+function factionMembers(f){return W.ks.filter(k=>k.alive&&k.factionId===f.id)}
+function createFaction(k){
+ W.factions??=[];if(factionOf(k))return factionOf(k);
+ const f={id:W.factions.reduce((m,x)=>Math.max(m,x.id||0),0)+1,name:'Khối '+k.name,leader:k.id,members:[k.id],created:W.year*12+(W.month|0)};
+ W.factions.push(f);k.factionId=f.id;log('🏛 '+title(k)+' thành lập '+f.name+'.');return f;
+}
+function joinFaction(k,f){
+ if(!k||!f||k.war&&f.members.some(id=>k.war[id]))return false;
+ const old=factionOf(k);if(old)leaveFaction(k,true);
+ k.factionId=f.id;if(!f.members.includes(k.id))f.members.push(k.id);
+ for(const id of f.members){const o=K(id);if(o&&o.alive&&o!==k){k.ally[o.id]=o.ally[k.id]=1;sr(k,o,8)}}
+ log('🤝 '+title(k)+' gia nhập '+f.name+'.');return true;
+}
+function leaveFaction(k,silent){
+ const f=factionOf(k);if(!f)return;
+ f.members=f.members.filter(id=>id!==k.id);delete k.factionId;
+ for(const id of f.members){const o=K(id);if(o){delete k.ally[id];delete o.ally[k.id]}}
+ if(f.leader===k.id&&f.members.length){const next=factionMembers(f).sort((a,b)=>(b.pop||0)-(a.pop||0))[0];f.leader=next?.id||f.members[0]}
+ if(f.members.length<2)W.factions=W.factions.filter(x=>x.id!==f.id);
+ if(!silent)log('🚪 '+title(k)+' rời khỏi '+f.name+'.');
+}
+function inviteFaction(A,B){
+ let f=factionOf(A);if(!f)f=createFaction(A);
+ if(factionOf(B)?.id===f.id)return toast('Quốc gia đã ở trong phe này.');
+ if(factionOf(B))return toast('Quốc gia đang thuộc một phe khác.');
+ if(A.war[B.id]||(A.rel[B.id]||0)<15)return toast('Quan hệ chưa đủ tốt hoặc đang có chiến tranh.');
+ if(joinFaction(B,f))log('🛡 '+title(B)+' cam kết hỗ trợ phòng thủ cho '+f.name+'.');
+}
+function updateFactions(){
+ W.factions??=[];W.factions=W.factions.filter(f=>factionMembers(f).length>=2);
+ for(const f of W.factions){f.members=factionMembers(f).map(k=>k.id);if(!f.members.includes(f.leader))f.leader=f.members[0]}
+ const alive=W.ks.filter(k=>k.alive);
+ if((W.month|0)!==0)return;
+ for(const k of alive){if(k.id===W.playerId||factionOf(k)||Math.random()>.035)continue;
+  const friend=alive.filter(o=>o!==k&&!factionOf(o)&&!k.war[o.id]&&(k.rel[o.id]||0)>=38).sort((a,b)=>(k.rel[b.id]||0)-(k.rel[a.id]||0))[0];
+  if(friend){const f=createFaction(k);joinFaction(friend,f)}
+ }
+ for(const f of W.factions){const leader=K(f.leader);if(!leader||leader.id===W.playerId)continue;
+  for(const k of alive){if(k.id===W.playerId||f.members.includes(k.id)||factionOf(k)||k.war[leader.id])continue;
+   if((k.rel[leader.id]||0)>=48&&Math.random()<.045)joinFaction(k,f);
+  }
+ }
+}
+function factionPanel(k){
+ const f=factionOf(k),all=W.factions||[];
+ let h='<div class="rpsection"><b>🏛 LIÊN MINH & PHE PHÁI</b>';
+ if(f){const members=factionMembers(f);h+='<div><strong>'+f.name+'</strong><small> · '+members.length+' thành viên · Lãnh đạo: '+(K(f.leader)?.name||'—')+'</small></div><small>'+members.map(m=>m.name).join(' · ')+'</small><div class="row2"><button class="pb" data-fa="leave" data-k="'+k.id+'">🚪 Rời phe</button></div>'}
+ else h+='<small>Quốc gia chưa thuộc phe phái nào.</small><div class="row2"><button class="pb" data-fa="create" data-k="'+k.id+'">🏛 Thành lập phe mới</button></div>';
+ const others=all.filter(x=>!f||x.id!==f.id);
+ if(others.length)h+='<small>Phe phái đang tồn tại</small>'+others.map(x=>'<div class="rl"><span>'+x.name+' · '+factionMembers(x).length+' nước</span><button class="pb" data-fa="join" data-k="'+k.id+'" data-f="'+x.id+'">Gia nhập</button></div>').join('');
+ return h+'</div>';
+}
+
 /* WD = hệ số thiệt hại chiến tranh (1 = gốc, nhỏ hơn = nhẹ hơn, chiến tranh kéo dài hơn) */
 const WD=.3;
 function war(p,q){if(p.war[q.id])return;p.war[q.id]=q.war[p.id]=1;agk(p)[q.id]=1;if(q.aggr)delete q.aggr[p.id];delete p.ally[q.id];delete q.ally[p.id];sr(p,q,-40);log('⚔️ '+title(p)+' tuyên chiến với '+title(q)+'!');
@@ -820,7 +874,7 @@ function checkWorldConquest(){
  k.ideo='dict';k.flag={dict:1};k.loy=Math.min(k.loy,12);
  log('🏴 '+title(k)+' đã thống nhất toàn bộ thế giới! Chính quyền chuyển sang chế độ độc tài khắc nghiệt: quyền tự do bị siết chặt, lòng trung thành của dân chúng giảm mạnh; quốc kỳ và huy hiệu mới được ban hành.');
 }
-function step(){W.month=(W.month|0)+1;if(W.month>=12){W.month=0;W.year++}for(let i=FX.length;i--;)if(--FX[i][1]<=0)FX.splice(i,1);for(let i=SH.length;i--;)if(--SH[i].l<=0)SH.splice(i,1);DBL=BL.filter(b=>b.p>=b.n&&bd(b.t)[10]==='d');const fe=new Float64Array(W.ks.length+1),n=new Uint32Array(W.ks.length+1),pr=new Map(),BP=new Map(),tl={};let tp=0;const rb=[],sc=[];
+function step(){W.month=(W.month|0)+1;if(W.month>=12){W.month=0;W.year++}updateFactions();for(let i=FX.length;i--;)if(--FX[i][1]<=0)FX.splice(i,1);for(let i=SH.length;i--;)if(--SH[i].l<=0)SH.splice(i,1);DBL=BL.filter(b=>b.p>=b.n&&bd(b.t)[10]==='d');const fe=new Float64Array(W.ks.length+1),n=new Uint32Array(W.ks.length+1),pr=new Map(),BP=new Map(),tl={};let tp=0;const rb=[],sc=[];
  for(let i=0;i<N*H;i++){const a=O[i];if(!a)continue;n[a]=(n[a]||0)+1;(tl[a]||(tl[a]=[])).push(i);fe[a]=(fe[a]||0)+fer(i)*(K(a).race.pt.includes(T[i])?1.4:1);
   const j=i%N<N-1?i+1:-1;if(j>=0){const b=O[j];if(b&&b!==a){const q=Math.min(a,b)*1000+Math.max(a,b);pr.set(q,[a,b]);if(K(a).war[b]){let l=BP.get(q);if(!l)BP.set(q,l=[]);l.push(i,j)}}}const d=i+N;if(d<N*H){const b=O[d];if(b&&b!==a){const q=Math.min(a,b)*1000+Math.max(a,b);pr.set(q,[a,b]);if(K(a).war[b]){let l=BP.get(q);if(!l)BP.set(q,l=[]);l.push(i,d)}}}}
  TLS=tl;
@@ -844,7 +898,7 @@ function detail(k){const g=k.king,a=k.pol&&pol(k.pol.id),ws=Object.keys(k.war).f
  h+='<small>👑 '+rt(k)+' '+g.n+'</small>';{const r=roles(k),nm=l=>l.map(o=>o.name).join(', ');if(r.atk.length)h+='<small>🗡️ Đang tấn công: '+nm(r.atk)+'</small>';if(r.def.length)h+='<small>🛡️ Đang phòng thủ trước: '+nm(r.def)+'</small>';if(r.unk.length)h+='<small>⚔️ Đang giao chiến với: '+nm(r.unk)+'</small>'}
  const os=W.ks.filter(o=>o.alive&&o!==k).sort((x,y)=>Math.abs(k.rel[y.id]||0)-Math.abs(k.rel[x.id]||0)).slice(0,7);
  let dp=os.length?'<small>Ngoại giao (6–8 thần lực)</small>':'<small>Chưa có nước nào khác.</small>';
- for(const o of os){const r=k.rel[o.id]||0,d=' data-k="'+k.id+'" data-o="'+o.id+'"';dp+='<div class="rl"><span>'+o.race.e+' '+o.name+' <small style="display:inline">'+(r>0?'+':'')+(r|0)+(k.ally[o.id]?' 🤝':'')+(k.war[o.id]?' ⚔️':'')+'</small></span><button data-a="peace"'+d+'>🕊</button><button data-a="ally"'+d+'>🤝</button><button data-a="war"'+d+'>⚔️</button></div>'}
+ for(const o of os){const r=k.rel[o.id]||0,d=' data-k="'+k.id+'" data-o="'+o.id+'"';dp+='<div class="rl"><span>'+o.race.e+' '+o.name+' <small style="display:inline">'+(r>0?'+':'')+(r|0)+(k.ally[o.id]?' 🤝':'')+(k.war[o.id]?' ⚔️':'')+(factionOf(o)?' 🏛':'')+'</small></span><button data-a="peace"'+d+'>🕊</button><button data-a="ally"'+d+'>🤝</button><button data-a="war"'+d+'>⚔️</button>'+(k.factionId&& !factionOf(o)?'<button data-fa="invite"'+d+'>➕Phe</button>':(!k.factionId&&factionOf(o)?'<button data-fa="join"'+d+' data-f="'+factionOf(o).id+'">Vào phe</button>':''))+'</div>'}
  h+=sec('fam','🌳 Gia phả & kế vị',dynastyHtml(k));
  const ec=econOf(k),oilTiles=tilesOf(k).filter(i=>(W.oil?.[i]||0)>0).length;
  let eh='<div class="econ"><div><small>GDP ước tính</small><b>📈 '+Math.round(ec.gdp)+'</b></div><div><small>Ngân khố</small><b>💰 '+Math.round(ec.cash)+'</b></div><div><small>Dầu dự trữ</small><b>🛢️ '+ec.oil.toFixed(1)+'</b></div><div><small>Công nghiệp</small><b>⚙️ '+ec.industry.toFixed(1)+'</b></div><div><small>Thất nghiệp</small><b>👷 '+ec.unemployment.toFixed(1)+'%</b></div><div><small>Mỏ dầu đang kiểm soát</small><b>⛽ '+oilTiles+'</b></div></div><small>Dầu được khai thác tự động từ các mỏ trong lãnh thổ. Nhà máy và công nghệ làm tăng năng lực công nghiệp; quân đội và nhà máy tiêu thụ ngân sách, nhiên liệu.</small>';
@@ -852,6 +906,7 @@ function detail(k){const g=k.king,a=k.pol&&pol(k.pol.id),ws=Object.keys(k.war).f
  const policyButtons=ids=>'<div class="row2">'+POL.filter(p=>ids.includes(p.id)).map(p=>'<button class="pb" data-p="'+p.id+'" data-k="'+k.id+'">'+p.e+' '+p.n+' ❤'+(p.now>0?'+':'')+p.now+' · '+p.c+'</button>').join('')+'</div>';
  const armyPlan=eqHtml(k)+'<small>Biện pháp quân sự</small>'+policyButtons(['wall','draft']);
  const adminPlan='<small>'+(a?a.e+' '+a.n+' (còn '+k.pol.l+' lượt)':'Chưa có chính sách đang áp dụng')+'</small>'+policyButtons(['tax_low','feast','amnesty','tax_high','study']);
+ h+=sec('fac','🏛 Liên minh & phe phái',factionPanel(k));
  h+=sec('gov','🧭 Đường lối điều hành',sec('govArmy','🛡 Quân đội',armyPlan)+sec('govDip','🤝 Ngoại giao',dp)+sec('govAdmin','🏛 Điều hành',adminPlan));
  let ds='<small>'+ERA[Math.min(5,k.tech|0)]+(k.ideo?' · '+IDE[k.ideo].n:'')+' · 💪 '+fmt(str(k)*100)+bfs(k)+'</small>';
  ds+='<small>👑 '+(rep_(k)?'':'niên hiệu “'+g.h+'” · ')+TR[g.t][0]+' · '+Math.round(g.age*k.race.life)+' tuổi · '+(k.dynasty?.history?.length||1)+' đời kế vị</small>';
@@ -871,7 +926,7 @@ function roleplayDashboard(k){
  return '<section class="rpboard"><div class="rptop"><div><b>🏛 TỔNG QUAN QUỐC GIA</b><small>'+flagSVG(k,16)+' '+k.name+' · '+ideology+'</small></div><button data-rp="manage">Quản lý ›</button></div>'+
  '<div class="rpstats">'+stat('Dân số','👥 '+fmt(k.pop*100),k.n+' ô lãnh thổ','👨‍👩‍👧')+stat('Quân đội','🛡 '+fmt(k.army*100),wars?'Đang tham chiến: '+wars:'Không có chiến tranh','⚔️')+stat('Ngân khố','💰 '+Math.round(e.cash),'GDP '+Math.round(e.gdp),'🏦')+stat('Công nghiệp','⚙️ '+e.industry.toFixed(1),'Thất nghiệp '+e.unemployment.toFixed(1)+'%','🏭')+'</div>'+
  '<div class="rpsection"><div class="rplabel"><b>❤️ TÌNH HÌNH TRONG NƯỚC</b><strong style="color:'+loyColor+'">'+loy+'/100 · '+status+'</strong></div><div class="rpbar"><i style="width:'+loy+'%;background:'+loyColor+'"></i></div><div class="rpfoot"><span>👑 '+rt(k)+' '+k.king.n+'</span><span>📜 '+(policy?policy.n+' · '+k.pol.l+' lượt':'Chưa có chính sách')+'</span></div></div>'+
- '<div class="rpcols"><div class="rpmini"><b>🤝 ĐỐI NGOẠI</b><strong>'+allies+' liên minh</strong><small>'+wars+' cuộc chiến đang diễn ra</small></div><div class="rpmini"><b>🔬 PHÁT TRIỂN</b><strong>'+ERA[Math.min(5,k.tech|0)]+'</strong><small>💡 Công nghệ '+k.tech.toFixed(1)+' · 🏙 '+(k.cities?.length||0)+' thành phố</small></div></div>'+
+ '<div class="rpcols"><div class="rpmini"><b>🤝 ĐỐI NGOẠI</b><strong>'+allies+' hiệp ước · '+(factionOf(k)?.name||'Chưa có phe')+'</strong><small>'+wars+' cuộc chiến đang diễn ra</small></div><div class="rpmini"><b>🔬 PHÁT TRIỂN</b><strong>'+ERA[Math.min(5,k.tech|0)]+'</strong><small>💡 Công nghệ '+k.tech.toFixed(1)+' · 🏙 '+(k.cities?.length||0)+' thành phố</small></div></div>'+
  '<div class="rpsection"><div class="rplabel"><b>📰 BIẾN ĐỘNG GẦN ĐÂY</b><span class="mu">3 tin mới nhất</span></div>'+(recent.length?recent.map(x=>'<div class="rpnews">'+x+'</div>').join(''):'<small class="mu">Chưa có sự kiện đáng chú ý.</small>')+'</div>'+
  '<div class="rpactions"><button data-rp="manage">👑 Mở bảng điều hành</button><small>Ban hành chính sách, quản lý quân đội và ngoại giao.</small></div></section>';
 }
@@ -883,7 +938,7 @@ function ui(){const bt=BLD.find(b=>'x_'+b[0]===cur);if($('#ri'))$('#ri').textCon
  setH($('#chips'),TOOLS[grp][1].map(t=>'<button data-t="'+t[0]+'" class="'+(t[0]===cur?'on':'')+'">'+t[1]+'</button>').join(''));$('#chips').hidden=!!sys||!!W.playerId;$('#sys').hidden=!sys;$('#sy').classList.toggle('on',!!sys);
  document.querySelectorAll('[data-s]').forEach(b=>b.classList.toggle('on',+b.dataset.s===W.sp))}
 const kh=e=>{const b=e.target.closest('button');
- if(b){if(b.dataset.citycfg){const d=cd(+b.dataset.ci);d.plan??={priority:'balanced',budget:'normal',layout:'organic'};const lists={priority:['balanced','commerce','industry','agriculture','military','culture'],budget:['low','normal','high'],layout:['organic','compact','spread']},key=b.dataset.citycfg,arr=lists[key],ix=arr.indexOf(d.plan[key]);d.plan[key]=arr[(ix+1)%arr.length];ui();draw();return}if(b.dataset.eqf){eqOf(K(+b.dataset.k)).f=b.dataset.eqf;ui();return}if(b.dataset.eqb){const k=K(+b.dataset.k);if(pay(10)){eqOf(k).b=12;log('🏭 Thần lực thúc đẩy các xưởng vũ khí của '+title(k)+' làm việc hết công suất.')}ui();return}if(b.dataset.p){const target=K(+b.dataset.k);enact(target,b.dataset.p,target.id!==W.playerId);ui();return}const A=K(+b.dataset.k),B=K(+b.dataset.o),a=b.dataset.a;
+ if(b){if(b.dataset.fa){const A=K(+b.dataset.k),divine=A&&A.id!==W.playerId;if(!A)return;if(b.dataset.fa==='create'){if(!divine||pay(10))createFaction(A)}else if(b.dataset.fa==='leave'){leaveFaction(A)}else if(b.dataset.fa==='invite'){const B=K(+b.dataset.o);if(B&&(!divine||pay(8)))inviteFaction(A,B)}else if(b.dataset.fa==='join'){const f=(W.factions||[]).find(x=>x.id===+(b.dataset.f||0))||factionOf(K(+b.dataset.o));if(f&&(!divine||pay(8))){if((A.rel[f.leader]||0)<15)toast('Quan hệ với phe này chưa đủ tốt');else joinFaction(A,f)}}ui();draw();return}if(b.dataset.citycfg){const d=cd(+b.dataset.ci);d.plan??={priority:'balanced',budget:'normal',layout:'organic'};const lists={priority:['balanced','commerce','industry','agriculture','military','culture'],budget:['low','normal','high'],layout:['organic','compact','spread']},key=b.dataset.citycfg,arr=lists[key],ix=arr.indexOf(d.plan[key]);d.plan[key]=arr[(ix+1)%arr.length];ui();draw();return}if(b.dataset.eqf){eqOf(K(+b.dataset.k)).f=b.dataset.eqf;ui();return}if(b.dataset.eqb){const k=K(+b.dataset.k);if(pay(10)){eqOf(k).b=12;log('🏭 Thần lực thúc đẩy các xưởng vũ khí của '+title(k)+' làm việc hết công suất.')}ui();return}if(b.dataset.p){const target=K(+b.dataset.k);enact(target,b.dataset.p,target.id!==W.playerId);ui();return}const A=K(+b.dataset.k),B=K(+b.dataset.o),a=b.dataset.a;
   const divine=A.id!==W.playerId;if(a==='peace'&&(!divine||pay(6))){delete A.war[B.id];delete B.war[A.id];sr(A,B,30);log((divine?'🕊 Điềm lành từ thần linh giúp ':'🕊 Chính phủ '+title(A)+' chủ động hòa giải với ')+title(B)+'.')}
   if(a==='ally'){if((A.rel[B.id]||0)<0)toast('Quan hệ quá căng thẳng, hãy hòa giải trước');else if(A.war[B.id])toast('Đang có chiến tranh');else if(!divine||pay(8))alliance(A,B)}
   if(a==='war'&&(!divine||pay(8)))war(A,B);ui();draw();return}
@@ -900,7 +955,7 @@ let sys=0,kv=0,kO={gov:1,govArmy:1};const setH=(el,h)=>{if(el._h!==h){el._h=h;el
 $('#sy').onclick=()=>{sys=!sys;ui()};const tb=$('#tb'),fitTb=()=>document.documentElement.style.setProperty('--tbh',tb.offsetHeight+'px');$('#tg').onclick=()=>{const m=tb.classList.toggle('min');$('#tg').textContent=m?'▴':'▾';$('#tg').setAttribute('aria-expanded',!m);fitTb()};if(window.ResizeObserver)new ResizeObserver(fitTb).observe(tb);fitTb();
 const SK='than-gioi-save';
 $('#sv').onclick=()=>{try{localStorage.setItem(SK,JSON.stringify({T:Array.from(T),O:Array.from(O),X:Array.from(X),RV:Array.from(RV),n:N,c:C,cfg:CFG,W,CD,BL,RD}));toast('💾 Đã lưu thế giới (năm '+W.year+', tháng '+mo()+')')}catch(e){toast('Không thể lưu trên thiết bị này')}};
-$('#ld').onclick=()=>{try{const d=JSON.parse(localStorage.getItem(SK));if(!d)return toast('Chưa có bản lưu nào');const sn=d.n||88;if(d.T.length!==sn*sn)return toast('Bản lưu không tương thích');N=H=sn;C=d.c||10;CFG=d.cfg||CFG;X=d.X?Uint8Array.from(d.X):new Uint8Array(N*H);RV=d.RV?Uint8Array.from(d.RV):new Uint8Array(N*H);cv.width=N*C;cv.height=H*C;TD=1;VER++;OS=null;TLS={};T=Uint8Array.from(d.T);O=Uint16Array.from(d.O);W=d.W;W.oil??=Array.from({length:N*H},(_,i)=>{const h=Math.imul(i+1,2654435761)>>>0;return T[i]>=2&&T[i]<=5&&((h^(h>>>13))%97===0)?80+((h>>>8)%120):0});W.ks.forEach(k=>{k.econ??={cash:35,oil:0,gdp:0,industry:1,unemployment:8,exports:0}});W.sel=0;if(W.month===undefined){const t=Math.round(W.year/5);W.year=t/12|0;W.month=t%12}CD=d.CD||{};BL=d.BL||[];RD=d.RD||[];LK=0;SH.length=0;W.ks.forEach(k=>{k.race=R[k.rid];k.army??=k.pop*mil(k);k.loy??=70;k.fav??=0;k.inv??=[];if(!k.king)mkKing(k,1);if(!k.dynasty){const oldKing={...k.king};initDynasty(k);const p=k.dynasty.people.find(x=>x.id===k.king.pid);if(p){p.name=oldKing.n||p.name;p.age=oldKing.age||p.age;k.king={...oldKing,pid:p.id};k.dynasty.history[0].title=oldKing.h||k.king.h}}k.bld??=[];k.cities??=[];k.cname??=rnd(SY)+rnd(SY).toLowerCase();k.pol??=null;k.bf??={food:0,war:0,peace:0}});W.sp=2;draw();ui();run();toast('📂 Đã tải thế giới (năm '+W.year+', tháng '+mo()+')')}catch(e){toast('Không đọc được bản lưu')}};
+$('#ld').onclick=()=>{try{const d=JSON.parse(localStorage.getItem(SK));if(!d)return toast('Chưa có bản lưu nào');const sn=d.n||88;if(d.T.length!==sn*sn)return toast('Bản lưu không tương thích');N=H=sn;C=d.c||10;CFG=d.cfg||CFG;X=d.X?Uint8Array.from(d.X):new Uint8Array(N*H);RV=d.RV?Uint8Array.from(d.RV):new Uint8Array(N*H);cv.width=N*C;cv.height=H*C;TD=1;VER++;OS=null;TLS={};T=Uint8Array.from(d.T);O=Uint16Array.from(d.O);W=d.W;W.oil??=Array.from({length:N*H},(_,i)=>{const h=Math.imul(i+1,2654435761)>>>0;return T[i]>=2&&T[i]<=5&&((h^(h>>>13))%97===0)?80+((h>>>8)%120):0});W.ks.forEach(k=>{k.econ??={cash:35,oil:0,gdp:0,industry:1,unemployment:8,exports:0}});W.sel=0;if(W.month===undefined){const t=Math.round(W.year/5);W.year=t/12|0;W.month=t%12}CD=d.CD||{};BL=d.BL||[];RD=d.RD||[];LK=0;SH.length=0;W.factions??=[];W.ks.forEach(k=>{k.factionId??=null;k.race=R[k.rid];k.army??=k.pop*mil(k);k.loy??=70;k.fav??=0;k.inv??=[];if(!k.king)mkKing(k,1);if(!k.dynasty){const oldKing={...k.king};initDynasty(k);const p=k.dynasty.people.find(x=>x.id===k.king.pid);if(p){p.name=oldKing.n||p.name;p.age=oldKing.age||p.age;k.king={...oldKing,pid:p.id};k.dynasty.history[0].title=oldKing.h||k.king.h}}k.bld??=[];k.cities??=[];k.cname??=rnd(SY)+rnd(SY).toLowerCase();k.pol??=null;k.bf??={food:0,war:0,peace:0}});W.sp=2;draw();ui();run();toast('📂 Đã tải thế giới (năm '+W.year+', tháng '+mo()+')')}catch(e){toast('Không đọc được bản lưu')}};
 
 $('#zm').onclick=e=>{z=!z;cv.style.width=z?'calc(min(100cqw,100cqh) * '+(N>=384?10:N>=256?7:N>=176?5.2:N>=128?3.8:N<=56?1.7:2.3)+')':'';setTimeout(draw,0);e.target.textContent=z?'🗺 Thu nhỏ':'🔎 Phóng to'};$('#cbt').onclick=e=>{CBon=!CBon;e.target.classList.toggle('on',CBon);draw()};$('#pn').onclick=e=>{pan=!pan;cv.style.touchAction=pan?'auto':'none';e.target.classList.toggle('on',pan)};
 function lbl(){for(const s of SL)$('#l_'+s[0]).textContent=s[1]+' '+CFG[s[0]]+'%'+(s[0]==='land'?' · Biển '+(100-CFG.land)+'%':'')}
