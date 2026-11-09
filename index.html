@@ -267,7 +267,7 @@ function queueMarch(k,target){
  if(p.length>1)queueMarchPath(k,p);
 }
 function drawArmies(){
- const now=Date.now(),rate=[0,.65,1,1.7,2.5,4,7][W.sp]||0;
+ const now=Date.now(),rate=[0,6.5,10,17,25,40,70][W.sp]||0;
  for(let z=AR.length-1;z>=0;z--){
   const a=AR[z],k=K(a.id);
   if(!k||!k.alive||a.p>=1){AR.splice(z,1);continue}
@@ -372,7 +372,7 @@ function paint(){renderT();if(OLVER!==VER){if(updOL())VER++;OLVER=VER}const sc=(
    if(xi<N-1&&E2(i+1))cx.fillRect(x+C-3,y,3,C);if(xi>0&&E2(i-1))cx.fillRect(x,y,3,C);if(yi<H-1&&E2(i+N))cx.fillRect(x,y+C-3,C,3);if(yi>0&&E2(i-N))cx.fillRect(x,y,C,3)}},120);
   cx.globalAlpha=.55+.45*(.5+.5*Math.sin(Date.now()/150));cx.drawImage(wl,0,0);cx.globalAlpha=1}
  for(let q=Math.max(0,FX.length-150);q<FX.length;q++){const f=FX[q];cx.globalAlpha=Math.min(1,f[1]/2);E(cx,f[2]||'💥',(f[0]%N+.5)*C,((f[0]/N|0)+.5)*C,16)}cx.globalAlpha=1;
- const sid=W.sel,sk=sid&&K(sid);if(sk&&sk.alive){const SV=sid+'|'+V,yl=lyr('sy',SV,()=>{const fz=sk.n>=30?new Set(farInfo(sk).far.map(f=>f[0])):null;for(const i of tilesOf(sk)){const xi=i%N,yi=i/N|0,x=xi*C,y=yi*C;if(fz&&fz.has(i)){cx.fillStyle='rgba(120,0,0,.4)';cx.fillRect(x,y,C,C)}cx.fillStyle='#ffe066';if(xi===0||O[i-1]!==sid)cx.fillRect(x,y,2.5,C);if(xi===N-1||O[i+1]!==sid)cx.fillRect(x+C-2.5,y,2.5,C);if(yi===0||O[i-N]!==sid)cx.fillRect(x,y,C,2.5);if(yi===H-1||O[i+N]!==sid)cx.fillRect(x,y+C-2.5,C,2.5)}},120),
+ const sid=W.sel,sk=sid&&K(sid);if(!W.playerId&&sk&&sk.alive){const SV=sid+'|'+V,yl=lyr('sy',SV,()=>{const fz=sk.n>=30?new Set(farInfo(sk).far.map(f=>f[0])):null;for(const i of tilesOf(sk)){const xi=i%N,yi=i/N|0,x=xi*C,y=yi*C;if(fz&&fz.has(i)){cx.fillStyle='rgba(120,0,0,.4)';cx.fillRect(x,y,C,C)}cx.fillStyle='#ffe066';if(xi===0||O[i-1]!==sid)cx.fillRect(x,y,2.5,C);if(xi===N-1||O[i+1]!==sid)cx.fillRect(x+C-2.5,y,2.5,C);if(yi===0||O[i-N]!==sid)cx.fillRect(x,y,C,2.5);if(yi===H-1||O[i+N]!==sid)cx.fillRect(x,y+C-2.5,C,2.5)}},120),
    wh=lyr('sw',SV,()=>{cx.fillStyle='#fff';for(const i of tilesOf(sk))cx.fillRect(i%N*C,(i/N|0)*C,C,C)},120);cx.globalAlpha=.14+.12*Math.sin(Date.now()/230);cx.drawImage(wh,0,0);cx.globalAlpha=1;cx.drawImage(yl,0,0)}
  cx.drawImage(lyr('top',V+'|'+sc.toFixed(2),()=>{for(const k of W.ks)if(k.alive)E(cx,R[k.rid].e,k.cap%N*C+C/2,(k.cap/N|0)*C+C/2+1,18);drawNames()},220),0,0);drawShips(sc)}
 function livingKingdomCount(){return W.ks.filter(k=>k.alive).length}
@@ -969,7 +969,7 @@ let down=0;const pt=e=>{const r=cv.getBoundingClientRect();return[Math.floor((e.
 cv.onpointerdown=e=>{if(pan)return;down=1;const[x,y]=pt(e);use(cur,x,y,0);draw();ui()};
 cv.onpointermove=e=>{if(down){const[x,y]=pt(e);use(cur,x,y,1);draw()}};
 addEventListener('pointerup',()=>{down=0;ui()});
-function run(){clearInterval(tm);const ms=[0,2200,1200,650,460,320,220][W.sp];if(ms){const tick=()=>{if(!W||!W.sp)return;let failed=false;try{step()}catch(err){failed=true;W.sp=0;console.error('Thần Giới simulation tick failed:',err);toast('⚠️ Mô phỏng gặp lỗi, đã tạm dừng để tránh treo giao diện.')}finally{draw();try{ui()}catch(err){console.error('Thần Giới UI refresh failed:',err);toast('⚠️ Lỗi giao diện: '+(err&&err.message?err.message:String(err)).slice(0,110))}}if(failed||!$('#gameover').hidden)return;tm=setTimeout(tick,ms)};tm=setTimeout(tick,ms)}}
+function run(){clearInterval(tm);const ms=[0,220,120,65,46,32,22][W.sp];if(ms){const tick=()=>{if(!W||!W.sp)return;let failed=false;try{step()}catch(err){failed=true;W.sp=0;console.error('Thần Giới simulation tick failed:',err);toast('⚠️ Mô phỏng gặp lỗi, đã tạm dừng để tránh treo giao diện.')}finally{draw();try{ui()}catch(err){console.error('Thần Giới UI refresh failed:',err);toast('⚠️ Lỗi giao diện: '+(err&&err.message?err.message:String(err)).slice(0,110))}}if(failed||!$('#gameover').hidden)return;tm=setTimeout(tick,ms)};tm=setTimeout(tick,ms)}}
 
 function startGame(mode){
  clearTimeout(tm);clearInterval(tm);$('#gameover').hidden=true;
