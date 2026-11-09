@@ -937,7 +937,7 @@ function startGame(mode){
   if(best<0)break;
   const x=best%N,y=best/N|0;chosen.push({x,y});spawn(race,x,y);
  }
- W.playerId=0;draw();ui();run();showRoleSelection();
+ W.playerId=0;W.sp=0;draw();ui();showRoleSelection();
 }
 function grantPlayerOil(k){
  const owned=tilesOf(k);if(!owned.length)return;
@@ -961,7 +961,7 @@ function showRoleSelection(){
  const modes=box.querySelector('.modes');
  modes.innerHTML=W.ks.filter(k=>k.alive).map(k=>'<button class="mode" data-country="'+k.id+'"><span class="ico">'+k.race.e+'</span><span><b>'+k.name+'</b><small>'+flagSVG(k,16)+' · '+rt(k)+' '+k.king.n+' · '+(k.ideo?IDE[k.ideo].n:'Chưa định hình đường lối')+'</small></span><span class="go">›</span></button>').join('');
  box.querySelector('.note').textContent='Bạn sẽ điều hành quốc gia đã chọn; các nước còn lại do AI quản lý.';
- modes.onclick=e=>{const b=e.target.closest('[data-country]');if(!b)return;const id=+b.dataset.country,k=K(id);if(!k||!k.alive)return;W.playerId=id;grantPlayerOil(k);box.hidden=true;log('👑 '+k.king.n+' chính thức nắm quyền lãnh đạo '+title(k)+'. Vận mệnh quốc gia giờ nằm trong tay bạn.');kv=id;W.sel=id;$('#kg').hidden=false;ui();draw();};
+ modes.onclick=e=>{const b=e.target.closest('[data-country]');if(!b)return;const id=+b.dataset.country,k=K(id);if(!k||!k.alive)return;W.playerId=id;grantPlayerOil(k);box.hidden=true;log('👑 '+k.king.n+' chính thức nắm quyền lãnh đạo '+title(k)+'. Vận mệnh quốc gia giờ nằm trong tay bạn.');kv=id;W.sel=id;W.sp=2;$('#kg').hidden=false;draw();ui();run();};
 }
 $('#mode-free').onclick=()=>startGame('free');
 $('#mode-roleplay').onclick=()=>startGame('roleplay');
