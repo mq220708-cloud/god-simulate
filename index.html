@@ -1046,7 +1046,7 @@ function makeCivilization(k,index){
   population:k.pop,stability:70,centralization:origin==='east'?18:origin==='west'?10:14,
   culture:{east:origin==='east'?65:origin==='west'?10:40,west:origin==='west'?65:origin==='east'?10:40,hybrid:origin==='mixed'?20:5},
   society:{classes:{hunters:45,gatherers:30,herders:15,leaders:10}},
-  resources:{food:Math.max(20,k.pop*7),wood:n*1.8,stone:n*1.2,copper:0,tin:0,iron:0,l livestock:0},
+  resources:{food:Math.max(20,k.pop*7),wood:n*1.8,stone:n*1.2,copper:0,tin:0,iron:0,livestock:0},
   natural:{food:Math.max(30,n*fertility*8),wood:n*5,stone:n*4,copper:n*.15,tin:n*.08,iron:n*.2},
   production:{food:0,wood:0,stone:0},lastEventYear:0};
 }
