@@ -117,7 +117,7 @@ h3{font-family:Georgia,serif;margin:14px 0 6px;font-size:17px}
 
 #lobby{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:22px;background:radial-gradient(ellipse at 50% 20%,rgba(58,105,145,.35),transparent 55%),linear-gradient(145deg,#0b1724,#142b40 60%,#101b2a);color:#edf4fb;overflow:auto}
 #lobby .lbox{width:min(100%,560px);margin:auto}#lobby .brand{text-align:center;margin-bottom:26px}#lobby .brand .sig{font-size:44px;line-height:1.2}#lobby h1{font:700 34px Georgia,serif;margin:8px 0 5px;letter-spacing:.5px}#lobby .sub{color:#a9bdcf;font-size:14px}#lobby .modes{display:grid;grid-template-columns:1fr;gap:12px}#lobby .mode{display:flex;align-items:center;gap:14px;width:100%;padding:16px;text-align:left;white-space:normal;border:1px solid #38536c;border-radius:15px;background:rgba(27,48,69,.92);color:#edf4fb;transition:transform .15s,border-color .15s}#lobby .mode:active{transform:scale(.985)}#lobby .mode .ico{font-size:34px;flex:none;width:48px;text-align:center}#lobby .mode b{display:block;font-size:17px;margin-bottom:3px}#lobby .mode small{display:block;color:#b4c5d3;font-size:12px;line-height:1.4}#lobby .mode .go{margin-left:auto;color:#f2c14e;font-size:22px}#lobby .note{text-align:center;color:#8ea5b8;font-size:11px;margin-top:18px}
-#gameover .pn{text-align:center;padding:26px 20px}#gameover .goicon{font-size:58px}#gameover h2{font:700 30px Georgia,serif;margin:8px 0;color:#d94b4b}#gameover p{color:var(--mu);margin:6px 0 18px}#gameover .gobtns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}#gameover .gobtns button{padding:10px 16px}
+.rpconfig{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:4px 0}.rpconfig label{display:flex;flex-direction:column;gap:5px;color:#c9d7e3;font-size:12px}.rpconfig input,.rpconfig select{width:100%;min-width:0;padding:10px;border:1px solid #38536c;border-radius:9px;background:#102235;color:#edf4fb;font:inherit}.rpconfignote{grid-column:1/-1;color:#a9bdcf;font-size:12px;line-height:1.5;padding:8px 10px;border:1px solid #38536c;border-radius:9px;background:rgba(27,48,69,.7)}.rpconfigbuttons{grid-column:1/-1;display:flex;justify-content:space-between;gap:8px}.rpconfigbuttons button{white-space:normal}@media(max-width:440px){.rpconfig{grid-template-columns:1fr}.rpconfignote,.rpconfigbuttons{grid-column:1}}#gameover .pn{text-align:center;padding:26px 20px}#gameover .goicon{font-size:58px}#gameover h2{font:700 30px Georgia,serif;margin:8px 0;color:#d94b4b}#gameover p{color:var(--mu);margin:6px 0 18px}#gameover .gobtns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}#gameover .gobtns button{padding:10px 16px}
 </style></head><body><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div><div id="app">
 <div id="mapw"><canvas id="cv"></canvas></div>
 </div><div id="tb"><div id="tbi">
@@ -125,7 +125,7 @@ h3{font-family:Georgia,serif;margin:14px 0 6px;font-size:17px}
 <div id="tx"><div class="row" id="tr"><div id="tabs"></div><button id="kb" aria-label="Vương quốc" title="Vương quốc">👑</button><button id="cb" aria-label="Biên niên sử" title="Biên niên sử">📜</button><button id="sy" aria-label="Hệ thống: thế giới, bản đồ, lưu/tải" title="Hệ thống">⚙</button></div>
 <div class="row" id="chips"></div>
 <div class="row" id="sys" hidden><button id="nw">🌍 Thế giới mới</button><button id="zm">🔎 Phóng to</button><button id="pn">✋ Kéo bản đồ</button><button id="cbt" class="on">🏙 Biên giới TP</button><button id="sv">💾 Lưu</button><button id="ld">📂 Tải</button><small id="sdl" class="mu"></small></div></div>
-<div id="tbs"><small id="ri"></small></div>
+<div id="tbs"><small id="ri"></small><div id="rpview" hidden></div></div>
 </div></div>
 <div id="kg" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="kgt"><div class="pn"><div class="ph"><button id="kback" hidden aria-label="Quay lại">←</button><b id="kgt">👑 Vương quốc</b><small></small><button id="kgx" aria-label="Đóng">✕</button></div><div class="ob"><div id="kl"></div><div id="kd" hidden></div><small id="khint" class="mu">Chạm hoặc kéo trên bản đồ để dùng quyền năng. Bấm 🔎 để phóng to, ✋ để cuộn bản đồ. Thần lực hồi theo số tín đồ. Khu trong thành: ⭐ trung tâm · 🏠 dân cư · ⚒ sản xuất · 🛡 phòng thủ.</small></div></div></div>
 <div id="wm" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="wmt"><div class="pn"><div class="ph"><b id="wmt">🌍 Thế giới mới</b><small></small><button id="wx" aria-label="Đóng">✕</button></div><div class="ob"><div id="wp"></div></div></div></div>
@@ -875,7 +875,7 @@ function roleplayDashboard(k){
  '<div class="rpsection"><div class="rplabel"><b>📰 BIẾN ĐỘNG GẦN ĐÂY</b><span class="mu">3 tin mới nhất</span></div>'+(recent.length?recent.map(x=>'<div class="rpnews">'+x+'</div>').join(''):'<small class="mu">Chưa có sự kiện đáng chú ý.</small>')+'</div>'+
  '<div class="rpactions"><button data-rp="manage">👑 Mở bảng điều hành</button><small>Ban hành chính sách, quản lý quân đội và ngoại giao.</small></div></section>';
 }
-function ui(){const bt=BLD.find(b=>'x_'+b[0]===cur);if($('#ri'))$('#ri').textContent=sys?'':R[cur]?raceInfo(R[cur]):bt?bt[2]+' (công nghệ ≥ '+bt[3]+'): '+bt[4]+' Cần 🪵'+bt[11][0]+' 🪨'+bt[11][1]+' 💰'+bt[11][2]+', xây '+bt[12]+' lượt. Chạm vào lãnh thổ để xây.':cur==='c_city'?'Lập thành phố mới: tăng dân số, lòng trung thành và khả năng phòng thủ. Chạm vào lãnh thổ để lập.':cur==='c_cap'?'Dời thủ đô tới ô được chạm; thủ đô cũ trở thành thành phố.':cur==='c_link'?'Chạm thành phố thứ nhất rồi thành phố thứ hai: nối đường bộ (cùng nước/đồng minh) hoặc đường biển (cần hải cảng, công nghệ ≥ 2.5).':GF[cur]?GF[cur][2]:'';const player=W.playerId&&K(W.playerId)&&K(W.playerId).alive?K(W.playerId):null;$('#ri').hidden=!!player;$('#tbs').innerHTML=player?roleplayDashboard(player):$('#ri').outerHTML;$('#yr').textContent=(W.playerId&&K(W.playerId)&&K(W.playerId).alive?'👑 '+K(W.playerId).name+' · ':'')+'Năm '+W.year+' · T'+mo();$('#sdl').textContent=W.seed?'seed '+W.seed:'';$('#mn').textContent='✨ '+(W.mana|0)+(nWar()?' · ⚔️ '+nWar():'');
+function ui(){const bt=BLD.find(b=>'x_'+b[0]===cur);if($('#ri'))$('#ri').textContent=sys?'':R[cur]?raceInfo(R[cur]):bt?bt[2]+' (công nghệ ≥ '+bt[3]+'): '+bt[4]+' Cần 🪵'+bt[11][0]+' 🪨'+bt[11][1]+' 💰'+bt[11][2]+', xây '+bt[12]+' lượt. Chạm vào lãnh thổ để xây.':cur==='c_city'?'Lập thành phố mới: tăng dân số, lòng trung thành và khả năng phòng thủ. Chạm vào lãnh thổ để lập.':cur==='c_cap'?'Dời thủ đô tới ô được chạm; thủ đô cũ trở thành thành phố.':cur==='c_link'?'Chạm thành phố thứ nhất rồi thành phố thứ hai: nối đường bộ (cùng nước/đồng minh) hoặc đường biển (cần hải cảng, công nghệ ≥ 2.5).':GF[cur]?GF[cur][2]:'';const player=W.playerId&&K(W.playerId)&&K(W.playerId).alive?K(W.playerId):null;$('#ri').hidden=!!player;$('#rpview').hidden=!player;$('#rpview').innerHTML=player?roleplayDashboard(player):'';$('#yr').textContent=(W.playerId&&K(W.playerId)&&K(W.playerId).alive?'👑 '+K(W.playerId).name+' · ':'')+'Năm '+W.year+' · T'+mo();$('#sdl').textContent=W.seed?'seed '+W.seed:'';$('#mn').textContent='✨ '+(W.mana|0)+(nWar()?' · ⚔️ '+nWar():'');
  const L=W.ks.filter(k=>k.alive);if(!$('#kg').hidden)$('#kl').innerHTML=L.length?L.map(card).join(''):'<p class="mu">Chưa có sinh linh nào. Mở tab “Sinh vật”, rồi chạm vào đất liền để gieo mầm văn minh.</p>';
  if(kv&&!(K(kv)&&K(kv).alive))kv=0;$('#kl').hidden=!!kv;$('#kd').hidden=!kv;$('#khint').hidden=!!kv;$('#kback').hidden=!kv;$('#kgt').textContent=kv?(K(kv).race.e+' '+K(kv).name):'👑 Vương quốc';if(kv&&!$('#kg').hidden)$('#kd').innerHTML=detail(K(kv));
  renderCh();
@@ -917,27 +917,47 @@ addEventListener('pointerup',()=>{down=0;ui()});
 function run(){clearInterval(tm);const ms=[0,2200,1200,650,460,320,220][W.sp];if(ms){const tick=()=>{if(!W||!W.sp)return;let failed=false;try{step()}catch(err){failed=true;W.sp=0;console.error('Thần Giới simulation tick failed:',err);toast('⚠️ Mô phỏng gặp lỗi, đã tạm dừng để tránh treo giao diện.')}finally{draw();try{ui()}catch(err){console.error('Thần Giới UI refresh failed:',err);toast('⚠️ Lỗi giao diện: '+(err&&err.message?err.message:String(err)).slice(0,110))}}if(failed||!$('#gameover').hidden)return;tm=setTimeout(tick,ms)};tm=setTimeout(tick,ms)}}
 
 function startGame(mode){
- clearInterval(tm);$('#gameover').hidden=true;W.playerId=0;
- if(mode==='free'){
-  $('#lobby').hidden=true;gen();draw();ui();run();return;
- }
- CFG.size='ml';
+ clearTimeout(tm);clearInterval(tm);$('#gameover').hidden=true;
+ if(mode==='free'){ $('#lobby').hidden=true;gen();draw();ui();run();return; }
+ showRoleplaySetup();
+}
+function showRoleplaySetup(){
+ const box=$('#lobby');box.hidden=false;
+ box.querySelector('.brand h1').textContent='THIẾT LẬP VƯƠNG QUỐC';
+ box.querySelector('.brand .sub').textContent='Tùy chỉnh quốc gia của bạn trước khi thế giới được tạo';
+ const modes=box.querySelector('.modes');
+ modes.innerHTML='<div class="rpconfig"><label>Tên quốc gia<input id="rp-country" maxlength="28" value="Đại Việt" placeholder="Tên vương quốc"></label><label>Tên người lãnh đạo<input id="rp-leader" maxlength="24" value="Minh Quân" placeholder="Tên lãnh đạo"></label><label>Chủng tộc<select id="rp-race"><option value="human">🧑 Loài người</option><option value="elf">🧝 Tiên tộc</option><option value="dwarf">⛏️ Người lùn</option><option value="orc">👹 Quỷ nhân</option></select></label><label>Thể chế ban đầu<select id="rp-ideo"><option value="cap">🏦 Tư bản chủ nghĩa</option><option value="soc">☭ Xã hội chủ nghĩa</option><option value="dict">⚑ Độc tài</option><option value="fas">⚒️ Phát xít</option></select></label><label>Kích thước bản đồ<select id="rp-size"><option value="ml">Vừa lớn · 112×112</option><option value="l">Lớn · 128×128</option><option value="x">Rất lớn · 176×176</option><option value="xx">Khổng lồ · 256×256</option></select></label><div class="rpconfignote">Bạn sẽ bắt đầu với 7 mỏ dầu lớn, ngân khố được hỗ trợ và 7 quốc gia AI khác. Thế giới chỉ được tạo sau khi bạn nhấn bắt đầu.</div><div class="rpconfigbuttons"><button id="rp-back">← Quay lại</button><button id="rp-start" class="on">🌍 Tạo thế giới & bắt đầu</button></div></div>';
+ box.querySelector('.note').textContent='Mọi thiết lập quốc gia được áp dụng trước khi mô phỏng khởi chạy.';
+ modes.onclick=e=>{const b=e.target.closest('#rp-back,#rp-start');if(!b)return;if(b.id==='rp-back'){showMainMenu();return;}const config={name:$('#rp-country').value.trim()||'Vương quốc mới',leader:$('#rp-leader').value.trim()||'Quân chủ',race:$('#rp-race').value,ideo:$('#rp-ideo').value,size:$('#rp-size').value};createRoleplayWorld(config);};
+}
+function createRoleplayWorld(config){
+ clearTimeout(tm);clearInterval(tm);$('#gameover').hidden=true;
+ CFG.size=config.size||'ml';
  gen('roleplay-'+Math.random().toString(36).slice(2,8));
  const races=['human','elf','dwarf','orc','human','elf','dwarf','orc'],chosen=[];
- for(const race of races){
+ const place=(race,name,leader,ideo)=>{
   let best=-1,score=-1;
   for(let i=0;i<N*H;i++){
    if(O[i]||T[i]<2||T[i]>5)continue;
-   const x=i%N,y=i/N|0;
-   let nearest=1e9;for(const p of chosen)nearest=Math.min(nearest,Math.hypot(x-p.x,y-p.y));
+   const x=i%N,y=i/N|0;let nearest=1e9;
+   for(const p of chosen)nearest=Math.min(nearest,Math.hypot(x-p.x,y-p.y));
    const spacing=chosen.length?Math.min(nearest,Math.min(N,H)*.32):Math.min(N,H)*.32;
    const value=spacing+fer(i)*1.8+(coast(i)?1.2:0)+Math.random()*.8;
-   if(value>score){score=value;best=i}
+   if(value>score){score=value;best=i;}
   }
-  if(best<0)break;
+  if(best<0)return null;
   const x=best%N,y=best/N|0;chosen.push({x,y});spawn(race,x,y);
- }
- W.playerId=0;W.sp=0;draw();ui();showRoleSelection();
+  const k=K(W.ks.length);if(name)k.name=name;
+  if(ideo){k.ideo=ideo;k.flag=ideo==='soc'?mkFlag(1):ideo==='fas'?{fas:1}:null;}
+  if(leader&&k.king){k.king.n=leader;const p=k.dynasty?.people?.find(v=>v.id===k.king.pid);if(p){p.name=leader;p.role=ideo==='fas'?'Quốc trưởng':'Đương kim quân chủ';}}
+  return k;
+ };
+ const player=place(config.race,config.name,config.leader,config.ideo);
+ for(let i=0;i<races.length&&W.ks.length<8;i++)place(races[i],null,null,null);
+ if(!player){toast('Không tìm được vị trí khởi đầu phù hợp, hãy thử bản đồ nhỏ hơn.');showRoleplaySetup();return;}
+ W.playerId=player.id;grantPlayerOil(player);
+ log('👑 '+player.king.n+' chính thức nắm quyền lãnh đạo '+title(player)+'. Vận mệnh quốc gia giờ nằm trong tay bạn.');
+ $('#lobby').hidden=true;kv=player.id;W.sel=player.id;W.sp=2;$('#kg').hidden=false;draw();ui();run();
 }
 function grantPlayerOil(k){
  const owned=tilesOf(k);if(!owned.length)return;
@@ -966,6 +986,6 @@ function showRoleSelection(){
 $('#mode-free').onclick=()=>startGame('free');
 $('#mode-roleplay').onclick=()=>startGame('roleplay');
 $('#gohome').onclick=showMainMenu;
-$('#goretry').onclick=()=>{showMainMenu();startGame('roleplay')};
+$('#goretry').onclick=()=>showRoleplaySetup();
 wpUI();gen();draw();ui();setInterval(()=>{if(W&&(W.sel||FX.length||SH.length||AR.length||warSet().size||seaOn()))draw()},N*H>90000?130:N*H>40000?105:80);
 </script></body></html>
