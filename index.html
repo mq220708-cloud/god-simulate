@@ -37,6 +37,33 @@ h3{font-family:Georgia,serif;margin:14px 0 6px;font-size:17px}
 #toast{position:fixed;z-index:70;left:50%;bottom:calc(var(--tbh,150px) + 12px);transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:8px 14px;border-radius:8px;opacity:0;transition:opacity .2s;pointer-events:none}
 .econ{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:6px 0}.econ>div{background:var(--bg);border:1px solid var(--bd);border-radius:9px;padding:6px 8px}.econ b{display:block;font-size:14px}.econ small{font-size:11px}#wp[hidden]{display:none}#wp label{display:block;font-size:13px;margin:6px 0}#wp input[type=range]{width:100%}#wp select,#wp input[type=text]{font:inherit;width:100%;padding:6px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx)}
 
+/* Roleplay national dashboard */
+#tbs .rpboard{display:flex;flex-direction:column;gap:9px;padding:5px 1px 10px}
+.rptop{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.rptop b{display:block;font-size:12px;letter-spacing:.35px;color:var(--ac)}
+.rptop small{display:block;font-size:11px;color:var(--mu);margin-top:2px}
+.rptop button,.rpactions button{padding:5px 10px!important;font-size:12px!important}
+.rpstats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.rpstat{display:flex;align-items:center;gap:8px;min-width:0;padding:7px;background:var(--bg);border:1px solid var(--bd);border-radius:9px}
+.rpstat .rpic{font-size:20px;flex:none}
+.rpstat small,.rpstat span{display:block;font-size:10px;color:var(--mu);line-height:1.25}
+.rpstat b{display:block;font-size:14px;line-height:1.3;overflow-wrap:anywhere}
+.rpsection{padding:8px;background:var(--bg);border:1px solid var(--bd);border-radius:9px}
+.rplabel{display:flex;justify-content:space-between;gap:6px;align-items:center;font-size:11px}
+.rplabel strong{font-size:11px}
+.rpbar{height:7px;background:var(--bd);border-radius:9px;overflow:hidden;margin:7px 0 5px}
+.rpbar i{display:block;height:100%;border-radius:9px}
+.rpfoot{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:10px;color:var(--mu)}
+.rpcols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.rpmini{padding:8px;background:var(--bg);border:1px solid var(--bd);border-radius:9px;min-width:0}
+.rpmini b,.rpmini strong,.rpmini small{display:block}
+.rpmini b{font-size:11px;color:var(--mu)}
+.rpmini strong{font-size:14px;margin:2px 0}
+.rpmini small{font-size:10px;color:var(--mu)}
+.rpnews{font-size:10.5px;line-height:1.35;padding:5px 0;border-top:1px solid var(--bd)}
+.rpnews:first-of-type{border-top:0}
+.rpactions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rpactions small{font-size:10px;color:var(--mu)}
 /* Mobile toolbar layout: wrap controls onto multiple rows instead of horizontal scrolling */
 @media (max-width: 700px) {
   #app { bottom: 34vh !important; bottom: 34dvh !important; }
@@ -832,7 +859,21 @@ function detail(k){const g=k.king,a=k.pol&&pol(k.pol.id),ws=Object.keys(k.war).f
  ds+='<small>'+raceInfo(k.race)+'</small>';
  h+=sec('inf','📋 Thông tin chi tiết',ds);
  return h}
-function ui(){const bt=BLD.find(b=>'x_'+b[0]===cur);$('#ri').textContent=sys?'':R[cur]?raceInfo(R[cur]):bt?bt[2]+' (công nghệ ≥ '+bt[3]+'): '+bt[4]+' Cần 🪵'+bt[11][0]+' 🪨'+bt[11][1]+' 💰'+bt[11][2]+', xây '+bt[12]+' lượt. Chạm vào lãnh thổ để xây.':cur==='c_city'?'Lập thành phố mới: tăng dân số, lòng trung thành và khả năng phòng thủ. Chạm vào lãnh thổ để lập.':cur==='c_cap'?'Dời thủ đô tới ô được chạm; thủ đô cũ trở thành thành phố.':cur==='c_link'?'Chạm thành phố thứ nhất rồi thành phố thứ hai: nối đường bộ (cùng nước/đồng minh) hoặc đường biển (cần hải cảng, công nghệ ≥ 2.5).':GF[cur]?GF[cur][2]:'';$('#yr').textContent=(W.playerId&&K(W.playerId)&&K(W.playerId).alive?'👑 '+K(W.playerId).name+' · ':'')+'Năm '+W.year+' · T'+mo();$('#sdl').textContent=W.seed?'seed '+W.seed:'';$('#mn').textContent='✨ '+(W.mana|0)+(nWar()?' · ⚔️ '+nWar():'');
+function roleplayDashboard(k){
+ const e=econOf(k),wars=Object.keys(k.war||{}).filter(id=>k.war[id]&&K(id)?.alive).length,allies=Object.keys(k.ally||{}).filter(id=>k.ally[id]&&K(id)?.alive).length;
+ const loy=Math.max(0,Math.min(100,k.loy|0)),loyColor=loy<30?'#e05252':loy<60?'#e5ad43':'#4caf80';
+ const status=loy<25?'Bất ổn nghiêm trọng':loy<45?'Căng thẳng':loy<70?'Tạm ổn':'Ổn định';
+ const recent=(W.log||[]).slice(0,3),policy=k.pol?pol(k.pol.id):null;
+ const ideology=k.ideo?IDE[k.ideo].n:'Chưa định hình';
+ const stat=(label,value,sub,ico)=>'<div class="rpstat"><div class="rpic">'+ico+'</div><div><small>'+label+'</small><b>'+value+'</b><span>'+sub+'</span></div></div>';
+ return '<section class="rpboard"><div class="rptop"><div><b>🏛 TỔNG QUAN QUỐC GIA</b><small>'+flagSVG(k,16)+' '+k.name+' · '+ideology+'</small></div><button data-rp="manage">Quản lý ›</button></div>'+
+ '<div class="rpstats">'+stat('Dân số','👥 '+fmt(k.pop*100),k.n+' ô lãnh thổ','👨‍👩‍👧')+stat('Quân đội','🛡 '+fmt(k.army*100),wars?'Đang tham chiến: '+wars:'Không có chiến tranh','⚔️')+stat('Ngân khố','💰 '+Math.round(e.cash),'GDP '+Math.round(e.gdp),'🏦')+stat('Công nghiệp','⚙️ '+e.industry.toFixed(1),'Thất nghiệp '+e.unemployment.toFixed(1)+'%','🏭')+'</div>'+
+ '<div class="rpsection"><div class="rplabel"><b>❤️ TÌNH HÌNH TRONG NƯỚC</b><strong style="color:'+loyColor+'">'+loy+'/100 · '+status+'</strong></div><div class="rpbar"><i style="width:'+loy+'%;background:'+loyColor+'"></i></div><div class="rpfoot"><span>👑 '+rt(k)+' '+k.king.n+'</span><span>📜 '+(policy?policy.n+' · '+k.pol.l+' lượt':'Chưa có chính sách')+'</span></div></div>'+
+ '<div class="rpcols"><div class="rpmini"><b>🤝 ĐỐI NGOẠI</b><strong>'+allies+' liên minh</strong><small>'+wars+' cuộc chiến đang diễn ra</small></div><div class="rpmini"><b>🔬 PHÁT TRIỂN</b><strong>'+ERA[Math.min(5,k.tech|0)]+'</strong><small>💡 Công nghệ '+k.tech.toFixed(1)+' · 🏙 '+(k.cities?.length||0)+' thành phố</small></div></div>'+
+ '<div class="rpsection"><div class="rplabel"><b>📰 BIẾN ĐỘNG GẦN ĐÂY</b><span class="mu">3 tin mới nhất</span></div>'+(recent.length?recent.map(x=>'<div class="rpnews">'+x+'</div>').join(''):'<small class="mu">Chưa có sự kiện đáng chú ý.</small>')+'</div>'+
+ '<div class="rpactions"><button data-rp="manage">👑 Mở bảng điều hành</button><small>Ban hành chính sách, quản lý quân đội và ngoại giao.</small></div></section>';
+}
+function ui(){const bt=BLD.find(b=>'x_'+b[0]===cur);$('#ri').textContent=sys?'':R[cur]?raceInfo(R[cur]):bt?bt[2]+' (công nghệ ≥ '+bt[3]+'): '+bt[4]+' Cần 🪵'+bt[11][0]+' 🪨'+bt[11][1]+' 💰'+bt[11][2]+', xây '+bt[12]+' lượt. Chạm vào lãnh thổ để xây.':cur==='c_city'?'Lập thành phố mới: tăng dân số, lòng trung thành và khả năng phòng thủ. Chạm vào lãnh thổ để lập.':cur==='c_cap'?'Dời thủ đô tới ô được chạm; thủ đô cũ trở thành thành phố.':cur==='c_link'?'Chạm thành phố thứ nhất rồi thành phố thứ hai: nối đường bộ (cùng nước/đồng minh) hoặc đường biển (cần hải cảng, công nghệ ≥ 2.5).':GF[cur]?GF[cur][2]:'';const player=W.playerId&&K(W.playerId)&&K(W.playerId).alive?K(W.playerId):null;$('#ri').hidden=!!player;$('#tbs').innerHTML=player?roleplayDashboard(player):$('#ri').outerHTML;$('#yr').textContent=(W.playerId&&K(W.playerId)&&K(W.playerId).alive?'👑 '+K(W.playerId).name+' · ':'')+'Năm '+W.year+' · T'+mo();$('#sdl').textContent=W.seed?'seed '+W.seed:'';$('#mn').textContent='✨ '+(W.mana|0)+(nWar()?' · ⚔️ '+nWar():'');
  const L=W.ks.filter(k=>k.alive);if(!$('#kg').hidden)$('#kl').innerHTML=L.length?L.map(card).join(''):'<p class="mu">Chưa có sinh linh nào. Mở tab “Sinh vật”, rồi chạm vào đất liền để gieo mầm văn minh.</p>';
  if(kv&&!(K(kv)&&K(kv).alive))kv=0;$('#kl').hidden=!!kv;$('#kd').hidden=!kv;$('#khint').hidden=!!kv;$('#kback').hidden=!kv;$('#kgt').textContent=kv?(K(kv).race.e+' '+K(kv).name):'👑 Vương quốc';if(kv&&!$('#kg').hidden)$('#kd').innerHTML=detail(K(kv));
  renderCh();
@@ -845,7 +886,8 @@ const kh=e=>{const b=e.target.closest('button');
   if(a==='ally'){if((A.rel[B.id]||0)<0)toast('Quan hệ quá căng thẳng, hãy hòa giải trước');else if(A.war[B.id])toast('Đang có chiến tranh');else if(!divine||pay(8))alliance(A,B)}
   if(a==='war'&&(!divine||pay(8)))war(A,B);ui();draw();return}
  const c=e.target.closest('[data-sel]');if(c){kv=+c.dataset.sel;W.sel=kv;ui();$('#kg').querySelector('.ob').scrollTop=0}};
-$('#kl').onclick=kh;$('#kd').onclick=kh;$('#kback').onclick=()=>{kv=0;W.sel=0;ui()};$('#kd').addEventListener('toggle',e=>{const d=e.target;if(d.dataset&&d.dataset.o)kO[d.dataset.o]=d.open},true);
+$('#kl').onclick=kh;$('#kd').onclick=kh;
+$('#tbs').onclick=e=>{if(e.target.closest('[data-rp="manage"]'))openK()};$('#kback').onclick=()=>{kv=0;W.sel=0;ui()};$('#kd').addEventListener('toggle',e=>{const d=e.target;if(d.dataset&&d.dataset.o)kO[d.dataset.o]=d.open},true);
 $('#tabs').onclick=e=>{const b=e.target.closest('[data-g]');if(b){sys=0;grp=+b.dataset.g;cur=TOOLS[grp][1][0][0];ui()}};
 $('#chips').onclick=e=>{const b=e.target.closest('[data-t]');if(b){cur=b.dataset.t;ui()}};
 document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{W.sp=+b.dataset.s;run();ui()});
