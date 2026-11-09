@@ -914,7 +914,7 @@ let down=0;const pt=e=>{const r=cv.getBoundingClientRect();return[Math.floor((e.
 cv.onpointerdown=e=>{if(pan)return;down=1;const[x,y]=pt(e);use(cur,x,y,0);draw();ui()};
 cv.onpointermove=e=>{if(down){const[x,y]=pt(e);use(cur,x,y,1);draw()}};
 addEventListener('pointerup',()=>{down=0;ui()});
-function run(){clearInterval(tm);const ms=[0,2200,1200,650,460,320,220][W.sp];if(ms){const tick=()=>{if(!W||!W.sp)return;let failed=false;try{step()}catch(err){failed=true;W.sp=0;console.error('Thần Giới simulation tick failed:',err);toast('⚠️ Mô phỏng gặp lỗi, đã tạm dừng để tránh treo giao diện.')}finally{draw();try{ui()}catch(err){console.error('Thần Giới UI refresh failed:',err);toast('⚠️ Lỗi cập nhật giao diện')}}if(failed||!$('#gameover').hidden)return;tm=setTimeout(tick,ms)};tm=setTimeout(tick,ms)}}
+function run(){clearInterval(tm);const ms=[0,2200,1200,650,460,320,220][W.sp];if(ms){const tick=()=>{if(!W||!W.sp)return;let failed=false;try{step()}catch(err){failed=true;W.sp=0;console.error('Thần Giới simulation tick failed:',err);toast('⚠️ Mô phỏng gặp lỗi, đã tạm dừng để tránh treo giao diện.')}finally{draw();try{ui()}catch(err){console.error('Thần Giới UI refresh failed:',err);toast('⚠️ Lỗi giao diện: '+(err&&err.message?err.message:String(err)).slice(0,110))}}if(failed||!$('#gameover').hidden)return;tm=setTimeout(tick,ms)};tm=setTimeout(tick,ms)}}
 
 function startGame(mode){
  clearInterval(tm);$('#gameover').hidden=true;W.playerId=0;
