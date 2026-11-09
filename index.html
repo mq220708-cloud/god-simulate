@@ -1050,7 +1050,7 @@ function makeCivilization(k,index){
   society:{classes:{hunters:45,gatherers:30,herders:15,leaders:10}},
   resources:{food:Math.max(20,k.pop*7),wood:n*.35,stone:n*.2,copper:0,tin:0,ironOre:0,bronze:0,iron:0,livestock:0,gold:0},
   natural:{food:Math.max(30,n*fertility*8),wood:forest*5+n*.25,stone:(hills+mountains)*4+n*.25,copper:hills*.65+mountains*.35+n*.04,tin:hills*.32+mountains*.2+n*.02,ironOre:mountains*1.4+hills*.55+n*.05,gold:mountains*.08},
-  production:{food:0,wood:0,stone:0,copper:0,tin:0,ironOre:0,bronze:0,iron:0,livestock:0},lastEventYear:0};
+  production:{food:0,wood:0,stone:0,copper:0,tin:0,ironOre:0,bronze:0,iron:0,livestock:0,gold:0},knownTiles:tiles.slice(),lastEventYear:0};
 }
 function ensureCivilizations(){
  if(!W||!W.playerId)return;
@@ -1063,6 +1063,23 @@ function ensureCivilizations(){
   if(c.natural.ironOre===undefined)c.natural.ironOre=c.natural.iron||0;
   for(const key of ['food','wood','stone','copper','tin','ironOre','gold'])if(c.natural[key]===undefined)c.natural[key]=0;
   for(const key of Object.keys(defaults))if(c.production[key]===undefined)c.production[key]=0;
+  const owner=K(c.polityId);
+  if(owner){
+   const owned=tilesOf(owner);
+   if(!Array.isArray(c.knownTiles))c.knownTiles=owned.slice();
+   else{
+    const seen=new Set(c.knownTiles);
+    for(const i of owned)if(!seen.has(i)){
+     seen.add(i);c.knownTiles.push(i);
+     if(T[i]===4)c.natural.wood+=5;
+     if(T[i]===5||T[i]===6){
+      c.natural.stone+=4;c.natural.copper+=T[i]===5?.65:.35;
+      c.natural.tin+=T[i]===5?.32:.2;c.natural.ironOre+=T[i]===5?.55:1.4;
+      if(T[i]===6)c.natural.gold+=.08;
+     }
+    }
+   }
+  }
  }
 }
 function civFor(k){return (W.civs||[]).find(c=>c.polityId===k.id)}
