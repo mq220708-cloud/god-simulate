@@ -896,7 +896,7 @@ const dt=(l,t)=>{const ct=t===l.cap||l.cities.some(c=>c.i===t),doctrine=l.id===W
 function relocate(k,q){const i0=O.indexOf(k.id);if(i0<0)return;const c=k.cities.filter(c=>O[c.i]===k.id)[0];
  if(c){k.cap=c.i;k.cname=c.n;k.cities=k.cities.filter(x=>x!==c)}else{const o=[];for(const i of tilesOf(k))if(T[i]>=2&&T[i]!==6)o.push(i);k.cap=o.length?rnd(o):i0;k.cname=rnd(SY)+rnd(SY).toLowerCase()}
  if(!q)log('🚩 '+title(k)+' dời đô về '+k.cname+'.')}
-function take(w,l,t){O[t]=w.id;eqLoot(w,l,.012);l.n--;w.n++;FX.push([t,5]);l.loy=Math.max(-100,l.loy-warDamage());w.loy=Math.min(100,w.loy+.5);
+function take(w,l,t){if(ThanhGioiWorld.isAttached())ThanhGioiWorld.setOwner(t,w.id);else O[t]=w.id;eqLoot(w,l,.012);l.n--;w.n++;FX.push([t,5]);l.loy=Math.max(-100,l.loy-warDamage());w.loy=Math.min(100,w.loy+.5);
  const bq=BL.find(b=>b.i===t);if(bq){bq.h-=15*warDamage();if(bq.h<=0)log('🏚 '+bd(bq.t)[2]+' của '+title(l)+' bị phá hủy trong chiến tranh.');else if(Math.random()<.15)log('🏗 '+title(w)+' chiếm '+bd(bq.t)[2]+' của '+title(l)+', công trình hư hại nặng.')}hurt(t,1,4*warDamage());
  const ci=l.cities.findIndex(c=>c.i===t);if(ci>=0){const c=l.cities.splice(ci,1)[0];l.loy=Math.max(-100,l.loy-6*warDamage());l.pop*=1-.01*warDamage();cd(t).lv=Math.max(0,cd(t).lv-1);if(w.cities.length<12){w.cities.push(c);log('🏙 '+title(w)+' chiếm thành phố '+c.n+' của '+title(l)+'!')}else log('🏙 Thành phố '+c.n+' của '+title(l)+' bị tàn phá trong chiến tranh.')}
  if(t===l.cap){cd(t).lv=Math.max(0,cd(t).lv-1);log('🏯 Kinh đô '+l.cname+' của '+title(l)+' thất thủ trước '+title(w)+'!');l.loy=Math.max(-100,l.loy-20*warDamage());l.army*=1-.08*warDamage();w.loy=Math.min(100,w.loy+5);if(w.cities.length<12)w.cities.push({i:t,n:l.cname});if(Math.random()<.3)mkKing(l,1);relocate(l)}}
@@ -978,7 +978,7 @@ function voyage(k){if(!k.inv.includes('ship')||k.vcool>0||k.n<6||k.pop<5||k.pop<
  for(let t=0;t<3;t++){const a=rnd(own),c=[];{const ax=a%N,ay=a/N|0;for(let y=Math.max(0,ay-rg);y<=Math.min(H-1,ay+rg);y++)for(let x=Math.max(0,ax-rg);x<=Math.min(N-1,ax+rg);x++){const j=y*N+x;if(!O[j]&&T[j]>=2&&T[j]<=5&&dist(a,j)>=5&&dist(a,j)<=rg&&coast(j))c.push(j)}}
   let b=-1,bs=-1;for(let r=0;r<20&&c.length;r++){const j=rnd(c);if(near(j))continue;const q=fer(j)*(k.race.pt.includes(T[j])?1.4:1)+Math.random();if(q>bs){bs=q;b=j}}
   if(b<0)continue;const p=pathBfs(a,b,i=>T[i]<=1,3000);if(!p||p.length>rg*2+6)continue;
-  payC(k,[10,0,6]);k.vcool=5+(Math.random()*5|0);O[b]=k.id;for(const j of nb(b))if(!O[j]&&T[j]>=2&&T[j]!==6)O[j]=k.id;
+  payC(k,[10,0,6]);k.vcool=5+(Math.random()*5|0);if(ThanhGioiWorld.isAttached())ThanhGioiWorld.setOwner(b,k.id);else O[b]=k.id;for(const j of nb(b))if(!O[j]&&T[j]>=2&&T[j]!==6){if(ThanhGioiWorld.isAttached())ThanhGioiWorld.setOwner(j,k.id);else O[j]=k.id;}
   let m='';if(k.cities.length<8){const c2={i:b,n:rnd(SY)+rnd(SY).toLowerCase()};k.cities.push(c2);m=' và lập thành phố '+c2.n}
   FX.push([b,6,'🚢']);SH.push({pts:p,l:6,ship:1,t0:Date.now()});log('🚢 Đoàn thuyền của '+title(k)+' vượt biển, cập bến một vùng đất xa'+m+'.');return}}
 /* ===== Khí tài quân sự =====
