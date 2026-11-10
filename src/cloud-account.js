@@ -11,6 +11,7 @@ function panel(){
  const root=document.createElement('section');root.id='tg-account';
  root.innerHTML='<div class="tg-account-head"><div class="tg-avatar" id="tg-avatar">👤</div><div class="tg-account-meta"><b id="tg-account-name">Tài khoản Thần Giới</b><small id="tg-account-caption">Đăng nhập để đồng bộ bản đồ và thành tích</small></div></div><div class="tg-account-actions"><button class="primary" id="tg-google-login">🌐 Đăng nhập bằng Google</button><button id="tg-account-logout" hidden>Đăng xuất</button><button id="tg-cloud-list" hidden>☁ Bản đồ đám mây</button></div><div class="tg-account-status" id="tg-account-status">Bản đồ vẫn được lưu trên thiết bị. Đăng nhập Google để bật đồng bộ đám mây.</div><div class="tg-save-list" id="tg-save-list" hidden></div>';
  lobby.appendChild(root);
+ const board=document.createElement('section');board.id='tg-leaderboard';board.innerHTML='<div class="tg-lb-head"><b>🏆 Bảng xếp hạng online</b><button type="button" id="tg-lb-refresh">↻ Làm mới</button></div><div class="tg-lb-note">Xếp hạng theo điểm văn minh của thế giới đã đồng bộ. Chỉ hiển thị tên công khai, không hiển thị email.</div><div class="tg-lb-list" id="tg-lb-list">Đang chờ kết nối dịch vụ…</div>';document.querySelector('#lobby').appendChild(board);$('#tg-lb-refresh').addEventListener('click',listLeaderboard);
  $('#tg-google-login').addEventListener('click',login);$('#tg-account-logout').addEventListener('click',logout);$('#tg-cloud-list').addEventListener('click',listSaves);
  if(!configured()){$('#tg-google-login').disabled=true;status('Chưa cấu hình dịch vụ tài khoản. Quản trị viên cần thêm Supabase URL và anon key trong src/cloud-config.js. Lưu cục bộ vẫn hoạt động bình thường.')}
 }
@@ -31,7 +32,7 @@ async function init(){
   if(!window.supabase)await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';s.onload=resolve;s.onerror=()=>reject(new Error('Không tải được thư viện đăng nhập'));document.head.appendChild(s)});
   client=window.supabase.createClient(CONFIG.supabaseUrl,CONFIG.supabaseAnonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   const result=await client.auth.getSession();if(result.error)throw result.error;
-  user=result.data.session?.user||null;ready=true;render();
+  user=result.data.session?.user||null;ready=true;render();listLeaderboard();
   client.auth.onAuthStateChange((_event,session)=>{user=session?.user||null;render();status(user?'Đã đăng nhập. Bạn có thể lưu thế giới lên đám mây.':'Đã đăng xuất. Bản lưu trên thiết bị không bị ảnh hưởng.')});
   if(user)status('Đã đăng nhập. Bản đồ cục bộ vẫn được giữ nguyên.');
  }catch(e){status('Không thể khởi tạo tài khoản: '+(e.message||e),true)}
@@ -46,8 +47,35 @@ async function saveWorld(save){
   const id=worldId(save),path=user.id+'/'+id+'.json',blob=new Blob([JSON.stringify(save)],{type:'application/json'});localStorage.setItem(SAVE_KEY,JSON.stringify(save));
   const up=await client.storage.from(BUCKET).upload(path,blob,{upsert:true,contentType:'application/json'});if(up.error)throw up.error;
   const db=await client.from('world_saves').upsert({user_id:user.id,world_id:id,world_name:worldName(save),game_version:VERSION,storage_path:path,updated_at:new Date().toISOString()},{onConflict:'user_id,world_id'});if(db.error)throw db.error;
-  status('☁ Đã đồng bộ "'+worldName(save)+'" lên đám mây.');return {ok:true};
+  await updateLeaderboard(save);
+  status('☁ Đã đồng bộ "'+worldName(save)+'" lên đám mây và cập nhật bảng xếp hạng.');return {ok:true};
  }catch(e){status('Lưu đám mây thất bại: '+e.message+'. Bản trên thiết bị vẫn được giữ.',true);return {ok:false,error:e.message}}
+}
+function leaderboardStats(save){
+ const kingdoms=Array.isArray(save?.W?.ks)?save.W.ks.filter(k=>k&&k.alive):[];
+ const population=Math.round(kingdoms.reduce((sum,k)=>sum+(Number(k.pop)||0),0));
+ const technology=Number(Math.max(0,...kingdoms.map(k=>Number(k.tech)||0)).toFixed(2));
+ const year=Math.max(0,Math.floor(Number(save?.W?.year)||0));
+ const score=Math.round(population*10+technology*1000+year*5);
+ return {population,technology,year,score};
+}
+async function updateLeaderboard(save){
+ if(!client||!user||!save?.W)return;
+ const stats=leaderboardStats(save),displayName=String(user.user_metadata?.full_name||user.user_metadata?.name||user.email?.split('@')[0]||'Người chơi').slice(0,48);
+ const record={user_id:user.id,display_name:displayName,world_name:worldName(save).slice(0,80),score:stats.score,world_year:stats.year,population:stats.population,technology:stats.technology,updated_at:new Date().toISOString()};
+ const r=await client.from('leaderboard').upsert(record,{onConflict:'user_id'});if(r.error)throw r.error;
+ await listLeaderboard();
+}
+async function listLeaderboard(){
+ const list=$('#tg-lb-list');if(!list)return;
+ if(!client){list.textContent=configured()?'Đang kết nối bảng xếp hạng…':'Bảng xếp hạng sẽ hoạt động sau khi cấu hình Supabase.';return}
+ list.textContent='Đang tải bảng xếp hạng…';
+ try{
+  const r=await client.from('leaderboard').select('display_name,world_name,score,world_year,population,technology,updated_at').order('score',{ascending:false}).limit(20);if(r.error)throw r.error;
+  list.innerHTML='';
+  if(!r.data?.length){list.textContent='Chưa có thành tích nào. Hãy đăng nhập Google và đồng bộ thế giới đầu tiên!';return}
+  r.data.forEach((item,index)=>{const row=document.createElement('div');row.className='tg-lb-row';const rank=document.createElement('b');rank.className='tg-lb-rank';rank.textContent=index===0?'🥇':index===1?'🥈':index===2?'🥉':String(index+1);const name=document.createElement('span');name.className='tg-lb-name';name.textContent=item.display_name||'Người chơi';const meta=document.createElement('small');meta.className='tg-lb-meta';meta.textContent=(item.world_name||'Thế giới')+' · Năm '+(item.world_year||0)+' · Dân số '+Number(item.population||0).toLocaleString('vi-VN')+' · CN '+(item.technology||0);name.appendChild(meta);const score=document.createElement('b');score.className='tg-lb-score';score.textContent=Number(item.score||0).toLocaleString('vi-VN')+' điểm';row.append(rank,name,score);list.appendChild(row)});
+ }catch(e){list.textContent='Không tải được bảng xếp hạng. Hãy kiểm tra bảng leaderboard trong Supabase.'}
 }
 async function listSaves(){
  if(!client||!user)return;const list=$('#tg-save-list');list.hidden=false;list.textContent='Đang tải danh sách bản đồ…';
