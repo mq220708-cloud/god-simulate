@@ -558,7 +558,7 @@ function paint(){renderT();if(OLVER!==VER){if(updOL())VER++;OLVER=VER}const sc=(
  const sid=W.sel,sk=sid&&K(sid);if(!W.playerId&&sk&&sk.alive){const SV=sid+'|'+V,yl=lyr('sy',SV,()=>{const fz=sk.n>=30?new Set(farInfo(sk).far.map(f=>f[0])):null;for(const i of tilesOf(sk)){const xi=i%N,yi=i/N|0,x=xi*C,y=yi*C;if(fz&&fz.has(i)){cx.fillStyle='rgba(120,0,0,.4)';cx.fillRect(x,y,C,C)}cx.fillStyle='#ffe066';if(xi===0||O[i-1]!==sid)cx.fillRect(x,y,2.5,C);if(xi===N-1||O[i+1]!==sid)cx.fillRect(x+C-2.5,y,2.5,C);if(yi===0||O[i-N]!==sid)cx.fillRect(x,y,C,2.5);if(yi===H-1||O[i+N]!==sid)cx.fillRect(x,y+C-2.5,C,2.5)}},120),
    wh=lyr('sw',SV,()=>{cx.fillStyle='#fff';for(const i of tilesOf(sk))cx.fillRect(i%N*C,(i/N|0)*C,C,C)},120);cx.globalAlpha=.14+.12*Math.sin(Date.now()/230);cx.drawImage(wh,0,0);cx.globalAlpha=1;cx.drawImage(yl,0,0)}
  cx.drawImage(lyr('top',V+'|'+sc.toFixed(2),()=>{for(const k of W.ks)if(k.alive)E(cx,R[k.rid].e,k.cap%N*C+C/2,(k.cap/N|0)*C+C/2+1,18);drawNames()},220),0,0);drawShips(sc)}
-function livingKingdomCount(){return W.ks.filter(k=>k.alive).length}
+function livingKingdomCount(){return ThanhGioiWorld.getLivingKingdoms().length}
 function spawn(id,x,y,suppressIdeology,initialPopulation){if(livingKingdomCount()>=8)return toast('🌍 Thế giới đã đạt giới hạn 8 vương quốc!');const foundingPop=Number.isFinite(initialPopulation)?initialPopulation:3;const k={id:W.ks.length+1,rid:id,race:R[id],name:rnd(SY)+rnd(SY).toLowerCase()+(Math.random()<.5?rnd(SY).toLowerCase():''),col:colFor(W.ks.length),pop:foundingPop,tech:0,era:0,rel:{},ally:{},war:{},alive:1,cap:y*N+x,n:0,army:Number.isFinite(initialPopulation)?0:.6,loy:70,fav:0,inv:[],bld:[],cname:rnd(SY)+rnd(SY).toLowerCase(),cities:[],foundingGrace:Number.isFinite(initialPopulation)?6:0,bf:{food:0,war:0,peace:0}};
  W.ks.push(k);if(!suppressIdeology)foundIdeology(k,null);for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const u=x+dx,v=y+dy;if(u<0||v<0||u>=N||v>=H)continue;const j=v*N+u;if(T[j]>=2&&T[j]!==6&&!O[j])O[j]=k.id}
  log('🌱 '+k.race.e+' Một bộ tộc mới xuất hiện, lập nên '+title(k)+'.');mkKing(k)}
@@ -831,7 +831,7 @@ function fillTerritoryHoles(){
 }
 function alliance(A,B){A.ally[B.id]=B.ally[A.id]=1;sr(A,B,10);log('🤝 '+title(A)+' và '+title(B)+' ký kết liên minh.')}
 function factionOf(k){return (W.factions||[]).find(f=>f.id===k.factionId)||null}
-function factionMembers(f){return W.ks.filter(k=>k.alive&&k.factionId===f.id)}
+function factionMembers(f){return ThanhGioiWorld.getLivingKingdoms().filter(k=>k.factionId===f.id)}
 function createFaction(k){
  W.factions??=[];if(factionOf(k))return factionOf(k);
  const f={id:W.factions.reduce((m,x)=>Math.max(m,x.id||0),0)+1,name:'Khối '+k.name,leader:k.id,members:[k.id],created:W.year*12+(W.month|0)};
@@ -862,7 +862,7 @@ function inviteFaction(A,B){
 function updateFactions(){
  W.factions??=[];for(const k of W.ks)if(k.factionId&&!W.factions.some(f=>f.id===k.factionId))delete k.factionId;W.factions=W.factions.filter(f=>factionMembers(f).length>=2);
  for(const f of W.factions){f.members=factionMembers(f).map(k=>k.id);if(!f.members.includes(f.leader))f.leader=f.members[0]}
- const alive=W.ks.filter(k=>k.alive);
+ const alive=ThanhGioiWorld.getLivingKingdoms();
  if((W.month|0)!==0)return;
  for(const k of alive){if(k.id===W.playerId||factionOf(k)||Math.random()>.035)continue;
   const friend=alive.filter(o=>o!==k&&!factionOf(o)&&!k.war[o.id]&&(k.rel[o.id]||0)>=38).sort((a,b)=>(k.rel[b.id]||0)-(k.rel[a.id]||0))[0];
@@ -952,7 +952,7 @@ function remoteWar(A,B){const wd=(A.war[B.id]|0)+1;A.war[B.id]=B.war[A.id]=wd;
  const ea=exh(A,sa,wd),ebb=exh(B,sb,wd),la=lim(A),lb=lim(B);
  if(ea>=la||ebb>=lb||(ea>la*.75&&ebb>lb*.75)){const L=ea/la>=ebb/lb?A:B,V=L===A?B:A;peace(A,B,'🕊 '+title(L)+' kiệt quệ sau cuộc chiến xa bờ kéo dài; '+title(L)+' và '+title(V)+' ký hòa ước.')}}
 // Các nước không giáp nhau nhưng trong tầm tiếp xúc (đường biển/đường xa) vẫn có thể giao thương, tranh chấp, kết minh hay tuyên chiến
-function remoteContact(pr){const L=W.ks.filter(k=>k.alive);for(let i=0;i<L.length;i++)for(let j=i+1;j<L.length;j++){const A=L[i],B=L[j];
+function remoteContact(pr){const L=ThanhGioiWorld.getLivingKingdoms();for(let i=0;i<L.length;i++)for(let j=i+1;j<L.length;j++){const A=L[i],B=L[j];
  if(A.war[B.id]||pr.has(Math.min(A.id,B.id)*1000+Math.max(A.id,B.id))||Math.random()>.03)continue;
  if(gap(A,B)>16+Math.max(A.tech,B.tech)*5)continue;event(A,B,A.rel[B.id]||0,1)}}
 function found(k){k.cities=k.cities.filter(c=>O[c.i]===k.id);const R=rs(k),cs=cts(k);if(k.tech<.5||k.cities.length>=Math.min(8,k.n/12|0)||Math.random()>(W.playerId&&W.rpPace==='slow'?.055:.1))return;
@@ -1304,7 +1304,7 @@ function roleplayDashboard(k){
  '<div class="rpsection"><b>⌛ NHỊP ĐỘ THẾ GIỚI</b><div class="rpfoot"><span>🐢 Lịch sử: Chậm</span><span>⚔️ Chiến tranh: Tiêu chuẩn</span></div><small class="mu">Phát triển dân số, công nghệ, xây dựng và mở rộng lãnh thổ diễn ra chậm hơn; chiến tranh giữ mức tiêu chuẩn.</small></div>'+'<div class="rpactions"><button data-rp="manage">👑 Mở bảng điều hành</button><small>Ban hành chính sách, quản lý quân đội và ngoại giao.</small></div></section>';
 }
 function ui(preserveInteractive=false){const bt=BLD.find(b=>'x_'+b[0]===cur);if($('#ri'))$('#ri').textContent=sys?'':R[cur]?raceInfo(R[cur]):bt?bt[2]+' (công nghệ ≥ '+bt[3]+'): '+bt[4]+' Cần 🪵'+bt[11][0]+' 🪨'+bt[11][1]+' 💰'+bt[11][2]+', xây '+bt[12]+' lượt. Chạm vào lãnh thổ để xây.':cur==='c_city'?'Lập thành phố mới: tăng dân số, lòng trung thành và khả năng phòng thủ. Chạm vào lãnh thổ để lập.':cur==='c_cap'?'Dời thủ đô tới ô được chạm; thủ đô cũ trở thành thành phố.':cur==='c_link'?'Chạm thành phố thứ nhất rồi thành phố thứ hai: nối đường bộ (cùng nước/đồng minh) hoặc đường biển (cần hải cảng, công nghệ ≥ 2.5).':GF[cur]?GF[cur][2]:'';const player=W.playerId&&K(W.playerId)&&K(W.playerId).alive?K(W.playerId):null;$('#ri').hidden=!!player;$('#rpview').hidden=!player;if(!preserveInteractive||player){const board=$('#tbs'),scrollTop=board?board.scrollTop:0;$('#rpview').innerHTML=player?roleplayDashboard(player):'';if(board)board.scrollTop=scrollTop;}$('#yr').textContent=(W.playerId&&K(W.playerId)&&K(W.playerId).alive?'👑 '+K(W.playerId).name+' · ':'')+'Năm '+W.year+' · T'+mo();$('#sdl').textContent=W.seed?'seed '+W.seed:'';$('#mn').textContent='✨ '+(W.mana|0)+(nWar()?' · ⚔️ '+nWar():'');
- if(!preserveInteractive){const L=W.ks.filter(k=>k.alive);if(!$('#kg').hidden)$('#kl').innerHTML=L.length?L.map(card).join(''):'<p class="mu">Chưa có sinh linh nào. Mở tab “Sinh vật”, rồi chạm vào đất liền để gieo mầm văn minh.</p>';}
+ if(!preserveInteractive){const L=ThanhGioiWorld.getLivingKingdoms();if(!$('#kg').hidden)$('#kl').innerHTML=L.length?L.map(card).join(''):'<p class="mu">Chưa có sinh linh nào. Mở tab “Sinh vật”, rồi chạm vào đất liền để gieo mầm văn minh.</p>';}
  if(kv&&!(K(kv)&&K(kv).alive))kv=0;$('#kl').hidden=!!kv;$('#kd').hidden=!kv;$('#khint').hidden=!!kv;$('#kback').hidden=!kv;$('#kgt').textContent=kv?(K(kv).race.e+' '+K(kv).name):'👑 Vương quốc';if(kv&&!$('#kg').hidden&&!preserveInteractive)$('#kd').innerHTML=detail(K(kv));
  renderCh();
  setH($('#tabs'),TOOLS.map((g,i)=>'<button data-g="'+i+'" class="'+(!sys&&i===grp?'on':'')+'">'+g[0]+'</button>').join(''));$('#tabs').hidden=!!W.playerId;
@@ -1428,7 +1428,7 @@ function createRoleplayWorld(config){
  const player=place(config.race,config.name,config.leader);
  for(let i=0;i<races.length&&W.ks.length<8;i++)place(races[i],null,null);
  if(!player){toast('Không tìm được vị trí khởi đầu phù hợp, hãy thử bản đồ nhỏ hơn.');showRoleplaySetup();return;}
- W.civs=[];for(const k of W.ks.filter(v=>v.alive))W.civs.push(makeCivilization(k,W.civs.length));
+ W.civs=[];for(const k of ThanhGioiWorld.getLivingKingdoms())W.civs.push(makeCivilization(k,W.civs.length));
  document.body.classList.add('rp-mode');W.playerId=player.id;W.rpPace='slow';W.rpWar='standard';W.rpIdeologyPending=false;W.rpIdeologyChosen=false;grantPlayerOil(player);
  log('👑 '+player.king.n+' chính thức nắm quyền lãnh đạo '+title(player)+'. Vận mệnh quốc gia giờ nằm trong tay bạn.');
  $('#lobby').hidden=true;kv=player.id;W.sel=player.id;W.sp=1;$('#kg').hidden=false;draw();ui();run();
@@ -1459,7 +1459,7 @@ function showRoleSelection(){
  box.querySelector('.brand h1').textContent='CHỌN QUỐC GIA';
  box.querySelector('.brand .sub').textContent='Hãy chọn quốc gia mà bạn sẽ trực tiếp lãnh đạo';
  const modes=box.querySelector('.modes');
- modes.innerHTML=W.ks.filter(k=>k.alive).map(k=>'<button class="mode" data-country="'+k.id+'"><span class="ico">'+k.race.e+'</span><span><b>'+k.name+'</b><small>'+flagSVG(k,16)+' · '+rt(k)+' '+k.king.n+' · '+(k.ideo?IDE[k.ideo].n:'Chưa định hình đường lối')+'</small></span><span class="go">›</span></button>').join('');
+ modes.innerHTML=ThanhGioiWorld.getLivingKingdoms().map(k=>'<button class="mode" data-country="'+k.id+'"><span class="ico">'+k.race.e+'</span><span><b>'+k.name+'</b><small>'+flagSVG(k,16)+' · '+rt(k)+' '+k.king.n+' · '+(k.ideo?IDE[k.ideo].n:'Chưa định hình đường lối')+'</small></span><span class="go">›</span></button>').join('');
  box.querySelector('.note').textContent='Bạn sẽ điều hành quốc gia đã chọn; các nước còn lại do AI quản lý.';
  modes.onclick=e=>{const b=e.target.closest('[data-country]');if(!b)return;const id=+b.dataset.country,k=K(id);if(!k||!k.alive)return;document.body.classList.add('rp-mode');W.playerId=id;W.rpPace='slow';W.rpWar='standard';grantPlayerOil(k);box.hidden=true;log('👑 '+k.king.n+' chính thức nắm quyền lãnh đạo '+title(k)+'. Vận mệnh quốc gia giờ nằm trong tay bạn.');kv=id;W.sel=id;W.sp=1;$('#kg').hidden=false;draw();ui();run();};
 }
