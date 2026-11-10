@@ -582,7 +582,7 @@ function use(id,x,y,drag){VER++;if(x<0||y<0||x>=N||y>=H)return;const i=y*N+x,o=O
   if(T[j]!==tt[0]||X[j]!==tt[1]||RV[j]){T[j]=tt[0];X[j]=tt[1];RV[j]=0;if(tt[0]<2)O[j]=0;DQ.push(j);ch++}}
   if(ch&&W.mana>=1)W.mana--;return}
  if(drag)return;
- if(R[id]){if(T[i]<2||T[i]===6||o)return toast('Cần mảnh đất trống để sinh sống');if(pay(15))spawn(id,x,y);return}
+ if(R[id]){if(W.playerId)return;if(T[i]<2||T[i]===6||o)return toast('Cần mảnh đất trống để sinh sống');if(pay(15))spawn(id,x,y);return}
  if(id==='sel'){if(k)W.sel=k.id;toast(tname(i)+(RV[i]?' + sông':'')+' · 🌾'+fer(i).toFixed(1));return}
  if(id==='rain'){if(!pay(10))return;W.ks.forEach(k=>k.alive&&(k.pop*=1.12,k.loy=Math.min(100,k.loy+3)));TD=1;for(let i=0;i<N*H;i++){if(T[i]===2&&!coast(i)&&Math.random()<.2)T[i]=3;else if(X[i]===1&&Math.random()<.04)X[i]=0}log('🌧 Cơn mưa thần ban sự sống cho muôn loài.');return}
  if(id==='bolt'){if(!pay(5))return;if(k){k.pop=Math.max(0,k.pop-3);k.loy=Math.max(-100,k.loy-4);log('⚡ Sét đánh xuống '+title(k)+', dân chúng khiếp sợ.')}BL.forEach(b=>dist(b.i,i)<=1&&(b.h-=40));if(T[i]===4){T[i]=3;X[i]=0;DQ.push(i)}return}
