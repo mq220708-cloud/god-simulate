@@ -227,7 +227,7 @@ body.rp-mode #chips { display:none !important; }
 #build-version{position:fixed;right:10px;bottom:8px;z-index:2147483000;padding:4px 8px;border:1px solid rgba(255,255,255,.18);border-radius:7px;background:rgba(5,12,22,.82);color:#e5edf7;font:11px/1.2 system-ui,sans-serif;letter-spacing:.2px;pointer-events:none;user-select:none;box-shadow:0 1px 5px rgba(0,0,0,.35)}
 </style>
 
-</head><body><div id="build-version" aria-label="Phiên bản trò chơi">THẦN GIỚI · v1.9.2</div><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button><button class="mode" id="mode-guide"><span class="ico">📖</span><span><b>Cẩm nang cơ chế & chỉ số</b><small>Giải thích cách vận hành thế giới, ý nghĩa các chỉ số và mẹo quản lý quốc gia.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
+</head><body><div id="build-version" aria-label="Phiên bản trò chơi">THẦN GIỚI · v1.9.3</div><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button><button class="mode" id="mode-guide"><span class="ico">📖</span><span><b>Cẩm nang cơ chế & chỉ số</b><small>Giải thích cách vận hành thế giới, ý nghĩa các chỉ số và mẹo quản lý quốc gia.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
 <div id="game-guide" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="guide-title">
  <div class="pn guide-panel">
   <div class="ph"><b id="guide-title">📖 Cẩm nang Thần Giới</b><small>Giải thích cơ chế và chỉ số</small><button id="guide-close" aria-label="Đóng">✕</button></div>
@@ -761,7 +761,7 @@ const FC=new WeakMap();function farInfo(k){const c=FC.get(k),m=TM()>>2;if(c&&c.m
 function farInfo0(k){const R0=12+Math.min(k.tech,6)*1.5+(hasK(k,'palace')?6:0)+(k.inv.includes('law')?4:0)+(k.inv.includes('write')?3:0),far=[],x0=k.cap%N,y0=k.cap/N|0,cs=k.cities.map(c=>[c.i%N,c.i/N|0,lk(c.i)]);
  for(const i of tilesOf(k)){const x=i%N,y=i/N|0;let d=Math.abs(x-x0)+Math.abs(y-y0);for(const c of cs)d=Math.min(d,(c[2]?1.2:1.8)*(Math.abs(x-c[0])+Math.abs(y-c[1]))+4);if(d>R0)far.push([i,d])}
  return{far,R0}}
-const risk=(k,far)=>k.loy<0&&far.length>=15&&k.n>=40?Math.min(.06,.008+.12*far.length/k.n)*(75-k.loy)/75:0;
+const risk=(k,far)=>{const c=civFor(k),unstable=k.loy<25||(c&&c.stability<45);return W.playerId&&unstable&&far.length>=12&&k.n>=40?Math.min(.075,.006+.14*far.length/k.n)*(1+Math.max(0,45-(c?.stability??45))*.012+Math.max(0,15-k.loy)*.008):0};
 function secede(k,far){if(!k.alive||far.length<12||livingKingdomCount()>=8)return;far.sort((a,b)=>b[1]-a[1]);
  const fs=new Set(far.map(f=>f[0])),seed=far[Math.random()*Math.ceil(far.length*.3)|0][0],take=Math.max(8,Math.min(far.length*.7|0,k.n*.35|0)),seen=new Set([seed]),q=[seed],got=[];
  while(q.length&&got.length<take){const i=q.shift();got.push(i);for(const j of nb(i))if(fs.has(j)&&!seen.has(j)){seen.add(j);q.push(j)}}
@@ -1271,6 +1271,22 @@ function civilizationTick(){
     }
    }
    c.stability=Math.max(15,Math.min(100,c.stability+(surplus>k.pop?0.25:-.18)));
+   // Quá tải đế chế: chỉ áp dụng trong nhập vai, đánh giá mỗi năm.
+   if(annual&&W.playerId){
+    const admin=c.technology?.administration||0,hasLaw=k.inv.includes('law'),hasWrite=k.inv.includes('write'),palace=hasK(k,'palace');
+    const capacity=22+admin*8+k.cities.length*3+(hasLaw?5:0)+(hasWrite?4:0)+(palace?7:0)+c.centralization*.08;
+    const overload=Math.max(0,count-capacity);
+    c.overextension=overload?Math.min(100,overload/Math.max(8,capacity)*100):0;
+    if(overload>0){
+     const strain=Math.min(3.2,.35+overload*.045);
+     c.stability=Math.max(8,c.stability-strain);
+     k.loy=Math.max(-100,k.loy-strain*.55);
+     if(overload>=12&&Math.random()<Math.min(.35,.04+overload*.008))log('⚠️ '+title(k)+' gặp khủng hoảng quản trị: lãnh thổ quá rộng so với bộ máy hành chính.');
+    }else{
+     c.stability=Math.min(100,c.stability+.35);
+     if(c.stability>55)k.loy=Math.min(100,k.loy+.12);
+    }
+   }else c.overextension=0;
    if(c.origin==='east')c.centralization=Math.min(100,c.centralization+.025);
    else if(c.origin==='west')c.centralization=Math.min(100,c.centralization+.012);
   }
@@ -1284,7 +1300,7 @@ function step(){W.month=(W.month|0)+1;if(W.month>=12){W.month=0;W.year++}civiliz
   if(O[k.cap]!==k.id)relocate(k);
   k.pop+=(Math.min((6+(fe[k.id]||0)*5)*(1+Math.min(k.tech,6)*.08),((k.hc||12)+(k.rc||k.n*.9))*1.15)*(k.ff||1)-k.pop)*.05*(W.playerId&&W.rpPace==='slow'?.18:1)*k.race.g*(1+ef(k,5)+eb(k,5)+.03*k.cities.length)*(k.bf.food>0?1.6:1)*civPopulationFactor(k)*ide(k).gr;k.tech+=k.pop*.0006*(W.playerId&&W.rpPace==='slow'?.5:1)*k.race.t*ide(k).t*(1+ef(k,7)+eb(k,7)+TR[k.king.t][2])*(k.id===W.playerId?1+((k.playerBudget?.edu??1)-1)*.18:1);
   if(k.pop<.4){if(k.foundingGrace>0)k.foundingGrace--;else{die(k,'tuyệt chủng vì đói kém');continue}}else k.foundingGrace=0;
-  tp+=k.pop;upkeep(k);invent(k);updateEconomy(k);eqTick(k);if(k.id!==W.playerId&&(W.year*12+W.month)>=400&&!k.ideo&&Math.random()<.1){k.ideo=Math.random()<.5?'soc':'cap';if(k.ideo==='soc'){k.flag=mkFlag(1);log('🚩 '+title(k)+' đổi quốc kỳ sang sắc đỏ và vàng.')}log(IDE[k.ideo].e+' '+title(k)+' đi theo con đường '+IDE[k.ideo].n+(k.ideo==='soc'?': nhà nước nắm kinh tế, chia đều lương thực, quân đội và lòng dân vững chắc hơn nhưng phát triển chậm.':': thị trường tự do thúc đẩy thương mại và khoa học, đổi lại lòng dân bất ổn hơn.'))}if(k.n>=12&&!k.cool&&W.ks.filter(a=>a.alive).length<(k.ideo==='dict'?24:14)&&((k.ideo==='dict'&&k.loy<65&&Math.random()<Math.min(.22,.025+(65-k.loy)*.003))||(k.ideo!=='dict'&&k.loy<0&&Math.random()<(15-k.loy)/200)))rb.push(k);else if(k.n>=30&&!k.rcool&&k.loy<0){const fi=farInfo(k);if(Math.random()<risk(k,fi.far)&&W.ks.filter(a=>a.alive).length<30)sc.push([k,fi.far])}const earlyExpansion=!!(W.playerId&&W.rpPace==='slow'&&(civFor(k)?.era??0)<2);if((earlyExpansion?k.pop>=.05:k.pop>=k.n*(k.tech<1?.85:1))&&Math.random()<(earlyExpansion?.65:W.playerId&&W.rpPace==='slow'?.16:.7))expand(k);if(Math.random()<(W.playerId&&W.rpPace==='slow'?.12:.25))voyage(k);
+  tp+=k.pop;upkeep(k);invent(k);updateEconomy(k);eqTick(k);if(k.id!==W.playerId&&(W.year*12+W.month)>=400&&!k.ideo&&Math.random()<.1){k.ideo=Math.random()<.5?'soc':'cap';if(k.ideo==='soc'){k.flag=mkFlag(1);log('🚩 '+title(k)+' đổi quốc kỳ sang sắc đỏ và vàng.')}log(IDE[k.ideo].e+' '+title(k)+' đi theo con đường '+IDE[k.ideo].n+(k.ideo==='soc'?': nhà nước nắm kinh tế, chia đều lương thực, quân đội và lòng dân vững chắc hơn nhưng phát triển chậm.':': thị trường tự do thúc đẩy thương mại và khoa học, đổi lại lòng dân bất ổn hơn.'))}if(k.n>=12&&!k.cool&&W.ks.filter(a=>a.alive).length<(k.ideo==='dict'?24:14)&&((k.ideo==='dict'&&k.loy<65&&Math.random()<Math.min(.22,.025+(65-k.loy)*.003))||(k.ideo!=='dict'&&k.loy<0&&Math.random()<(15-k.loy)/200)))rb.push(k);else if(W.playerId&&k.n>=30&&!k.rcool&&(k.loy<25||(civFor(k)?.stability??100)<45)){const fi=farInfo(k);if(Math.random()<risk(k,fi.far)&&W.ks.filter(a=>a.alive).length<30)sc.push([k,fi.far])}const earlyExpansion=!!(W.playerId&&W.rpPace==='slow'&&(civFor(k)?.era??0)<2);if((earlyExpansion?k.pop>=.05:k.pop>=k.n*(k.tech<1?.85:1))&&Math.random()<(earlyExpansion?.65:W.playerId&&W.rpPace==='slow'?.16:.7))expand(k);if(Math.random()<(W.playerId&&W.rpPace==='slow'?.12:.25))voyage(k);
   const e=Math.min(5,k.tech|0);if(e>k.era){k.era=e;log('📈 '+title(k)+' bước vào <i>'+ERA[e]+'</i>.')}
   for(const id in k.rel)k.rel[id]*=.96}
  if(!(W.scd>0)){const n0=W.ks.length;if(rb.length)rebel(rb[Math.random()*rb.length|0]);else if(sc.length){const a=rnd(sc);secede(a[0],a[1])}if(W.ks.length>n0)W.scd=12}else W.scd--;
