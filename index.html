@@ -599,7 +599,7 @@ const BLD=[['house','🏠','Nhà ở',0,'Thêm chỗ ở cho dân cư.',0,0,0,0,
 const LIM={house:8,farm:5,sawmill:2,quarry:2},HB=[8,18,36,64],LVN=['Làng','Thị trấn','Thành phố','Đô thị lớn'],LVP=[0,6,15,30],LVA=[0,10,20,34],LVT=[0,.3,1.5,3],LVC=[[0,0,0],[10,4,8],[24,14,16],[50,32,32]],ZC={c:'#ffd54f',r:'#4fc3f7',p:'#a1887f',d:'#ef5350'};
 const bd=t=>BLD.find(v=>v[0]===t),dist=(a,b)=>Math.abs(a%N-b%N)+Math.abs((a/N|0)-(b/N|0)),coast=i=>nb(i).some(j=>T[j]<=1);
 const cd=i=>CD[i]||(CD[i]={lv:0,f:10,pop:0,cap:8,area:0,bal:0,fam:0,y:[0,0,0]}),cts=k=>[[k.cap,k.cname,1],...k.cities.map(c=>[c.i,c.n,0])],rs=k=>k.rs||(k.rs={w:8,s:3,g:5});
-const canPay=(k,c)=>{const R=rs(k);return R.w>=c[0]&&R.s>=c[1]&&R.g>=c[2]},payC=(k,c)=>{const R=rs(k);R.w-=c[0];R.s-=c[1];R.g-=c[2]};
+const canPay=(k,c)=>{const R=rs(k);return R.w>=c[0]&&R.s>=c[1]&&R.g>=c[2]},payC=(k,c)=>{adjustKingdomResource(k,'w',-c[0]);adjustKingdomResource(k,'s',-c[1]);adjustKingdomResource(k,'g',-c[2])};
 const startB=(k,ci,v,i)=>{payC(k,v[11]);const building={t:v[0],i,c:ci,h:100,p:0,n:v[12]};if(ThanhGioiWorld.isAttached())ThanhGioiWorld.addBuilding(building);else BL.push(building)},hasB=(ci,t)=>BL.some(b=>b.c===ci&&b.t===t&&b.p>=b.n),hasK=(k,t)=>BL.some(b=>b.t===t&&b.p>=b.n&&O[b.i]===k.id);
 const hurt=(t,r,a)=>{for(const q of BL)if(dist(q.i,t)<=r)q.h-=a},lk=i=>RD.some(r=>!r.cut&&r.p>=r.n&&(r.a===i||r.b===i));
 const nameAt=i=>{const o=O[i],k=o&&K(o);return k?(i===k.cap?k.cname:(k.cities.find(c=>c.i===i)||{n:'?'}).n):'?'};
@@ -619,7 +619,7 @@ function roads(){for(let x=RD.length;x--;){const r=RD[x],A=O[r.a],B=O[r.b],a=A&&
  if(ok)ok=r.pts.every((p,j)=>r.s?(j===0||j===r.pts.length-1||T[p]<=1):(T[p]>=2&&(!O[p]||O[p]===A||O[p]===B)));if(ok&&r.s)ok=hasB(r.a,'harbor')&&hasB(r.b,'harbor');
  r.cut=!ok;if(r.h<=0||(!ok&&(r.cc=(r.cc||0)+1)>4)){RD.splice(x,1);log('🏚 Tuyến '+(r.s?'đường biển':'đường bộ')+' giữa '+nameAt(r.a)+' và '+nameAt(r.b)+' bị đứt gãy.');continue}
  if(!ok)continue;r.cc=0;if(r.p<r.n){r.p++;continue}r.h=Math.min(100,r.h+4);const da=cd(r.a),db=cd(r.b),df=da.f-db.f;if(Math.abs(df)>6){const q=Math.min(4,Math.abs(df)/3),[s,t]=df>0?[da,db]:[db,da];s.f-=q;t.f+=q}
- rs(a).g+=.8;rs(b).g+=.8;a.tech+=.015;b.tech+=.015;if(A!==B)sr(a,b,1)}}
+ adjustKingdomResource(a,'g',.8);adjustKingdomResource(b,'g',.8);a.tech+=.015;b.tech+=.015;if(A!==B)sr(a,b,1)}}
 // Thiên tai
 function disaster(ty,c,god){const[em,nm,r,a,b]={flood:['🌊','Lũ lụt tràn qua',3,25,35],fire:['🏚','Hỏa hoạn thiêu rụi',2,30,40],quake:['🌋','Động đất làm rung chuyển',4,30,50],storm:['🌪','Bão lớn quét qua',5,10,25]}[ty];let n=0;const dead=[];
  for(const q of BL.slice())if(dist(q.i,c)<=r){q.h-=a+Math.random()*b;n++;if(q.h<=0){if(ThanhGioiWorld.isAttached())ThanhGioiWorld.removeBuilding(q);else BL.splice(BL.indexOf(q),1);dead.push(bd(q.t)[1])}}
@@ -649,12 +649,12 @@ function drawBL(sc){cx.font='13px serif';for(const b of BL){const v=bd(b.t),x=(b
 /* ---- Tài nguyên: ban phát tài nguyên và mỏ dầu cho các nước (chạm vào lãnh thổ của nước muốn ban) ---- */
 const GF={g_w:['🪵 Gỗ',6,'Ban 40 🪵 gỗ cho nước được chạm (kho có giới hạn theo số thành phố).'],g_s:['🪨 Đá',6,'Ban 40 🪨 đá cho nước được chạm (kho có giới hạn theo số thành phố).'],g_g:['💰 Vàng',8,'Ban 40 💰 vàng dùng để xây dựng, sửa chữa công trình.'],g_c:['🏦 Ngân khố',10,'Ban 25 💰 vào ngân khố quốc gia: chi cho quân đội, khí tài và bù thâm hụt.'],g_f:['🌾 Lương thực',8,'Ban 12 lương thực vào kho của mọi thành phố trong nước được chạm, giúp chống đói.'],g_oil:['🛢️ Dầu',8,'Ban 12 🛢️ dầu vào kho dự trữ của nước được chạm (cho công nghiệp và khí tài cơ giới).'],g_mine:['⛽ Mỏ dầu',12,'Tạo mỏ dầu (+150) ngay trên ô đất được chạm trong lãnh thổ. Có thể chồng thêm, tối đa 400 mỗi ô.']};
 function gift(id,k,i){const R=rs(k),e=econOf(k),cap=60+40*cts(k).length,g=GF[id];let m;
- if(id==='g_w'){if(R.w>=cap)return toast('Kho gỗ đã đầy');if(!pay(g[1]))return;R.w=Math.min(cap,R.w+40);m='40 🪵 gỗ'}
- else if(id==='g_s'){if(R.s>=cap)return toast('Kho đá đã đầy');if(!pay(g[1]))return;R.s=Math.min(cap,R.s+40);m='40 🪨 đá'}
- else if(id==='g_g'){if(R.g>=cap*1.5)return toast('Kho vàng đã đầy');if(!pay(g[1]))return;R.g=Math.min(cap*1.5,R.g+40);m='40 💰 vàng'}
- else if(id==='g_c'){if(!pay(g[1]))return;e.cash=Math.min(99999,e.cash+25);m='25 💰 vào ngân khố'}
+ if(id==='g_w'){if(R.w>=cap)return toast('Kho gỗ đã đầy');if(!pay(g[1]))return;setKingdomResource(k,'w',Math.min(cap,R.w+40));m='40 🪵 gỗ'}
+ else if(id==='g_s'){if(R.s>=cap)return toast('Kho đá đã đầy');if(!pay(g[1]))return;setKingdomResource(k,'s',Math.min(cap,R.s+40));m='40 🪨 đá'}
+ else if(id==='g_g'){if(R.g>=cap*1.5)return toast('Kho vàng đã đầy');if(!pay(g[1]))return;setKingdomResource(k,'g',Math.min(cap*1.5,R.g+40));m='40 💰 vàng'}
+ else if(id==='g_c'){if(!pay(g[1]))return;setEconomyStat(k,'cash',Math.min(99999,e.cash+25));m='25 💰 vào ngân khố'}
  else if(id==='g_f'){if(!pay(g[1]))return;for(const c of cts(k))cd(c[0]).f+=12;m='12 🌾 lương thực cho mỗi thành phố của'}
- else if(id==='g_oil'){if(!pay(g[1]))return;e.oil+=12;m='12 🛢️ dầu'}
+ else if(id==='g_oil'){if(!pay(g[1]))return;setEconomyStat(k,'oil',e.oil+12);m='12 🛢️ dầu'}
  else{if(T[i]<2||T[i]>5)return toast('Mỏ dầu chỉ nằm trên đất liền (không phải núi cao)');if(!W.oil)W.oil=new Array(N*H).fill(0);if((W.oil[i]||0)>=400)return toast('Mỏ dầu ở ô này đã đầy');if(!pay(g[1]))return;W.oil[i]=Math.min(400,(W.oil[i]||0)+150);k.loy=Math.min(100,k.loy+1);log('🛢️ Theo ý chúa, một mỏ dầu mới phát lộ trong lãnh thổ '+title(k)+'.');return}
  k.loy=Math.min(100,k.loy+1);log('🎁 Thần linh ban '+m+(m.endsWith('của')?' ':' cho ')+title(k)+'.')}
 TOOLS.push(['Tài nguyên',Object.keys(GF).map(id=>[id,GF[id][0]+' '+GF[id][1]])]);
@@ -669,10 +669,10 @@ function build(k){k.cities=k.cities.filter(c=>O[c.i]===k.id);const R=rs(k),cs=ct
  for(const{ci,nm,cp,d,bs,cnt}of L){d.pop=k.pop*d.cap/hc;
   // lương thực: dân số tạo nhu cầu, ruộng + đất quanh thành tạo nguồn cung
   d.bal=(d.y[0]+cnt('farm')*3+cnt('granary')*.5)*m*(k.bf.food>0?1.5:1)*(rice?1.3:1)-d.pop*.12*(rice?.85:1);d.f+=d.bal;d.fam=0;d.f=Math.min(d.f,22+cnt('granary')*30+d.lv*15);
-  const lab=Math.min(1.5,.5+d.pop/10);R.g+=(.5+d.pop*.05+cnt('market')*2)*m*ide(k).g;R.w+=(.8+d.y[1]+cnt('sawmill')*2)*m*lab;R.s+=(.4+d.y[2]+cnt('quarry')*2)*m*lab;
+  const lab=Math.min(1.5,.5+d.pop/10);adjustKingdomResource(k,'g',(.5+d.pop*.05+cnt('market')*2)*m*ide(k).g);adjustKingdomResource(k,'w',(.8+d.y[1]+cnt('sawmill')*2)*m*lab);adjustKingdomResource(k,'s',(.4+d.y[2]+cnt('quarry')*2)*m*lab);
   // xây dựng theo thời gian
   const q=bs.filter(b=>b.p<b.n),ms=1+(d.lv>1);for(const b of q.slice(0,ms)){b.p=Math.min(b.n,b.p+Math.min(2,.5+d.pop/20)*k.race.b*(W.playerId&&W.rpPace==='slow'?.7:1));if(b.p>=b.n&&!/house|farm|sawmill|quarry/.test(b.t))log('🏗 '+title(k)+' hoàn thành '+bd(b.t)[2]+' tại '+nm+': '+bd(b.t)[4])}
-  for(const b of bs)if(b.p>=b.n&&b.h<100&&R.g>=.3){b.h=Math.min(100,b.h+8);R.g-=.3}
+  for(const b of bs)if(b.p>=b.n&&b.h<100&&R.g>=.3){b.h=Math.min(100,b.h+8);adjustKingdomResource(k,'g',-.3)}
   // nâng cấp: đủ dân số + diện tích + công nghệ + tài nguyên
   if(d.lv<3&&d.pop>=LVP[d.lv+1]&&d.area>=LVA[d.lv+1]&&k.tech>=LVT[d.lv+1]&&canPay(k,LVC[d.lv+1])){payC(k,LVC[d.lv+1]);d.lv++;log('🌆 '+nm+' của '+title(k)+' phát triển thành '+LVN[d.lv]+'.')}
   // AI xây dựng theo nhu cầu, định hướng của người chơi và ngân sách thành phố
@@ -682,7 +682,7 @@ function build(k){k.cities=k.cities.filter(c=>O[c.i]===k.id);const R=rs(k),cs=ct
    for(const id in sc)sc[id]*=(boosts[id]||1)*budgetFactor;
    const op=BLD.filter(v=>k.tech>=v[3]&&sc[v[0]]&&bs.filter(b=>b.t===v[0]).length<(LIM[v[0]]||1)&&canPay(k,v[11])&&(plan.budget!=='low'||R.g-v[11][2]>=2)).map(v=>[v,sc[v[0]]*(.9+Math.random()*.2)]).sort((a,b)=>b[1]-a[1]);
    for(const[v]of op){const i=site(k,ci,v);if(i>=0){startB(k,ci,v,i);break}}}}
- const cap=60+40*cs.length;R.w=Math.min(R.w,cap);R.s=Math.min(R.s,cap);R.g=Math.min(R.g,cap*1.5);
+ const cap=60+40*cs.length;setKingdomResource(k,'w',Math.min(R.w,cap));setKingdomResource(k,'s',Math.min(R.s,cap));setKingdomResource(k,'g',Math.min(R.g,cap*1.5));
  // Ổn định lương thực: thành dư (giữ lại 4) chi viện cho thành thiếu (đường bộ hao hụt ít hơn); phần còn thiếu chỉ gây đói theo tỷ lệ
  {const don=L.filter(x=>x.d.f>4),dfc=L.filter(x=>x.d.f<0);
   for(const x of dfc){let need=-x.d.f;for(const y of don){if(need<=0)break;const av=y.d.f-4;if(av<=0)continue;const ee=lk(y.ci)&&lk(x.ci)?.9:.6,tk=Math.min(av,need/ee);y.d.f-=tk;x.d.f+=tk*ee;need-=tk*ee}}
@@ -1023,7 +1023,7 @@ function eqTick(k){const e=econOf(k),q=eqOf(k),R=rs(k);let uc=0,uo=0;
  const p=av.map(v=>[v,v[7]/(v[8][0]+1)*kw(v)/(1+(q.s[v[0]]||0)/(k.army*.4+1))*(.85+Math.random()*.3)]).sort((a,b)=>b[1]-a[1])[0][0],c=p[8];
  const u=Math.min(q.pr,(e.cash-6)*.5/Math.max(.1,c[0]),c[1]?R.w/c[1]:9,c[2]?R.s/c[2]:9,c[3]?(e.oil-.5)/c[3]:9);
  if(u<.02)return;
- setEconomyStat(k,'cash',e.cash-c[0]*u);R.w-=c[1]*u;R.s-=c[2]*u;setEconomyStat(k,'oil',e.oil-c[3]*u);adjustEquipmentAmount(k,p[0],u);
+ setEconomyStat(k,'cash',e.cash-c[0]*u);adjustKingdomResource(k,'w',-c[1]*u);adjustKingdomResource(k,'s',-c[2]*u);setEconomyStat(k,'oil',e.oil-c[3]*u);adjustEquipmentAmount(k,p[0],u);
  if(!q.seen[p[0]]&&q.s[p[0]]>=.3){q.seen[p[0]]=1;log('🏭 '+title(k)+' bắt đầu trang bị '+p[1]+' '+p[2]+'.')}}
 function eqHtml(k){const q=eqOf(k),own=EQ.filter(v=>(q.s[v[0]]||0)>=.005),ds=' data-k="'+k.id+'"';
  let h='<div class="econ"><div><small>Sức mạnh quân sự cộng thêm</small><b>💪 +'+Math.round(eqBonus(k)*100)+'%</b></div><div><small>Công suất chế tạo / tháng</small><b>🏭 '+fmt(q.pr*100)+'</b></div><div><small>Bảo dưỡng / tháng</small><b>💰'+q.uc.toFixed(2)+' · 🛢️'+q.uo.toFixed(2)+'</b></div><div><small>Nhiên liệu</small><b>'+(q.fu>=.99?'⛽ Đủ':'🔻 Thiếu '+Math.round((1-q.fu)*100)+'%')+'</b></div></div>';
@@ -1038,7 +1038,9 @@ function econOf(k){return k.econ||(k.econ={cash:35,oil:0,gdp:0,industry:1,unempl
 function setEconomyStat(k,field,value){if(ThanhGioiWorld.isAttached())return ThanhGioiWorld.setEconomyStat(k.id,field,value);econOf(k)[field]=value;return value}
 function setEquipmentAmount(k,itemId,value){if(ThanhGioiWorld.isAttached())return ThanhGioiWorld.setEquipmentAmount(k.id,itemId,value);const q=eqOf(k);if(value<=0)delete q.s[itemId];else q.s[itemId]=value;return value}
 function adjustEquipmentAmount(k,itemId,delta){if(ThanhGioiWorld.isAttached())return ThanhGioiWorld.adjustEquipmentAmount(k.id,itemId,delta);const q=eqOf(k),value=Math.max(0,(q.s[itemId]||0)+delta);if(value<=0)delete q.s[itemId];else q.s[itemId]=value;return value}
-function updateEconomy(k){const e=econOf(k),owned=tilesOf(k);let deposits=0,oilSites=0;for(const i of owned){const v=ThanhGioiWorld.getResource(i);if(v>0){deposits+=v;oilSites++}}
+function setKingdomResource(k,field,value){if(ThanhGioiWorld.isAttached())return ThanhGioiWorld.setKingdomResource(k.id,field,value);const R=rs(k);R[field]=Math.max(0,value);return R[field]}
+ function adjustKingdomResource(k,field,delta){if(ThanhGioiWorld.isAttached())return ThanhGioiWorld.adjustKingdomResource(k.id,field,delta);const R=rs(k);R[field]=Math.max(0,R[field]+delta);return R[field]}
+ function updateEconomy(k){const e=econOf(k),owned=tilesOf(k);let deposits=0,oilSites=0;for(const i of owned){const v=ThanhGioiWorld.getResource(i);if(v>0){deposits+=v;oilSites++}}
  const factories=BL.filter(b=>O[b.i]===k.id&&b.p>=b.n&&b.t==='factory').length;
  const refineries=BL.filter(b=>O[b.i]===k.id&&b.p>=b.n&&b.t==='forge').length;
  const industrial=Math.max(0,(k.tech-2.2)/3)+factories*.7+refineries*.15;
@@ -1282,13 +1284,13 @@ function roleplayControls(k){
 function roleplayAction(k,a,v){
  if(!k||k.id!==W.playerId)return;const e=econOf(k),levels=[.5,1,1.5,2];
  if(a==='tax'){const vals=[0,.1,.2,.3],i=vals.indexOf(k.playerTax||0);k.playerTax=vals[(i+1)%vals.length];log('💰 Chính phủ '+title(k)+' điều chỉnh mức thuế lên '+Math.round(k.playerTax*100)+'%.')}
- if(a==='budget'){k.playerBudget??={mil:1,ind:1,edu:1};const i=levels.indexOf(k.playerBudget[v]??1);k.playerBudget[v]=levels[(i+1)%levels.length];const names={mil:'quốc phòng',ind:'công nghiệp',edu:'giáo dục'};log('📊 Ngân sách '+names[v]+' của '+title(k)+' chuyển sang mức '+k.playerBudget[v]+'x.')}
- if(a==='recruit'){if(e.cash<8)return toast('Ngân khố không đủ 8 để tuyển quân');const n=Math.min(k.pop*.6-k.army,Math.max(1,k.pop*.06));if(n<=0)return toast('Quân đội đã đạt giới hạn nhân lực');k.army+=n;e.cash-=8;log('🪖 '+title(k)+' tuyển thêm '+fmt(n*100)+' binh sĩ theo lệnh của người chơi.')}
- if(a==='demob'){const n=k.army*.12;k.army-=n;e.cash=Math.min(99999,e.cash+n*.025);log('📉 '+title(k)+' giải ngũ '+fmt(n*100)+' binh sĩ, giảm áp lực ngân sách.')}
+ if(a==='budget'){const current=k.playerBudget?.[v]??1,i=levels.indexOf(current);ThanhGioiWorld.setKingdomBudget(k.id,v,levels[(i+1)%levels.length]);const names={mil:'quốc phòng',ind:'công nghiệp',edu:'giáo dục'};log('📊 Ngân sách '+names[v]+' của '+title(k)+' chuyển sang mức '+k.playerBudget[v]+'x.')}
+ if(a==='recruit'){if(e.cash<8)return toast('Ngân khố không đủ 8 để tuyển quân');const n=Math.min(k.pop*.6-k.army,Math.max(1,k.pop*.06));if(n<=0)return toast('Quân đội đã đạt giới hạn nhân lực');setKingdomStat(k,'army',k.army+n);setEconomyStat(k,'cash',e.cash-8);log('🪖 '+title(k)+' tuyển thêm '+fmt(n*100)+' binh sĩ theo lệnh của người chơi.')}
+ if(a==='demob'){const n=k.army*.12;setKingdomStat(k,'army',k.army-n);setEconomyStat(k,'cash',Math.min(99999,e.cash+n*.025));log('📉 '+title(k)+' giải ngũ '+fmt(n*100)+' binh sĩ, giảm áp lực ngân sách.')}
  if(a==='doctrine'&&['balanced','offensive','defensive'].includes(v)){k.playerArmyDoctrine=v;const names={balanced:'Cân bằng',offensive:'Tấn công',defensive:'Phòng thủ'};log('⚔️ '+title(k)+' chuyển học thuyết quân sự sang '+names[v]+'.')}
- if(a==='fleet'&&['galley','ironclad'].includes(v)){const item=EQ.find(x=>x[0]===v),q=eqOf(k),R=rs(k),u=.1,c=item[8].map(x=>x*u);if(!eqAvail(k,item))return toast('Chưa đáp ứng công nghệ, phát minh hoặc công trình đóng tàu');if(e.cash<c[0]||R.w<c[1]||R.s<c[2]||e.oil<c[3])return toast('Thiếu ngân khố, gỗ, đá hoặc nhiên liệu để đóng tàu');setEconomyStat(k,'cash',e.cash-c[0]);R.w-=c[1];R.s-=c[2];setEconomyStat(k,'oil',e.oil-c[3]);adjustEquipmentAmount(k,v,u);log('⚓ '+title(k)+' hoàn thành lô 10 '+item[2]+'.');}
- if(a==='industry'||a==='research'){if(e.cash<8)return toast('Ngân khố không đủ 8');e.cash-=8;if(a==='industry'){e.industry=Math.min(100,e.industry+1);log('🏭 Chính phủ '+title(k)+' đầu tư mở rộng công nghiệp.')}else{k.tech=Math.min(12,k.tech+.12);log('🔬 '+title(k)+' cấp ngân sách cho chương trình nghiên cứu quốc gia.')}}
- if(a==='ideology'&&IDE[v]&&v!==k.ideo){if(k.tech<5)return toast('🔒 Chỉ có thể thay đổi thể chế sau Cách mạng công nghiệp lần thứ nhất (Thời Công nghiệp).');if(e.cash<10)return toast('Cần 10 ngân khố để cải cách thể chế');e.cash-=10;const old=IDE[k.ideo]?.n||'thể chế cũ';k.ideo=v;k.flag=v==='soc'?mkFlag(1):v==='fas'?{fas:1}:v==='dict'?{dict:1}:v==='mon'?{mon:1}:v==='rep'?{rep:1}:mkFlag(0);k.loy=Math.max(-100,k.loy-(v==='dict'?12:5));log('🏛 '+title(k)+' chuyển từ '+old+' sang '+IDE[v].n+' theo quyết định của người chơi.')}
+ if(a==='fleet'&&['galley','ironclad'].includes(v)){const item=EQ.find(x=>x[0]===v),q=eqOf(k),R=rs(k),u=.1,c=item[8].map(x=>x*u);if(!eqAvail(k,item))return toast('Chưa đáp ứng công nghệ, phát minh hoặc công trình đóng tàu');if(e.cash<c[0]||R.w<c[1]||R.s<c[2]||e.oil<c[3])return toast('Thiếu ngân khố, gỗ, đá hoặc nhiên liệu để đóng tàu');setEconomyStat(k,'cash',e.cash-c[0]);adjustKingdomResource(k,'w',-c[1]);adjustKingdomResource(k,'s',-c[2]);setEconomyStat(k,'oil',e.oil-c[3]);adjustEquipmentAmount(k,v,u);log('⚓ '+title(k)+' hoàn thành lô 10 '+item[2]+'.');}
+ if(a==='industry'||a==='research'){if(e.cash<8)return toast('Ngân khố không đủ 8');setEconomyStat(k,'cash',e.cash-8);if(a==='industry'){setEconomyStat(k,'industry',Math.min(100,e.industry+1));log('🏭 Chính phủ '+title(k)+' đầu tư mở rộng công nghiệp.')}else{setKingdomStat(k,'tech',Math.min(12,k.tech+.12));log('🔬 '+title(k)+' cấp ngân sách cho chương trình nghiên cứu quốc gia.')}}
+ if(a==='ideology'&&IDE[v]&&v!==k.ideo){if(k.tech<5)return toast('🔒 Chỉ có thể thay đổi thể chế sau Cách mạng công nghiệp lần thứ nhất (Thời Công nghiệp).');if(e.cash<10)return toast('Cần 10 ngân khố để cải cách thể chế');setEconomyStat(k,'cash',e.cash-10);const old=IDE[k.ideo]?.n||'thể chế cũ';k.ideo=v;k.flag=v==='soc'?mkFlag(1):v==='fas'?{fas:1}:v==='dict'?{dict:1}:v==='mon'?{mon:1}:v==='rep'?{rep:1}:mkFlag(0);setKingdomStat(k,'loy',Math.max(-100,k.loy-(v==='dict'?12:5)));log('🏛 '+title(k)+' chuyển từ '+old+' sang '+IDE[v].n+' theo quyết định của người chơi.')}
  ui();draw();
 }
 function roleplayDashboard(k){
@@ -1441,7 +1443,7 @@ function grantPlayerOil(k){
  const candidates=owned.filter(i=>T[i]>=2&&T[i]<=5).sort(()=>Math.random()-.5);
  const count=Math.min(7,candidates.length);
  for(let j=0;j<count;j++)W.oil[candidates[j]]=Math.max(W.oil[candidates[j]]||0,850+Math.random()*350|0);
- const e=econOf(k);e.oil=Math.max(e.oil,65);e.cash=Math.max(e.cash,90);
+ const e=econOf(k);setEconomyStat(k,'oil',Math.max(e.oil,65));setEconomyStat(k,'cash',Math.max(e.cash,90));
  log('🛢️ Ưu thế quốc gia: '+k.name+' sở hữu '+count+' mỏ dầu trữ lượng lớn cùng ngân khố khởi đầu dồi dào.');
 }
 function openGameGuide(){const g=$('#game-guide');if(g)g.hidden=false;}
