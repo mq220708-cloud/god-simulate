@@ -116,3 +116,10 @@ The roleplay ideology eligibility check now computes and records the pending cho
 - Added `getOwner(index)` and validated `setOwner(index, kingdomId)` to the DOM-free world context. Owner writes increment the context revision; invalid tile indices and negative/non-integer kingdom IDs are rejected.
 - Routed the combat occupation write and overseas-colony founding/adjacent-claim writes through `setOwner`, with pre-attachment fallbacks retained for startup compatibility.
 - This is a narrow first migration of runtime ownership mutations. Other territory writes (including initial map generation, divine terrain actions, rebellion/succession, death cleanup, and AI expansion) remain to be migrated deliberately; direct `O` access still exists throughout the legacy simulation.
+
+
+### Building collection mutation seam
+
+- Added `getBuildings`, `addBuilding`, `removeBuilding`, `removeBuildingsAt`, and `replaceBuildings` to the DOM-free world context. Mutations validate building records/tile indices and increment the context revision.
+- Routed construction placement, removal of buildings when founding a city, disaster destruction, and monthly cleanup through the context API. A pre-attachment fallback remains for startup compatibility.
+- This does not yet encapsulate every building field mutation (such as construction progress and durability updates); legacy code still edits individual building records directly. The collection API is an incremental boundary, not yet an authoritative multiplayer command layer.
