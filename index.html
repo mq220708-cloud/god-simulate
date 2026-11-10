@@ -1217,6 +1217,16 @@ function ensureCivilizations(){
  }
 }
 function civFor(k){return (W.civs||[]).find(c=>c.polityId===k.id)}
+// Giới hạn công nghệ tổng hợp theo mức trưởng thành thực tế của 7 nhánh văn minh.
+// Giữ hệ công nghệ tự do nguyên trạng; trong nhập vai, điểm công nghệ không thể vượt quá nền tảng văn minh.
+function roleplayTechCeiling(k){
+ if(!W?.playerId)return Infinity;
+ const c=civFor(k);if(!c)return 1.5;
+ const values=Object.values(c.technology||{});
+ const avg=values.length?values.reduce((a,v)=>a+(Number(v)||0),0)/values.length:0;
+ const progress=Math.max(0,Math.min(1,avg/3));
+ return 1.5*Math.pow(200,Math.pow(progress,2.2));
+}
 function civPopulationFactor(k){
  if(!W?.playerId)return 1;
  const c=civFor(k);if(!c)return 1;
@@ -1320,7 +1330,7 @@ function step(){W.month=(W.month|0)+1;if(W.month>=12){W.month=0;W.year++}civiliz
  TLS=tl;
  for(const k of W.ks){if(!k.alive)continue;k.n=n[k.id]||0;if(!k.n){die(k,'đã diệt vong');continue}
   if(O[k.cap]!==k.id)relocate(k);
-  k.pop+=(Math.min((6+(fe[k.id]||0)*5)*(1+Math.min(k.tech,6)*.08),((k.hc||12)+(k.rc||k.n*.9))*1.15)*(k.ff||1)-k.pop)*.05*(W.playerId&&W.rpPace==='slow'?.18:1)*k.race.g*(1+ef(k,5)+eb(k,5)+.03*k.cities.length)*(k.bf.food>0?1.6:1)*civPopulationFactor(k)*ide(k).gr;k.tech+=k.pop*.0006*(W.playerId&&W.rpPace==='slow'?.5:1)*k.race.t*ide(k).t*(1+ef(k,7)+eb(k,7)+TR[k.king.t][2])*(k.id===W.playerId?1+((k.playerBudget?.edu??1)-1)*.18:1);
+  k.pop+=(Math.min((6+(fe[k.id]||0)*5)*(1+Math.min(k.tech,6)*.08),((k.hc||12)+(k.rc||k.n*.9))*1.15)*(k.ff||1)-k.pop)*.05*(W.playerId&&W.rpPace==='slow'?.18:1)*k.race.g*(1+ef(k,5)+eb(k,5)+.03*k.cities.length)*(k.bf.food>0?1.6:1)*civPopulationFactor(k)*ide(k).gr;const techCeiling=roleplayTechCeiling(k);if(W.playerId&&k.tech>techCeiling)k.tech=techCeiling;const techGain=k.pop*.0006*(W.playerId&&W.rpPace==='slow'?.5:1)*k.race.t*ide(k).t*(1+ef(k,7)+eb(k,7)+TR[k.king.t][2])*(k.id===W.playerId?1+((k.playerBudget?.edu??1)-1)*.18:1)*(W.playerId?.12*Math.max(.08,1-k.tech/Math.max(1,techCeiling)):1);k.tech=W.playerId?Math.min(techCeiling,k.tech+techGain):k.tech+techGain;
   if(k.pop<.4){if(k.foundingGrace>0)k.foundingGrace--;else{die(k,'tuyệt chủng vì đói kém');continue}}else k.foundingGrace=0;
   tp+=k.pop;upkeep(k);invent(k);updateEconomy(k);eqTick(k);if(k.id!==W.playerId&&(W.year*12+W.month)>=400&&!k.ideo&&Math.random()<.1){k.ideo=Math.random()<.5?'soc':'cap';if(k.ideo==='soc'){k.flag=mkFlag(1);log('🚩 '+title(k)+' đổi quốc kỳ sang sắc đỏ và vàng.')}log(IDE[k.ideo].e+' '+title(k)+' đi theo con đường '+IDE[k.ideo].n+(k.ideo==='soc'?': nhà nước nắm kinh tế, chia đều lương thực, quân đội và lòng dân vững chắc hơn nhưng phát triển chậm.':': thị trường tự do thúc đẩy thương mại và khoa học, đổi lại lòng dân bất ổn hơn.'))}if(k.n>=12&&!k.cool&&W.ks.filter(a=>a.alive).length<(k.ideo==='dict'?24:14)&&((k.ideo==='dict'&&k.loy<65&&Math.random()<Math.min(.22,.025+(65-k.loy)*.003))||(k.ideo!=='dict'&&k.loy<0&&Math.random()<(15-k.loy)/200)))rb.push(k);else if(W.playerId&&k.n>=30&&!k.rcool&&(k.loy<25||(civFor(k)?.stability??100)<45)){const fi=farInfo(k);if(Math.random()<risk(k,fi.far)&&W.ks.filter(a=>a.alive).length<30)sc.push([k,fi.far])}const earlyExpansion=!!(W.playerId&&W.rpPace==='slow'&&(civFor(k)?.era??0)<2);if((earlyExpansion?k.pop>=.05:k.pop>=k.n*(k.tech<1?.85:1))&&Math.random()<(earlyExpansion?.65:W.playerId&&W.rpPace==='slow'?.16:.7))expand(k);if(Math.random()<(W.playerId&&W.rpPace==='slow'?.12:.25))voyage(k);
   const e=Math.min(5,k.tech|0);if(e>k.era){k.era=e;log('📈 '+title(k)+' bước vào <i>'+ERA[e]+'</i>.')}
