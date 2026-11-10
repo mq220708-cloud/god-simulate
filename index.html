@@ -1060,7 +1060,7 @@ function updateEconomy(k){const e=econOf(k),owned=tilesOf(k);let deposits=0,oilS
  if(e.cash<1&&W.month===0&&Math.random()<.06){k.loy=Math.max(-100,k.loy-1);log('📉 Ngân khố '+title(k)+' cạn kiệt, chính phủ phải cắt giảm chi tiêu.')} }
 // Khi một nước kiểm soát toàn bộ đất liền có thể sinh sống và là quốc gia duy nhất còn tồn tại, chuyển sang độc tài một lần duy nhất.
 function checkWorldConquest(){
- const alive=W.ks.filter(k=>k.alive);
+ const alive=ThanhGioiWorld.getLivingKingdoms();
  if(alive.length!==1)return;
  const k=alive[0];let land=0;
  for(let i=0;i<N*H;i++)if(T[i]>=2){land++;if(O[i]!==k.id)return}
