@@ -303,6 +303,7 @@ body.rp-mode #chips { display:none !important; }
 <script src="./src/shared/world-state.js"></script>
 <script src="./src/shared/simulation-engine.js"></script>
 <script src="./src/shared/simulation-effects.js"></script>
+<script src="./src/client/simulation-effects-adapter.js"></script>
 <script>
 const ThanhGioiSimulationRuntime=ThanhGioiSimulation(()=>step());
 let N=88,H=88,C=10;const $=s=>document.querySelector(s),cv=$('#cv');let cx=cv.getContext('2d');cv.width=N*C;cv.height=H*C;
@@ -332,8 +333,7 @@ const mo=()=>(W.month|0)+1;
 // Biên niên sử chỉ giữ các biến cố có ảnh hưởng lớn đến vận mệnh quốc gia.
 function importantChronicle(m){return /🌱|⚔️|🛡|💀|☠️|☄️|🌋|🌪|🏴|🔥|🏯|💔|📉|📈|🚩|tuyên bố độc lập|tách ra giành độc lập|nổi dậy|diệt vong|tuyệt chủng|qua đời|kế vị|lên ngôi|tranh chấp kế vị|đã thống nhất toàn bộ thế giới|chiếm thành phố|thất thủ|ký kết liên minh|liên minh giữa .* tan vỡ|bước vào <i>/i.test(m)}
 const log=m=>{if(!importantChronicle(m))return;const t='<b>Năm '+W.year+' · T'+mo()+'</b> '+m;W.log.unshift(t);if(W.log.length>180)W.log.pop();ThanhGioiSimulationEffects.emit({type:'notification',html:'<b>T'+mo()+'/'+W.year+'</b> '+m})};
-ThanhGioiSimulationEffects.subscribe(effect=>{if(effect.type==='notification')notify(effect.html)});
-ThanhGioiSimulationEffects.subscribe(effect=>{if(effect.type!=='ideology-choice-required')return;$('#rp-ideology-options').innerHTML=effect.options.map(x=>'<button class="rioption" data-rp-ideology="'+x.id+'"><b>'+x.icon+' '+x.name+'</b><small>'+x.desc+'</small></button>').join('');$('#rp-ideology-reason').textContent=effect.reason;$('#rp-ideology-event').hidden=false});
+const ThanhGioiEffectsAdapter=ThanhGioiSimulationEffectsAdapter({effects:ThanhGioiSimulationEffects,handlers:{notification:effect=>notify(effect.html),'ideology-choice-required':effect=>{$('#rp-ideology-options').innerHTML=effect.options.map(x=>'<button class="rioption" data-rp-ideology="'+x.id+'"><b>'+x.icon+' '+x.name+'</b><small>'+x.desc+'</small></button>').join('');$('#rp-ideology-reason').textContent=effect.reason;$('#rp-ideology-event').hidden=false},'roleplay-game-over':effect=>{clearInterval(tm);W.sp=0;document.querySelectorAll('[data-s]').forEach(b=>b.classList.toggle('on',+b.dataset.s===0));$('#goresult').textContent=effect.message;$('#gameover').hidden=false}}});
 const toast=m=>{const t=$('#toast');t.textContent=m;t.style.opacity=1;clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.opacity=0,1700)};
 const pay=c=>{if(W.mana<c){toast('Không đủ thần lực');return 0}W.mana-=c;return 1};
 const nb=i=>{const x=i%N,r=[];if(x>0)r.push(i-1);if(x<N-1)r.push(i+1);if(i>=N)r.push(i-N);if(i<N*(H-1))r.push(i+N);return r};
@@ -785,7 +785,7 @@ function rebel(k){if(!k.alive||k.n<8||livingKingdomCount()>=(k.ideo==='dict'?24:
  const cw=Math.random()<.75;if(cw){k.war[nk.id]=nk.war[k.id]=1;agk(nk)[k.id]=1}
  log(k.ideo==='dict'?'✊ Nhân dân vùng lên chống chế độ độc tài của '+title(k)+'! '+title(nk)+' tuyên bố ly khai, mở đầu cuộc khởi nghĩa'+(cw?' và nội chiến bùng nổ.':'.'):'🔥 Dân chúng '+title(k)+' nổi dậy vì lòng trung thành sụt giảm! '+title(nk)+' tách ra giành độc lập'+(cw?', nội chiến bùng nổ.':'.'))}
 function die(k,m){k.alive=0;for(const i of tilesOf(k))O[i]=0;k.war={};k.ally={};log('💀 '+title(k)+' '+m+'.')}
-ThanhGioiSimulationEffects.subscribe(effect=>{if(effect.type!=='roleplay-game-over')return;clearInterval(tm);W.sp=0;document.querySelectorAll('[data-s]').forEach(b=>b.classList.toggle('on',+b.dataset.s===0));$('#goresult').textContent=effect.message;$('#gameover').hidden=false});
+
 function checkRoleplayGameOver(){if(!W?.playerId)return false;const k=K(W.playerId);if(k&&k.alive&&k.n>0)return false;ThanhGioiSimulationEffects.emit({type:'roleplay-game-over',message:(k?k.name:'Quốc gia của bạn')+' đã bị hủy diệt hoàn toàn. Hành trình lãnh đạo kết thúc tại năm '+W.year+'.'});return true}
 function expand(k){
  const owned=tilesOf(k),cs=new Set();
