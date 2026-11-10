@@ -123,3 +123,10 @@ The roleplay ideology eligibility check now computes and records the pending cho
 - Added `getBuildings`, `addBuilding`, `removeBuilding`, `removeBuildingsAt`, and `replaceBuildings` to the DOM-free world context. Mutations validate building records/tile indices and increment the context revision.
 - Routed construction placement, removal of buildings when founding a city, disaster destruction, and monthly cleanup through the context API. A pre-attachment fallback remains for startup compatibility.
 - This does not yet encapsulate every building field mutation (such as construction progress and durability updates); legacy code still edits individual building records directly. The collection API is an incremental boundary, not yet an authoritative multiplayer command layer.
+
+
+### Terrain mutation seam
+
+- Added `getTerrain`, `getTerrainVariant`, `hasRiver`, and validated `setTerrain(index, terrain, variant, river)` to World Context. Terrain values are restricted to the current game enum 0–6; variants use byte range; river flags are boolean/0/1. Converting a tile to water clears its owner as before.
+- Routed divine terrain/river brush, rain changes, lightning forest damage, and meteor terrain changes through the context API. Startup fallback remains for pre-attachment operations.
+- Terrain rendering and simulation still read legacy arrays in many places; this is an incremental mutation boundary, not full state ownership.
