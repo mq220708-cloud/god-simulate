@@ -139,3 +139,10 @@ The roleplay ideology eligibility check now computes and records the pending cho
 - This covers only these two growth writes; combat, diplomacy, policy, events, and other kingdom-stat mutations still update legacy kingdom records directly. The context is not yet the sole owner of kingdom state.
 
 - Mở rộng seam chỉ số quốc gia: cập nhật lòng trung thành và quân số trong `upkeep()` (tăng/giảm quân theo điều kiện công nghệ, giới hạn quân số theo dân số) cũng đi qua `setKingdomStat`; các nhánh startup trước khi attach vẫn giữ fallback ở lớp gọi.
+
+
+### Economy numeric-stat mutation seam
+
+- Added `setEconomyStat(id, field, value)` to World Context. It updates only supported numeric fields on an initialized kingdom economy, validates finite values, and tracks revisions; the three monthly flow fields may be initialized on first write.
+- Routed recurring economy updates (oil, treasury, monthly income/expense/net, industry, GDP, unemployment, exports) and military-equipment upkeep/purchases (oil and treasury) through this API. Treasury-shortfall loyalty penalties also use the existing kingdom-stat seam.
+- The economy object remains nested inside the legacy kingdom record, and reads still use the existing `econOf(k)` compatibility helper. This is a mutation seam only; other nested economy or trade data still needs separate migration.
