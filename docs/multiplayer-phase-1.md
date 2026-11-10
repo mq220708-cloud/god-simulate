@@ -153,3 +153,11 @@ The roleplay ideology eligibility check now computes and records the pending cho
 - Added validated `setEquipmentAmount` and `adjustEquipmentAmount` methods to World Context. Inventory writes reject invalid identifiers, non-finite values, and negative stock; zero stock removes the item key and each successful mutation advances the world revision.
 - Routed equipment wear, battlefield loot transfer, army-split distribution, monthly upkeep attrition, automatic production, and roleplay fleet purchases through the context API. Pre-attachment startup fallbacks remain.
 - Equipment preferences, production capacity, and UI-only counters remain on the legacy equipment record; this step centralizes stock mutations without changing the equipment balance formulas.
+
+
+### Kingdom resource and roleplay budget mutation seam
+
+- Added validated setKingdomResource / adjustKingdomResource methods for wood, stone, and gold stocks. Resource production, storage caps, divine gifts, repair costs, road/trade income, construction costs, and equipment/fleet material costs now route through these methods.
+- Added setKingdomBudget for roleplay allocations (defence, industry, education), validating supported fields and discrete levels.
+- Routed roleplay recruit/demobilize, industry/research spending, ideology reform costs and loyalty effects, plus starting treasury/oil grants through existing kingdom/economy mutation APIs.
+- Trade revenue remains a derived value calculated from diplomatic relations; there is no independent persisted trade ledger to migrate yet. This step does not introduce new trade state or alter the formula.
