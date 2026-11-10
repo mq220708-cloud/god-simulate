@@ -21,10 +21,11 @@
 - Local save `than-gioi-save` vẫn là bản dự phòng khi mất mạng hoặc đăng nhập lỗi.
 - Bucket private, giới hạn file 50 MB.
 - RLS giới hạn metadata theo `auth.uid()`; Storage policies giới hạn file theo thư mục UUID tài khoản.
-- Tải bản đồ từ cloud sẽ thay bản lưu local hiện tại, sau đó chạy luồng tải game cũ.
+- Tải bản đồ từ cloud sẽ sao lưu bản lưu local hiện tại vào khóa `than-gioi-save-before-cloud-restore`, rồi chạy luồng tải game cũ.
+- Bản lưu sử dụng đúng cấu trúc hiện tại của game: `T`, `O`, `X`, `RV`, `n`, `c`, `cfg`, `W`, `CD`, `BL`, `RD`.
 
 ## Việc tiếp theo trước khi gọi là hoàn thiện hoàn toàn
-- Tạo ID ổn định riêng cho từng thế giới (hiện dùng fallback `default-world` nếu state chưa có ID).
+- Các thế giới mới có `W.cloudId` riêng; bản lưu cũ được cấp ID khi đồng bộ lần đầu.
 - Hỗ trợ nhiều slot thế giới, đổi tên và xóa.
 - Tự động lưu định kỳ có debounce; phát hiện xung đột khi mở cùng thế giới trên nhiều thiết bị.
 - Versioned migration và bản sao lưu trước khi chuyển schema game.
