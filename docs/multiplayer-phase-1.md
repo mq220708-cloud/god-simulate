@@ -62,11 +62,14 @@ Introduce a small, DOM-free world-state codec with a versioned envelope and lega
 - [x] Legacy v1.6.x unwrapped save objects remain readable.
 - [x] Codec tests added at `tests/world-state.test.js`.
 - [ ] P1-02 full state ownership extraction (the live globals remain in `index.html`).
-- [ ] P1-03 DOM-independent simulation tick.
+- [x] P1-03 initial simulation execution boundary added; browser scheduler now invokes the DOM-free engine facade. The legacy `step()` callback still uses shared globals and must be progressively made DOM-independent.
 - [ ] P1-04 renderer extraction.
 - [ ] P1-05 command facade.
 - [ ] P1-06 complete save/load normalization and migration coverage.
 - [ ] P1-07 regression testing in browser for free and roleplay modes.
 
+## P1-03 implementation detail
+`src/shared/simulation-engine.js` provides a DOM-free tick boundary with re-entrancy protection and successful-tick counting. The browser timer now calls this facade, while drawing and UI refresh remain in the browser host. The injected legacy `step()` still has indirect browser/UI side effects through downstream functions (for example game-over handling and chronicles); therefore P1-03 is an initial seam, not yet a fully DOM-independent simulation.
+
 ## Verification notes
-The current inline application script passes a JavaScript syntax compilation check. The codec has also passed isolated round-trip, legacy compatibility, and schema-version checks. These are source-level checks only: browser/device runtime testing is still required for render, simulation, save/load, and both existing modes; source syntax alone is not acceptance.
+The current inline application script passes a JavaScript syntax compilation check. The simulation facade passes isolated tick/count/error-recovery checks. The world-state codec passes isolated round-trip and legacy compatibility checks. These are source-level checks only: browser/device runtime testing is still required for render, simulation, save/load, and both existing modes; source syntax alone is not acceptance.
