@@ -373,8 +373,8 @@ function gen(seed,silentRender=false){seed=(seed||'').trim()||Math.random().toSt
  W={year:0,month:0,mana:80,ks:[],factions:[],log:[],sel:0,sp:2,seed,oil:Array.from({length:N*H},(_,i)=>{const h=Math.imul(i+1,2654435761)>>>0;return T[i]>=2&&T[i]<=5&&((h^(h>>>13))%97===0)?80+((h>>>8)%120):0})};attachLiveWorld();log('Hư vô tan biến, thế giới ra đời (seed: '+seed+'). Hãy gieo mầm sự sống!');renderResumeSpeed=silentRender?0:(W.sp||2);W.sp=0;const job=renderJob;requestAnimationFrame(()=>renderChunk(job))}
 // ---- pixel art: vẽ địa hình vào canvas ẩn ----
 const S=v=>Math.round(v*C/10),TL=document.createElement('canvas'),tx=TL.getContext('2d');let TD=0,DQ=[],renderRequested=false;
-const fer=i=>{const t=T[i],x=X[i];let f=t===3?([1,.1,.12,.35,1,.72,1,.18][x]??1):t===4?(x===4?.75:x===5?.48:.6):t===5?(x===1||x===2||x===7?.2:.5):t===6?.2:FERT[t];if(RV[i])f+=.45;return f};
-const tname=i=>{const t=T[i],x=X[i];return t===0?'Đại dương':t===1?(x===6?'Hồ':'Biển nông'):t===2?'Bãi biển':t===3?(['Đồng cỏ','Sa mạc','Vùng tuyết','Đầm lầy','Đồng cỏ lá đỏ','Đồng đá xám'][x]||'Đồng cỏ'):t===4?(x===4?'Rừng rậm':x===5?'Rừng lá đỏ':'Rừng ôn đới'):t===5?(x===2?'Đồi tuyết':x===1?'Đồi khô':x===7?'Đồi đá':'Đồi'):(x===2?'Núi tuyết':'Núi')};
+const fer=i=>{const world=ThanhGioiWorld.isAttached()?ThanhGioiWorld.getState():null,mapT=world?.T||T,mapX=world?.X||X,mapRV=world?.RV||RV,t=mapT[i],x=mapX[i];let f=t===3?([1,.1,.12,.35,1,.72,1,.18][x]??1):t===4?(x===4?.75:x===5?.48:.6):t===5?(x===1||x===2||x===7?.2:.5):t===6?.2:FERT[t];if(mapRV[i])f+=.45;return f};
+const tname=i=>{const world=ThanhGioiWorld.isAttached()?ThanhGioiWorld.getState():null,mapT=world?.T||T,mapX=world?.X||X,t=mapT[i],x=mapX[i];return t===0?'Đại dương':t===1?(x===6?'Hồ':'Biển nông'):t===2?'Bãi biển':t===3?(['Đồng cỏ','Sa mạc','Vùng tuyết','Đầm lầy','Đồng cỏ lá đỏ','Đồng đá xám'][x]||'Đồng cỏ'):t===4?(x===4?'Rừng rậm':x===5?'Rừng lá đỏ':'Rừng ôn đới'):t===5?(x===2?'Đồi tuyết':x===1?'Đồi khô':x===7?'Đồi đá':'Đồi'):(x===2?'Núi tuyết':'Núi')};
 function tile(i){const xi=i%N,yi=i/N|0,x0=xi*C,y0=yi*C,t=T[i],xv=X[i],h=Math.imul(i+1,2654435761)>>>0,a=h&7,b=h>>3&7,c=h>>6&7,d=h>>9&7,e=h>>12&15;
  const P=(x,y,w,q,col)=>{tx.fillStyle=col;const u=S(x),v=S(y);tx.fillRect(x0+u,y0+v,Math.max(1,S(x+w)-u),Math.max(1,S(y+q)-v))},F=col=>{tx.fillStyle=col;tx.fillRect(x0,y0,C,C)},wt=j=>T[j]<=1||RV[j];
  const tr=(ox,oy,c1,c2)=>{P(ox+2,oy+5,1,2,'#5b3d22');P(ox+2,oy,1,1,c1);P(ox+1,oy+1,3,1,c1);P(ox,oy+2,5,1,c1);P(ox+1,oy+3,3,1,c1);P(ox,oy+4,5,1,c1);P(ox+2,oy+1,1,1,c2);P(ox+1,oy+3,1,1,c2)};
@@ -1035,12 +1035,12 @@ function eqHtml(k){const q=eqOf(k),own=EQ.filter(v=>(q.s[v[0]]||0)>=.005),ds=' d
  h+='<small>Khí tài tăng sức mạnh quân đội. Công thành giúp phá thành lũy, hải quân mạnh ở vùng ven biển; xe tăng, tàu máy và máy bay cần dầu, thiếu dầu sẽ giảm hiệu quả. Mất đất sẽ mất một phần khí tài, và quân thắng trận thu được một phần chiến lợi phẩm.</small>';
  return h}
 function econOf(k){return k.econ||(k.econ={cash:35,oil:0,gdp:0,industry:1,unemployment:8,exports:0})}
-function updateEconomy(k){const e=econOf(k),owned=tilesOf(k);let deposits=0,oilSites=0;for(const i of owned){const v=W.oil?.[i]||0;if(v>0){deposits+=v;oilSites++}}
+function updateEconomy(k){const e=econOf(k),owned=tilesOf(k);let deposits=0,oilSites=0;for(const i of owned){const v=ThanhGioiWorld.getResource(i);if(v>0){deposits+=v;oilSites++}}
  const factories=BL.filter(b=>O[b.i]===k.id&&b.p>=b.n&&b.t==='factory').length;
  const refineries=BL.filter(b=>O[b.i]===k.id&&b.p>=b.n&&b.t==='forge').length;
  const industrial=Math.max(0,(k.tech-2.2)/3)+factories*.7+refineries*.15;
  const extracted=Math.min(deposits,oilSites*(.08+industrial*.035));
- if(extracted>0){let left=extracted;for(const i of owned){if(left<=0)break;const v=W.oil?.[i]||0;if(v>0){const take=Math.min(v,left);W.oil[i]-=take;left-=take}}}
+ if(extracted>0){let left=extracted;for(const i of owned){if(left<=0)break;const v=ThanhGioiWorld.getResource(i);if(v>0){const take=Math.min(v,left);ThanhGioiWorld.adjustResource(i,-take);left-=take}}}
  const produced=extracted,consumed=industrial*.035+k.army*.003;e.oil=Math.max(0,e.oil+produced-consumed);
  const isPlayerRP=!!W.playerId&&k.id===W.playerId;
  const markets=BL.filter(b=>O[b.i]===k.id&&b.p>=b.n&&b.t==='market').length;
@@ -1228,7 +1228,7 @@ function detail(k){const g=k.king,a=k.pol&&pol(k.pol.id),ws=Object.keys(k.war).f
  let dp=os.length?'<small>Ngoại giao (6–8 thần lực)</small>':'<small>Chưa có nước nào khác.</small>';
  for(const o of os){const r=k.rel[o.id]||0,d=' data-k="'+k.id+'" data-o="'+o.id+'"';dp+='<div class="rl"><span>'+o.race.e+' '+o.name+' <small style="display:inline">'+(r>0?'+':'')+(r|0)+(k.ally[o.id]?' 🤝':'')+(k.war[o.id]?' ⚔️':'')+(factionOf(o)?' 🏛':'')+'</small></span><button data-a="peace"'+d+'>🕊</button><button data-a="ally"'+d+'>🤝</button><button data-a="war"'+d+'>⚔️</button>'+(k.factionId&& !factionOf(o)?'<button data-fa="invite"'+d+'>➕Phe</button>':(!k.factionId&&factionOf(o)?'<button data-fa="join"'+d+' data-f="'+factionOf(o).id+'">Vào phe</button>':''))+'</div>'}
  h+=sec('fam','🌳 Gia phả & kế vị',dynastyHtml(k));
- const ec=econOf(k),oilTiles=tilesOf(k).filter(i=>(W.oil?.[i]||0)>0).length;
+ const ec=econOf(k),oilTiles=tilesOf(k).filter(i=>ThanhGioiWorld.getResource(i)>0).length;
  let eh='<div class="econ"><div><small>GDP ước tính</small><b>📈 '+Math.round(ec.gdp)+'</b></div><div><small>Ngân khố</small><b>💰 '+Math.round(ec.cash)+'</b></div><div><small>Dầu dự trữ</small><b>🛢️ '+ec.oil.toFixed(1)+'</b></div><div><small>Công nghiệp</small><b>⚙️ '+ec.industry.toFixed(1)+'</b></div><div><small>Thất nghiệp</small><b>👷 '+ec.unemployment.toFixed(1)+'%</b></div><div><small>Mỏ dầu đang kiểm soát</small><b>⛽ '+oilTiles+'</b></div></div>';
   if(k.id===W.playerId)eh+='<div class="econ"><div><small>Thu nhập / tháng</small><b>📈 +'+(ec.monthlyIncome||0).toFixed(2)+'</b></div><div><small>Chi tiêu / tháng</small><b>📉 -'+(ec.monthlyExpense||0).toFixed(2)+'</b></div><div><small>Thay đổi ngân khố</small><b>'+(ec.monthlyNet>=0?'🟢 +':'🔴 ')+(ec.monthlyNet||0).toFixed(2)+'</b></div></div>';
   eh+='<small>Dầu được khai thác tự động từ các mỏ trong lãnh thổ. Nhà máy và công nghệ làm tăng năng lực công nghiệp; quân đội và nhà máy tiêu thụ ngân sách, nhiên liệu.</small>';
