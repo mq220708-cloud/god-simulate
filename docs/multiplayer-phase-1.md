@@ -101,3 +101,11 @@ The roleplay ideology eligibility check now computes and records the pending cho
 - Added `getKingdoms()` and `getLivingKingdoms()` to the world context. The latter returns the current living kingdom records from the attached world.
 - Routed the living-kingdom count, faction membership, remote diplomacy scan, world-conquest check, roleplay initialization, roleplay country picker, and kingdom-list UI through the context accessor.
 - The returned collection is a live-world-derived array of the existing kingdom objects; this does not clone records or change simulation mutations. Other code paths still access `W.ks` directly and remain future migration work.
+
+
+### Map and resource access migration seam
+
+- The world context now exposes validated oil-resource accessors: `getResource`, `setResource`, and `adjustResource`. Mutations increment the context revision and reject invalid tile indices or non-finite amounts.
+- Economy extraction and the roleplay oil-site summary now read/update deposits through these methods instead of directly indexing `W.oil`.
+- Terrain fertility and terrain-name helpers now obtain terrain, variant, and river arrays from the attached world context, retaining a guarded fallback during pre-world startup.
+- Other map/render/gameplay code still uses legacy arrays directly; this is a staged migration and not yet a server-authoritative map command layer.
