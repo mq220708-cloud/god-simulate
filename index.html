@@ -1332,6 +1332,7 @@ function detail(k){const g=k.king,a=k.pol&&pol(k.pol.id),ws=Object.keys(k.war).f
  let ds='<small>'+techAge(k.tech)+(k.ideo?' · '+IDE[k.ideo].n:'')+' · 💪 '+fmt(str(k)*100)+bfs(k)+'</small>';
  ds+='<small>👑 '+(rep_(k)?'':'niên hiệu “'+g.h+'” · ')+TR[g.t][0]+' · '+Math.round(g.age*k.race.life)+' tuổi · '+(k.dynasty?.history?.length||1)+' đời kế vị</small>';
  if(k.inv.length)ds+='<small>💡 '+k.inv.map(id=>{const v=INV.find(x=>x[0]===id);return v[1]+' '+v[2]}).join(' · ')+'</small>';
+ if(W.playerId){const cv=civFor(k);if(cv)ds+='<small>🏛️ Ổn định xã hội: '+Math.round(cv.stability)+'/100 · Quá tải đế chế: '+Math.round(cv.overextension||0)+'% · Năng lực quản trị ước tính '+Math.round(22+(cv.technology?.administration||0)*8+k.cities.length*3+(k.inv.includes('law')?5:0)+(k.inv.includes('write')?4:0)+(hasK(k,'palace')?7:0)+cv.centralization*.08)+' ô</small>'}
  ds+=cityHtml(k);
  if(k.n>=30){const fi=farInfo(k);ds+='<small>📍 Vùng xa kinh đô: '+fi.far.length+' ô (bán kính kiểm soát '+(fi.R0|0)+') · Nguy cơ ly khai '+(risk(k,fi.far)*100|0)+'%/lượt</small>'}
  ds+='<small>'+raceInfo(k.race)+'</small>';
