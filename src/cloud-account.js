@@ -88,7 +88,7 @@ async function listSaves(){
 async function renameSave(item){
  const next=window.prompt('Tên mới cho thế giới:',item.world_name||'Thế giới');if(next===null)return;
  const name=next.trim().slice(0,80);if(!name){status('Tên thế giới không được để trống.',true);return}
- try{const r=await client.from('world_saves').update({world_name:name,updated_at:new Date().toISOString()}).eq('user_id',user.id).eq('world_id',item.world_id);if(r.error)throw r.error;status('Đã đổi tên thế giới thành "'+name+'".');await listSaves()}catch(e){status('Không thể đổi tên: '+e.message,true)}
+ try{const file=await client.storage.from(BUCKET).download(item.storage_path);if(file.error)throw file.error;const save=JSON.parse(await file.data.text());if(!save.W)throw new Error('Bản đồ không có dữ liệu thế giới');save.W.name=name;const upload=await client.storage.from(BUCKET).upload(item.storage_path,new Blob([JSON.stringify(save)],{type:'application/json'}),{upsert:true,contentType:'application/json'});if(upload.error)throw upload.error;const r=await client.from('world_saves').update({world_name:name,updated_at:new Date().toISOString()}).eq('user_id',user.id).eq('world_id',item.world_id);if(r.error)throw r.error;status('Đã đổi tên thế giới thành "'+name+'".');await listSaves()}catch(e){status('Không thể đổi tên: '+e.message,true)}
 }
 async function deleteSave(item){
  if(!window.confirm('Xóa vĩnh viễn bản đồ "'+(item.world_name||'Thế giới')+'" khỏi đám mây?'))return;
