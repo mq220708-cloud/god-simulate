@@ -227,7 +227,7 @@ body.rp-mode #chips { display:none !important; }
 #build-version{position:fixed;right:10px;bottom:8px;z-index:2147483000;padding:4px 8px;border:1px solid rgba(255,255,255,.18);border-radius:7px;background:rgba(5,12,22,.82);color:#e5edf7;font:11px/1.2 system-ui,sans-serif;letter-spacing:.2px;pointer-events:none;user-select:none;box-shadow:0 1px 5px rgba(0,0,0,.35)}
 </style>
 
-</head><body><div id="build-version" aria-label="Phiên bản trò chơi">THẦN GIỚI · v1.8.0</div><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button><button class="mode" id="mode-guide"><span class="ico">📖</span><span><b>Cẩm nang cơ chế & chỉ số</b><small>Giải thích cách vận hành thế giới, ý nghĩa các chỉ số và mẹo quản lý quốc gia.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
+</head><body><div id="build-version" aria-label="Phiên bản trò chơi">THẦN GIỚI · v1.8.1</div><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button><button class="mode" id="mode-guide"><span class="ico">📖</span><span><b>Cẩm nang cơ chế & chỉ số</b><small>Giải thích cách vận hành thế giới, ý nghĩa các chỉ số và mẹo quản lý quốc gia.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
 <div id="game-guide" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="guide-title">
  <div class="pn guide-panel">
   <div class="ph"><b id="guide-title">📖 Cẩm nang Thần Giới</b><small>Giải thích cơ chế và chỉ số</small><button id="guide-close" aria-label="Đóng">✕</button></div>
@@ -235,7 +235,7 @@ body.rp-mode #chips { display:none !important; }
    <p class="guide-lead">Thần Giới mô phỏng sự hình thành và phát triển của các nền văn minh. Các chỉ số liên kết với nhau: dân số cần lương thực và nơi ở, kinh tế nuôi bộ máy quốc gia, còn công nghệ mở khóa những bước phát triển mới.</p>
    <section class="guide-section"><h3>🌍 1. Bắt đầu và nhịp thời gian</h3>
     <p><b>Chế độ tự do:</b> bạn tạo thế giới, đặt địa hình, sinh vật và dùng quyền năng để tác động lên các nền văn minh.</p>
-    <p><b>Chế độ nhập vai:</b> bạn chọn hoặc tạo một quốc gia để trực tiếp điều hành. Nhịp lịch sử được đặt chậm và chiến tranh ở mức tiêu chuẩn; bạn có thể điều chỉnh tốc độ mô phỏng bằng các nút ½× đến 10×.</p>
+    <p><b>Chế độ nhập vai:</b> bạn chọn hoặc tạo một quốc gia để trực tiếp điều hành. Nhịp lịch sử được đặt chậm và chiến tranh ở mức tiêu chuẩn; bạn có thể điều chỉnh tốc độ mô phỏng bằng các nút ½×, 1×, 2×, 3× hoặc 5×.</p>
     <p>Mỗi lượt mô phỏng tương ứng một tháng trong thế giới. Khi đủ 12 lượt, năm tăng thêm một đơn vị. Tạm dừng bằng nút ⏸.</p>
    </section>
    <section class="guide-section"><h3>📊 2. Các chỉ số quốc gia</h3>
@@ -291,7 +291,7 @@ body.rp-mode #chips { display:none !important; }
 </div><div id="app">
 <div id="mapw"><canvas id="cv"></canvas><div id="map-render-status" hidden role="status" aria-live="polite"><div class="render-card"><div class="render-spinner"></div><b>🌍 Đang kiến tạo thế giới</b><div id="map-render-label" style="font-size:12px;opacity:.78;margin-top:6px">Đang dựng địa hình...</div><div class="render-track"><div id="map-render-fill" class="render-fill"></div></div></div></div></div>
 </div><div id="tb"><div id="tbi">
-<div class="row" id="r1"><div id="st"><b id="yr"></b><span id="mn"></span></div><span class="sp"><button data-s="0" aria-label="Dừng" title="Dừng">⏸</button><button data-s="1" title="Tốc độ 0.5">½×</button><button data-s="2" title="Tốc độ 1">1×</button><button data-s="3" title="Tốc độ 2">2×</button><button data-s="4" title="Tốc độ 3">3×</button><button data-s="5" title="Tốc độ 5">5×</button><button data-s="6" title="Tốc độ 10">10×</button></span><button id="gamelobby" type="button" title="Quay lại sảnh" aria-label="Quay lại sảnh">⌂</button><button id="fullscreen" type="button" title="Toàn màn hình" aria-label="Bật toàn màn hình">⛶</button><button id="tg" aria-label="Thu gọn thanh công cụ" aria-expanded="true">▾</button></div>
+<div class="row" id="r1"><div id="st"><b id="yr"></b><span id="mn"></span></div><span class="sp"><button data-s="0" aria-label="Dừng" title="Dừng">⏸</button><button data-s="1" title="Tốc độ 0.5">½×</button><button data-s="2" title="Tốc độ 1">1×</button><button data-s="3" title="Tốc độ 2">2×</button><button data-s="4" title="Tốc độ 3">3×</button><button data-s="5" title="Tốc độ 5">5×</button></span><button id="gamelobby" type="button" title="Quay lại sảnh" aria-label="Quay lại sảnh">⌂</button><button id="fullscreen" type="button" title="Toàn màn hình" aria-label="Bật toàn màn hình">⛶</button><button id="tg" aria-label="Thu gọn thanh công cụ" aria-expanded="true">▾</button></div>
 <div id="tx"><div class="row" id="tr"><div id="tabs"></div><button id="kb" aria-label="Vương quốc" title="Vương quốc">👑</button><button id="cb" aria-label="Biên niên sử" title="Biên niên sử">📜</button><button id="sy" aria-label="Hệ thống: thế giới, bản đồ, lưu/tải" title="Hệ thống">⚙</button></div>
 <div class="row" id="chips"></div>
 <div class="row" id="sys" hidden><button id="nw">🌍 Thế giới mới</button><button id="zm">🔎 Phóng to</button><button id="pn">✋ Kéo bản đồ</button><button id="cbt" class="on">🏙 Biên giới TP</button><button id="sv">💾 Lưu</button><button id="ld">📂 Tải</button><small id="sdl" class="mu"></small></div></div>
@@ -441,7 +441,7 @@ function queueMarch(k,target){
  if(p.length>1)queueMarchPath(k,p);
 }
 function drawArmies(){
- const now=Date.now(),rate=[0,6.5,10,17,25,40,70][W.sp]||0;
+ const now=Date.now(),rate=[0,6.5,10,17,25,40][W.sp]||0;
  for(let z=AR.length-1;z>=0;z--){
   const a=AR[z],k=K(a.id);
   if(!k||!k.alive||a.p>=1){AR.splice(z,1);continue}
@@ -1393,7 +1393,7 @@ let down=0;const pt=e=>{const r=cv.getBoundingClientRect();return[Math.floor((e.
 cv.onpointerdown=e=>{if(pan)return;down=1;const[x,y]=pt(e);use(cur,x,y,0);draw();ui()};
 cv.onpointermove=e=>{if(down){const[x,y]=pt(e);use(cur,x,y,1);draw()}};
 addEventListener('pointerup',()=>{down=0;ui()});
-function run(){clearInterval(tm);if(renderBusy||document.body.classList.contains('rendering-world')){if(W&&W.sp>0)renderResumeSpeed=W.sp;if(W)W.sp=0;return}const ms=[0,600,420,280,210,160,120][W.sp];if(ms){const tick=()=>{if(!W||!W.sp)return;let failed=false;try{step()}catch(err){failed=true;W.sp=0;console.error('Thần Giới simulation tick failed:',err);toast('⚠️ Mô phỏng gặp lỗi, đã tạm dừng để tránh treo giao diện.')}finally{draw();try{ui(true)}catch(err){console.error('Thần Giới UI refresh failed:',err);toast('⚠️ Lỗi giao diện: '+(err&&err.message?err.message:String(err)).slice(0,110))}}if(failed||!$('#gameover').hidden)return;tm=setTimeout(tick,ms)};tm=setTimeout(tick,ms)}}
+function run(){clearInterval(tm);if(renderBusy||document.body.classList.contains('rendering-world')){if(W&&W.sp>0)renderResumeSpeed=W.sp;if(W)W.sp=0;return}const ms=[0,600,420,280,210,160][W.sp];if(ms){const tick=()=>{if(!W||!W.sp)return;let failed=false;try{step()}catch(err){failed=true;W.sp=0;console.error('Thần Giới simulation tick failed:',err);toast('⚠️ Mô phỏng gặp lỗi, đã tạm dừng để tránh treo giao diện.')}finally{draw();try{ui(true)}catch(err){console.error('Thần Giới UI refresh failed:',err);toast('⚠️ Lỗi giao diện: '+(err&&err.message?err.message:String(err)).slice(0,110))}}if(failed||!$('#gameover').hidden)return;tm=setTimeout(tick,ms)};tm=setTimeout(tick,ms)}}
 
 function startGame(mode){
  clearTimeout(tm);clearInterval(tm);$('#gameover').hidden=true;
