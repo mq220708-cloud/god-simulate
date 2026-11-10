@@ -241,7 +241,7 @@ body.rp-mode #chips { display:none !important; }
 #build-version{position:fixed;right:10px;bottom:8px;z-index:2147483000;padding:4px 8px;border:1px solid rgba(255,255,255,.18);border-radius:7px;background:rgba(5,12,22,.82);color:#e5edf7;font:11px/1.2 system-ui,sans-serif;letter-spacing:.2px;pointer-events:none;user-select:none;box-shadow:0 1px 5px rgba(0,0,0,.35)}
 </style>
 
-</head><body><div id="build-version" aria-label="Phiên bản trò chơi">THẦN GIỚI · v1.9.5</div><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button><button class="mode" id="mode-guide"><span class="ico">📖</span><span><b>Cẩm nang cơ chế & chỉ số</b><small>Giải thích cách vận hành thế giới, ý nghĩa các chỉ số và mẹo quản lý quốc gia.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
+</head><body><div id="build-version" aria-label="Phiên bản trò chơi">THẦN GIỚI · v1.9.6</div><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button><button class="mode" id="mode-guide"><span class="ico">📖</span><span><b>Cẩm nang cơ chế & chỉ số</b><small>Giải thích cách vận hành thế giới, ý nghĩa các chỉ số và mẹo quản lý quốc gia.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
 <div id="game-guide" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="guide-title">
  <div class="pn guide-panel">
   <div class="ph"><b id="guide-title">📖 Cẩm nang Thần Giới</b><small>Giải thích cơ chế và chỉ số</small><button id="guide-close" aria-label="Đóng">✕</button></div>
@@ -279,7 +279,7 @@ body.rp-mode #chips { display:none !important; }
     <p>Trong chế độ nhập vai, phần Vương quốc hiển thị chi tiết kinh tế, tài nguyên, thành phố, chính sách và các lựa chọn điều hành.</p>
    </section>
    <section class="guide-section"><h3>🏛️ 5. Mô hình xã hội</h3>
-    <p>Khi quốc gia đạt điều kiện lịch sử, sự kiện <b>Bước ngoặt của nền văn minh</b> xuất hiện. Mô hình xã hội không chỉ là tên gọi: nó thay đổi các hệ số được áp dụng mỗi tháng vào công nghệ, sản lượng vàng, tăng trưởng dân số, lòng trung thành và tốc độ phát triển quân đội.</p>
+    <p>Khi quốc gia đạt điều kiện lịch sử và vượt qua số năm tồn tại tối thiểu của từng mô hình (Quân chủ 80 năm, Độc tài 100 năm, Tư bản 120 năm, Cộng hòa 140 năm, Xã hội chủ nghĩa 180 năm, Phát xít 200 năm), sự kiện <b>Bước ngoặt của nền văn minh</b> mới xuất hiện. Mô hình xã hội không chỉ là tên gọi: nó thay đổi các hệ số được áp dụng mỗi tháng vào công nghệ, sản lượng vàng, tăng trưởng dân số, lòng trung thành và tốc độ phát triển quân đội.</p>
     <p><b>Cách đọc:</b> mức 1,00× là không thay đổi; 1,10× nghĩa là cao hơn 10%; 0,90× nghĩa là thấp hơn 10%. Riêng lòng trung thành là điểm cộng/trừ vào mức trung thành mục tiêu, không phải phần trăm và cũng không được cộng thẳng ngay lập tức.</p>
     <div class="guide-stat"><b>🏦 Tư bản chủ nghĩa</b><span><b>Công nghệ:</b> 1,25× (+25%). <b>Sản lượng vàng:</b> 1,30× (+30%). <b>Tăng trưởng dân số:</b> 1,05× (+5%). <b>Lòng trung thành mục tiêu:</b> −3 điểm. <b>Thu ngân khố:</b> hệ số thu cơ bản 1,12× (+12%). Quân đội và tác động nạn đói không đổi trực tiếp.</span></div>
     <div class="guide-stat"><b>☭ Xã hội chủ nghĩa</b><span><b>Công nghệ:</b> 0,90× (−10%). <b>Sản lượng vàng:</b> 0,85× (−15%). <b>Tăng trưởng dân số:</b> 1,00× (không đổi). <b>Lòng trung thành mục tiêu:</b> +7 điểm. <b>Tốc độ phát triển quân đội:</b> 1,10× (+10%). <b>Thiệt hại lòng trung thành do nạn đói:</b> còn 0,75× (giảm 25%). Thu ngân khố có hệ số thu cơ bản 1,02× (+2%).</span></div>
@@ -1467,31 +1467,32 @@ function startGame(mode){
  showRoleplaySetup();
 }
 const RP_IDEOLOGY=[
- {id:'cap',name:'Tư bản chủ nghĩa',icon:'🏦',desc:'Kinh tế thị trường và tư nhân phát triển mạnh; tăng thu nhập, công nghiệp và công nghệ nhanh, nhưng chênh lệch xã hội dễ tăng.',condition:k=>k.tech>=1.5&&k.pop>=18,reason:'Cần công nghệ từ 1.5 và dân số từ 18.'},
- {id:'soc',name:'Xã hội chủ nghĩa',icon:'☭',desc:'Nhà nước điều phối kinh tế và phúc lợi; lòng trung thành, khả năng chống đói tốt hơn, đổi lại tăng trưởng và nghiên cứu chậm hơn.',condition:k=>k.tech>=3.2&&k.pop>=35&&econOf(k).industry>=4,reason:'Cần công nghệ từ 3.2, dân số từ 35 và công nghiệp từ 4.'},
- {id:'mon',name:'Quân chủ',icon:'👑',desc:'Quyền lực kế thừa trong hoàng gia; dân số tăng và quân đội mạnh hơn, xã hội ổn định hơn nhưng đổi mới công nghệ chậm.',condition:k=>k.tech>=1&&k.pop>=15&&k.loy>=35,reason:'Cần công nghệ từ 1, dân số từ 15 và lòng trung thành từ 35.'},
- {id:'rep',name:'Cộng hòa',icon:'🗳️',desc:'Quyền lực dựa trên thiết chế và sự tham gia của công dân; nghiên cứu tốt, ổn định tương đối và ít hiếu chiến hơn.',condition:k=>k.tech>=2&&k.pop>=25&&k.loy>=30,reason:'Cần công nghệ từ 2, dân số từ 25 và lòng trung thành từ 30.'},
- {id:'dict',name:'Độc tài',icon:'⚑',desc:'Quyền lực tập trung vào một nhà lãnh đạo; dễ huy động nguồn lực nhưng lòng trung thành suy giảm nghiêm trọng.',condition:k=>k.pop>=20&&k.loy<=38,reason:'Cần dân số từ 20 và lòng trung thành không quá 38.'},
- {id:'fas',name:'Chủ nghĩa phát xít',icon:'⚒️',desc:'Đề cao chủ nghĩa dân tộc cực đoan và quân sự hóa; kinh tế, quân đội được thúc đẩy nhưng xã hội phân cực và bất ổn.',condition:k=>k.tech>=2.8&&k.pop>=35&&k.army>=5&&k.loy<=55,reason:'Cần công nghệ từ 2.8, dân số từ 35, quân đội từ 5 và lòng trung thành không quá 55.'}
+ {id:'cap',name:'Tư bản chủ nghĩa',icon:'🏦',minYear:120,desc:'Kinh tế thị trường và tư nhân phát triển mạnh; tăng thu nhập, công nghiệp và công nghệ nhanh, nhưng chênh lệch xã hội dễ tăng.',condition:k=>k.tech>=1.5&&k.pop>=18,reason:'Cần công nghệ từ 1.5 và dân số từ 18.'},
+ {id:'soc',name:'Xã hội chủ nghĩa',icon:'☭',minYear:180,desc:'Nhà nước điều phối kinh tế và phúc lợi; lòng trung thành, khả năng chống đói tốt hơn, đổi lại tăng trưởng và nghiên cứu chậm hơn.',condition:k=>k.tech>=3.2&&k.pop>=35&&econOf(k).industry>=4,reason:'Cần công nghệ từ 3.2, dân số từ 35 và công nghiệp từ 4.'},
+ {id:'mon',name:'Quân chủ',icon:'👑',minYear:80,desc:'Quyền lực kế thừa trong hoàng gia; dân số tăng và quân đội mạnh hơn, xã hội ổn định hơn nhưng đổi mới công nghệ chậm.',condition:k=>k.tech>=1&&k.pop>=15&&k.loy>=35,reason:'Cần công nghệ từ 1, dân số từ 15 và lòng trung thành từ 35.'},
+ {id:'rep',name:'Cộng hòa',icon:'🗳️',minYear:140,desc:'Quyền lực dựa trên thiết chế và sự tham gia của công dân; nghiên cứu tốt, ổn định tương đối và ít hiếu chiến hơn.',condition:k=>k.tech>=2&&k.pop>=25&&k.loy>=30,reason:'Cần công nghệ từ 2, dân số từ 25 và lòng trung thành từ 30.'},
+ {id:'dict',name:'Độc tài',icon:'⚑',minYear:100,desc:'Quyền lực tập trung vào một nhà lãnh đạo; dễ huy động nguồn lực nhưng lòng trung thành suy giảm nghiêm trọng.',condition:k=>k.pop>=20&&k.loy<=38,reason:'Cần dân số từ 20 và lòng trung thành không quá 38.'},
+ {id:'fas',name:'Chủ nghĩa phát xít',icon:'⚒️',minYear:200,desc:'Đề cao chủ nghĩa dân tộc cực đoan và quân sự hóa; kinh tế, quân đội được thúc đẩy nhưng xã hội phân cực và bất ổn.',condition:k=>k.tech>=2.8&&k.pop>=35&&k.army>=5&&k.loy<=55,reason:'Cần công nghệ từ 2.8, dân số từ 35, quân đội từ 5 và lòng trung thành không quá 55.'}
 ];
-function availableRoleplayIdeologies(k){return RP_IDEOLOGY.filter(x=>x.condition(k));}
+function availableRoleplayIdeologies(k){return RP_IDEOLOGY.filter(x=>W.year>=(x.minYear||0)&&x.condition(k));}
 function checkPlayerIdeology(){
  const k=K(W.playerId);if(!k||!k.alive||k.ideo||W.rpIdeologyChosen||W.rpIdeologyPending)return;
  const eligible=availableRoleplayIdeologies(k);
  const deferred=W.rpIdeologyDeferred||(W.rpIdeologyDeferred=[]);
  const options=eligible.filter(x=>!deferred.includes(x.id));if(!options.length)return;
- W.rpIdeologyPending=true;W.sp=0;
+ W.rpIdeologyPending=true;W.rpIdeologyResumeSpeed=W.sp||1;W.sp=0;
  $('#rp-ideology-options').innerHTML=options.map(x=>'<button class="rioption" data-rp-ideology="'+x.id+'"><b>'+x.icon+' '+x.name+'</b><small>'+x.desc+'</small></button>').join('');
- $('#rp-ideology-reason').textContent='Điều kiện đã đạt: '+options.map(x=>x.name).join(' · ')+'. Bạn có thể chọn ngay hoặc chờ một mô hình khác xuất hiện.';
+ $('#rp-ideology-reason').textContent='Điều kiện đã đạt: '+options.map(x=>x.name+' (từ năm '+x.minYear+')').join(' · ')+'. Các mô hình chỉ xuất hiện sau mốc lịch sử tối thiểu; bạn có thể chọn hoặc hoãn.';
  $('#rp-ideology-event').hidden=false;
 }
+function resumeRoleplayIdeologySpeed(){const speed=W.rpIdeologyResumeSpeed??1;delete W.rpIdeologyResumeSpeed;W.sp=speed;}
 function deferRoleplayIdeology(){
  const k=K(W.playerId);if(!k)return;
  const deferred=W.rpIdeologyDeferred||(W.rpIdeologyDeferred=[]);
  availableRoleplayIdeologies(k).forEach(x=>{if(!deferred.includes(x.id))deferred.push(x.id)});
  W.rpIdeologyPending=false;$('#rp-ideology-event').hidden=true;
  log('⏳ '+title(k)+' tạm hoãn việc xác lập mô hình xã hội, chờ một con đường chính trị khác đủ điều kiện.');
- W.sp=1;ui();draw();run();
+ resumeRoleplayIdeologySpeed();ui();draw();run();
 }
 function chooseRoleplayIdeology(id){
  const k=K(W.playerId),choice=RP_IDEOLOGY.find(x=>x.id===id);
@@ -1506,7 +1507,7 @@ function chooseRoleplayIdeology(id){
  if(k.king){k.king.h=id==='fas'?'Quốc trưởng':k.king.h;const p=k.dynasty?.people?.find(v=>v.id===k.king.pid);if(p&&id==='fas')p.role='Quốc trưởng';}
  W.rpIdeologyChosen=true;W.rpIdeologyPending=false;W.rpIdeologyDeferred=[];$('#rp-ideology-event').hidden=true;
  log(choice.icon+' '+title(k)+' chính thức lựa chọn mô hình '+choice.name+'. Đây là bước ngoặt trong lịch sử quốc gia.');
- W.sp=1;ui();draw();run();
+ resumeRoleplayIdeologySpeed();ui();draw();run();
 }
 $('#rp-ideology-event').addEventListener('click',e=>{const b=e.target.closest('[data-rp-ideology],[data-rp-ideology-defer]');if(!b)return;if(b.hasAttribute('data-rp-ideology-defer'))deferRoleplayIdeology();else chooseRoleplayIdeology(b.dataset.rpIdeology)});
 function showRoleplaySetup(){
