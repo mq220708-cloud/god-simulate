@@ -564,15 +564,15 @@ function spawn(id,x,y,suppressIdeology,initialPopulation){if(livingKingdomCount(
  log('🌱 '+k.race.e+' Một bộ tộc mới xuất hiện, lập nên '+title(k)+'.');mkKing(k)}
 function use(id,x,y,drag){VER++;if(x<0||y<0||x>=N||y>=H)return;const i=y*N+x,o=O[i],k=o&&K(o);
  if(id in TT){let ch=0;const tt=TT[id];for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const u=x+dx,v=y+dy;if(u<0||v<0||u>=N||v>=H)continue;const j=v*N+u;
-  if(tt==='r'){if(T[j]>=2&&T[j]!==6&&!RV[j]){RV[j]=1;DQ.push(j);ch++}continue}
-  if(T[j]!==tt[0]||X[j]!==tt[1]||RV[j]){T[j]=tt[0];X[j]=tt[1];RV[j]=0;if(tt[0]<2)O[j]=0;DQ.push(j);ch++}}
+  if(tt==='r'){if(T[j]>=2&&T[j]!==6&&!RV[j]){if(ThanhGioiWorld.isAttached())ThanhGioiWorld.setTerrain(j,T[j],X[j],1);else RV[j]=1;DQ.push(j);ch++}continue}
+  if(T[j]!==tt[0]||X[j]!==tt[1]||RV[j]){if(ThanhGioiWorld.isAttached())ThanhGioiWorld.setTerrain(j,tt[0],tt[1],0);else{T[j]=tt[0];X[j]=tt[1];RV[j]=0;if(tt[0]<2)O[j]=0}DQ.push(j);ch++}}
   if(ch&&W.mana>=1)W.mana--;return}
  if(drag)return;
  if(R[id]){if(T[i]<2||T[i]===6||o)return toast('Cần mảnh đất trống để sinh sống');if(pay(15))spawn(id,x,y);return}
  if(id==='sel'){if(k)W.sel=k.id;toast(tname(i)+(RV[i]?' + sông':'')+' · 🌾'+fer(i).toFixed(1));return}
- if(id==='rain'){if(!pay(10))return;W.ks.forEach(k=>k.alive&&(k.pop*=1.12,k.loy=Math.min(100,k.loy+3)));TD=1;for(let i=0;i<N*H;i++){if(T[i]===2&&!coast(i)&&Math.random()<.2)T[i]=3;else if(X[i]===1&&Math.random()<.04)X[i]=0}log('🌧 Cơn mưa thần ban sự sống cho muôn loài.');return}
- if(id==='bolt'){if(!pay(5))return;if(k){k.pop=Math.max(0,k.pop-3);k.loy=Math.max(-100,k.loy-4);log('⚡ Sét đánh xuống '+title(k)+', dân chúng khiếp sợ.')}BL.forEach(b=>dist(b.i,i)<=1&&(b.h-=40));if(T[i]===4){T[i]=3;X[i]=0;DQ.push(i)}return}
- if(id==='meteor'){if(!pay(20))return;TD=1;const hit=new Set();for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const u=x+dx,v=y+dy;if(u<0||v<0||u>=N||v>=H||dx*dx+dy*dy>5)continue;const j=v*N+u;if(O[j])hit.add(O[j]);if(dx*dx+dy*dy<=1){T[j]=1;X[j]=0;RV[j]=0;O[j]=0}else if(T[j]>=2){T[j]=2;X[j]=0;RV[j]=0}}
+ if(id==='rain'){if(!pay(10))return;W.ks.forEach(k=>k.alive&&(k.pop*=1.12,k.loy=Math.min(100,k.loy+3)));TD=1;for(let i=0;i<N*H;i++){if(T[i]===2&&!coast(i)&&Math.random()<.2){if(ThanhGioiWorld.isAttached())ThanhGioiWorld.setTerrain(i,3,X[i],RV[i]);else T[i]=3}else if(X[i]===1&&Math.random()<.04){if(ThanhGioiWorld.isAttached())ThanhGioiWorld.setTerrain(i,T[i],0,RV[i]);else X[i]=0}}log('🌧 Cơn mưa thần ban sự sống cho muôn loài.');return}
+ if(id==='bolt'){if(!pay(5))return;if(k){k.pop=Math.max(0,k.pop-3);k.loy=Math.max(-100,k.loy-4);log('⚡ Sét đánh xuống '+title(k)+', dân chúng khiếp sợ.')}BL.forEach(b=>dist(b.i,i)<=1&&(b.h-=40));if(T[i]===4){if(ThanhGioiWorld.isAttached())ThanhGioiWorld.setTerrain(i,3,0,RV[i]);else{T[i]=3;X[i]=0}DQ.push(i)}return}
+ if(id==='meteor'){if(!pay(20))return;TD=1;const hit=new Set();for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const u=x+dx,v=y+dy;if(u<0||v<0||u>=N||v>=H||dx*dx+dy*dy>5)continue;const j=v*N+u;if(O[j])hit.add(O[j]);if(dx*dx+dy*dy<=1){if(ThanhGioiWorld.isAttached())ThanhGioiWorld.setTerrain(j,1,0,0);else{T[j]=1;X[j]=0;RV[j]=0;O[j]=0}}else if(T[j]>=2){if(ThanhGioiWorld.isAttached())ThanhGioiWorld.setTerrain(j,2,0,0);else{T[j]=2;X[j]=0;RV[j]=0}}}
   BL.forEach(b=>{const d=dist(b.i,i);if(d<=3)b.h-=80-d*20});hit.forEach(h=>{const q=K(h);q.pop*=.8;q.army*=.8;q.loy=Math.max(-100,q.loy-10)});log('☄️ Thiên thạch giáng xuống, tạo nên một hố sâu khổng lồ!');return}
  if(id==='quake'){if(pay(12))disaster('quake',i,1);return}
  if(GF[id]){if(!k)return toast('Hãy chạm vào lãnh thổ của một nước');return gift(id,k,i)}
