@@ -1004,14 +1004,14 @@ function eqSum(k,kind){if(!k.eq)return 0;const q=k.eq;let s=0;for(const v of EQ)
 function eqBonus(k){if(!k.eq)return 0;return Math.min(1.2,(eqSum(k,'inf')+eqSum(k,'air')+.4*eqSum(k,'siege')+.3*eqSum(k,'navy'))/(k.army+.5)*.35)}
 // Công thành giảm lợi thế phòng thủ của đối phương; hải quân tác dụng ở ô ven biển
 function eqFront(k){return{sg:Math.min(.6,eqSum(k,'siege')/(k.army+.5)*.3),nv:Math.min(.5,eqSum(k,'navy')/(k.army+.5)*.25)}}
-function eqWear(k,f){if(!k.eq)return;for(const id in k.eq.s)k.eq.s[id]*=1-f}
-function eqLoot(w,l,f){if(!l.eq)return;const a=eqOf(w);for(const id in l.eq.s){const x=l.eq.s[id]*f;l.eq.s[id]-=x;a.s[id]=(a.s[id]||0)+x*.4}}
-function splitEq(k,nk,f){if(!k.eq)return;const a=eqOf(nk),x=Math.min(.6,f);for(const id in k.eq.s){const m=k.eq.s[id]*x;k.eq.s[id]-=m;a.s[id]=m}}
+function eqWear(k,f){if(!k.eq)return;for(const id in k.eq.s)setEquipmentAmount(k,id,k.eq.s[id]*(1-f))}
+function eqLoot(w,l,f){if(!l.eq)return;eqOf(w);for(const id in l.eq.s){const x=l.eq.s[id]*f;setEquipmentAmount(l,id,l.eq.s[id]-x);adjustEquipmentAmount(w,id,x*.4)}}
+function splitEq(k,nk,f){if(!k.eq)return;eqOf(nk);const x=Math.min(.6,f);for(const id in k.eq.s){const m=k.eq.s[id]*x;setEquipmentAmount(k,id,k.eq.s[id]-m);setEquipmentAmount(nk,id,m)}}
 function eqTick(k){const e=econOf(k),q=eqOf(k),R=rs(k);let uc=0,uo=0;
  for(const v of EQ){const n=q.s[v[0]]||0;if(n>0){uc+=n*v[9][0];uo+=n*v[9][1]}}
  q.fu=uo>0?Math.min(1,.3+.7*e.oil/(uo*6)):1;
  setEconomyStat(k,'oil',Math.max(0,e.oil-uo));const lack=uc>0&&e.cash<uc;setEconomyStat(k,'cash',Math.max(0,e.cash-uc));
- for(const id in q.s){q.s[id]*=lack?.985:.997;if(q.s[id]<.005)delete q.s[id]}
+ for(const id in q.s){const amount=q.s[id]*(lack?.985:.997);setEquipmentAmount(k,id,amount<.005?0:amount)}
  q.uc=uc;q.uo=uo;
  const bo=q.b>0;if(bo)q.b--;
  const ws=Object.keys(k.war).some(i=>k.war[i]&&K(i).alive),bc=t=>BL.reduce((a,b)=>a+(O[b.i]===k.id&&b.p>=b.n&&b.t===t?b.h/100:0),0);
@@ -1023,7 +1023,7 @@ function eqTick(k){const e=econOf(k),q=eqOf(k),R=rs(k);let uc=0,uo=0;
  const p=av.map(v=>[v,v[7]/(v[8][0]+1)*kw(v)/(1+(q.s[v[0]]||0)/(k.army*.4+1))*(.85+Math.random()*.3)]).sort((a,b)=>b[1]-a[1])[0][0],c=p[8];
  const u=Math.min(q.pr,(e.cash-6)*.5/Math.max(.1,c[0]),c[1]?R.w/c[1]:9,c[2]?R.s/c[2]:9,c[3]?(e.oil-.5)/c[3]:9);
  if(u<.02)return;
- setEconomyStat(k,'cash',e.cash-c[0]*u);R.w-=c[1]*u;R.s-=c[2]*u;setEconomyStat(k,'oil',e.oil-c[3]*u);q.s[p[0]]=(q.s[p[0]]||0)+u;
+ setEconomyStat(k,'cash',e.cash-c[0]*u);R.w-=c[1]*u;R.s-=c[2]*u;setEconomyStat(k,'oil',e.oil-c[3]*u);adjustEquipmentAmount(k,p[0],u);
  if(!q.seen[p[0]]&&q.s[p[0]]>=.3){q.seen[p[0]]=1;log('🏭 '+title(k)+' bắt đầu trang bị '+p[1]+' '+p[2]+'.')}}
 function eqHtml(k){const q=eqOf(k),own=EQ.filter(v=>(q.s[v[0]]||0)>=.005),ds=' data-k="'+k.id+'"';
  let h='<div class="econ"><div><small>Sức mạnh quân sự cộng thêm</small><b>💪 +'+Math.round(eqBonus(k)*100)+'%</b></div><div><small>Công suất chế tạo / tháng</small><b>🏭 '+fmt(q.pr*100)+'</b></div><div><small>Bảo dưỡng / tháng</small><b>💰'+q.uc.toFixed(2)+' · 🛢️'+q.uo.toFixed(2)+'</b></div><div><small>Nhiên liệu</small><b>'+(q.fu>=.99?'⛽ Đủ':'🔻 Thiếu '+Math.round((1-q.fu)*100)+'%')+'</b></div></div>';
@@ -1036,6 +1036,8 @@ function eqHtml(k){const q=eqOf(k),own=EQ.filter(v=>(q.s[v[0]]||0)>=.005),ds=' d
  return h}
 function econOf(k){return k.econ||(k.econ={cash:35,oil:0,gdp:0,industry:1,unemployment:8,exports:0})}
 function setEconomyStat(k,field,value){if(ThanhGioiWorld.isAttached())return ThanhGioiWorld.setEconomyStat(k.id,field,value);econOf(k)[field]=value;return value}
+function setEquipmentAmount(k,itemId,value){if(ThanhGioiWorld.isAttached())return ThanhGioiWorld.setEquipmentAmount(k.id,itemId,value);const q=eqOf(k);if(value<=0)delete q.s[itemId];else q.s[itemId]=value;return value}
+function adjustEquipmentAmount(k,itemId,delta){if(ThanhGioiWorld.isAttached())return ThanhGioiWorld.adjustEquipmentAmount(k.id,itemId,delta);const q=eqOf(k),value=Math.max(0,(q.s[itemId]||0)+delta);if(value<=0)delete q.s[itemId];else q.s[itemId]=value;return value}
 function updateEconomy(k){const e=econOf(k),owned=tilesOf(k);let deposits=0,oilSites=0;for(const i of owned){const v=ThanhGioiWorld.getResource(i);if(v>0){deposits+=v;oilSites++}}
  const factories=BL.filter(b=>O[b.i]===k.id&&b.p>=b.n&&b.t==='factory').length;
  const refineries=BL.filter(b=>O[b.i]===k.id&&b.p>=b.n&&b.t==='forge').length;
@@ -1284,7 +1286,7 @@ function roleplayAction(k,a,v){
  if(a==='recruit'){if(e.cash<8)return toast('Ngân khố không đủ 8 để tuyển quân');const n=Math.min(k.pop*.6-k.army,Math.max(1,k.pop*.06));if(n<=0)return toast('Quân đội đã đạt giới hạn nhân lực');k.army+=n;e.cash-=8;log('🪖 '+title(k)+' tuyển thêm '+fmt(n*100)+' binh sĩ theo lệnh của người chơi.')}
  if(a==='demob'){const n=k.army*.12;k.army-=n;e.cash=Math.min(99999,e.cash+n*.025);log('📉 '+title(k)+' giải ngũ '+fmt(n*100)+' binh sĩ, giảm áp lực ngân sách.')}
  if(a==='doctrine'&&['balanced','offensive','defensive'].includes(v)){k.playerArmyDoctrine=v;const names={balanced:'Cân bằng',offensive:'Tấn công',defensive:'Phòng thủ'};log('⚔️ '+title(k)+' chuyển học thuyết quân sự sang '+names[v]+'.')}
- if(a==='fleet'&&['galley','ironclad'].includes(v)){const item=EQ.find(x=>x[0]===v),q=eqOf(k),R=rs(k),u=.1,c=item[8].map(x=>x*u);if(!eqAvail(k,item))return toast('Chưa đáp ứng công nghệ, phát minh hoặc công trình đóng tàu');if(e.cash<c[0]||R.w<c[1]||R.s<c[2]||e.oil<c[3])return toast('Thiếu ngân khố, gỗ, đá hoặc nhiên liệu để đóng tàu');e.cash-=c[0];R.w-=c[1];R.s-=c[2];e.oil-=c[3];q.s[v]=(q.s[v]||0)+u;log('⚓ '+title(k)+' hoàn thành lô 10 '+item[2]+'.');}
+ if(a==='fleet'&&['galley','ironclad'].includes(v)){const item=EQ.find(x=>x[0]===v),q=eqOf(k),R=rs(k),u=.1,c=item[8].map(x=>x*u);if(!eqAvail(k,item))return toast('Chưa đáp ứng công nghệ, phát minh hoặc công trình đóng tàu');if(e.cash<c[0]||R.w<c[1]||R.s<c[2]||e.oil<c[3])return toast('Thiếu ngân khố, gỗ, đá hoặc nhiên liệu để đóng tàu');setEconomyStat(k,'cash',e.cash-c[0]);R.w-=c[1];R.s-=c[2];setEconomyStat(k,'oil',e.oil-c[3]);adjustEquipmentAmount(k,v,u);log('⚓ '+title(k)+' hoàn thành lô 10 '+item[2]+'.');}
  if(a==='industry'||a==='research'){if(e.cash<8)return toast('Ngân khố không đủ 8');e.cash-=8;if(a==='industry'){e.industry=Math.min(100,e.industry+1);log('🏭 Chính phủ '+title(k)+' đầu tư mở rộng công nghiệp.')}else{k.tech=Math.min(12,k.tech+.12);log('🔬 '+title(k)+' cấp ngân sách cho chương trình nghiên cứu quốc gia.')}}
  if(a==='ideology'&&IDE[v]&&v!==k.ideo){if(k.tech<5)return toast('🔒 Chỉ có thể thay đổi thể chế sau Cách mạng công nghiệp lần thứ nhất (Thời Công nghiệp).');if(e.cash<10)return toast('Cần 10 ngân khố để cải cách thể chế');e.cash-=10;const old=IDE[k.ideo]?.n||'thể chế cũ';k.ideo=v;k.flag=v==='soc'?mkFlag(1):v==='fas'?{fas:1}:v==='dict'?{dict:1}:v==='mon'?{mon:1}:v==='rep'?{rep:1}:mkFlag(0);k.loy=Math.max(-100,k.loy-(v==='dict'?12:5));log('🏛 '+title(k)+' chuyển từ '+old+' sang '+IDE[v].n+' theo quyết định của người chơi.')}
  ui();draw();
