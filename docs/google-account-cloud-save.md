@@ -30,3 +30,13 @@
 - Tự động lưu định kỳ có debounce; phát hiện xung đột khi mở cùng thế giới trên nhiều thiết bị.
 - Versioned migration và bản sao lưu trước khi chuyển schema game.
 - Bảng xếp hạng phải dùng RPC/Edge Function để kiểm tra điểm ở phía server, không tin dữ liệu client gửi trực tiếp.
+
+
+## Bảng xếp hạng online
+
+- Bảng xếp hạng được hiển thị riêng bên dưới các chế độ ở sảnh chính, không nằm trong khung tài khoản.
+- Người chơi cần đăng nhập Google và đồng bộ bản đồ bằng nút **Lưu** trong game để gửi/cập nhật thành tích.
+- Điểm văn minh hiện tính theo công thức: `dân số × 10 + công nghệ cao nhất × 1.000 + năm thế giới × 5`.
+- Bảng chỉ công khai tên hiển thị, tên thế giới và chỉ số thành tích; không lưu hoặc hiển thị email.
+- Sau khi cập nhật mã nguồn, chạy lại `supabase/schema.sql` trong SQL Editor để tạo bảng `leaderboard` và các chính sách RLS.
+- Điểm hiện do trình duyệt gửi lên, phù hợp bảng xếp hạng cộng đồng cơ bản; muốn chống gian lận chặt chẽ cần chuyển tính điểm sang Edge Function/server có xác thực.
