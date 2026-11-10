@@ -50,3 +50,5 @@ drop policy if exists "Players update own leaderboard entry" on public.leaderboa
 create policy "Players update own leaderboard entry" on public.leaderboard for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
 drop policy if exists "Players delete own leaderboard entry" on public.leaderboard;
 create policy "Players delete own leaderboard entry" on public.leaderboard for delete to authenticated using (auth.uid() = user_id);
+
+create index if not exists leaderboard_score_updated_idx on public.leaderboard (score desc, updated_at desc);
