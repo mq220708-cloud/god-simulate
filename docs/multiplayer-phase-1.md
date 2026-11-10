@@ -130,3 +130,10 @@ The roleplay ideology eligibility check now computes and records the pending cho
 - Added `getTerrain`, `getTerrainVariant`, `hasRiver`, and validated `setTerrain(index, terrain, variant, river)` to World Context. Terrain values are restricted to the current game enum 0–6; variants use byte range; river flags are boolean/0/1. Converting a tile to water clears its owner as before.
 - Routed divine terrain/river brush, rain changes, lightning forest damage, and meteor terrain changes through the context API. Startup fallback remains for pre-attachment operations.
 - Terrain rendering and simulation still read legacy arrays in many places; this is an incremental mutation boundary, not full state ownership.
+
+
+### Kingdom numeric-stat mutation seam
+
+- Added `setKingdomStat(id, field, value)` to World Context. It only updates an existing numeric field on an existing kingdom, rejects non-finite values, and increments the context revision.
+- Routed the recurring monthly population and technology growth writes in `step()` through this API, with a pre-attachment fallback retained for startup compatibility.
+- This covers only these two growth writes; combat, diplomacy, policy, events, and other kingdom-stat mutations still update legacy kingdom records directly. The context is not yet the sole owner of kingdom state.
