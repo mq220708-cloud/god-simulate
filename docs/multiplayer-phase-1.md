@@ -63,6 +63,7 @@ Introduce a small, DOM-free world-state codec with a versioned envelope and lega
 - [x] Codec tests added at `tests/world-state.test.js`.
 - [ ] P1-02 full state ownership extraction (the live globals remain in `index.html`).
 - [x] P1-03 initial simulation execution boundary added; browser scheduler now invokes the DOM-free engine facade. The legacy `step()` callback still uses shared globals and must be progressively made DOM-independent.
+- [x] First simulation-effects seam added at `src/shared/simulation-effects.js`; important chronicle notifications and roleplay game-over now emit typed events consumed by browser adapters. `W.log` remains simulation state, while notification DOM and game-over presentation stay in the client.
 - [ ] P1-04 renderer extraction.
 - [ ] P1-05 command facade.
 - [ ] P1-06 complete save/load normalization and migration coverage.
@@ -73,3 +74,7 @@ Introduce a small, DOM-free world-state codec with a versioned envelope and lega
 
 ## Verification notes
 The current inline application script passes a JavaScript syntax compilation check. The simulation facade passes isolated tick/count/error-recovery checks. The world-state codec passes isolated round-trip and legacy compatibility checks. These are source-level checks only: browser/device runtime testing is still required for render, simulation, save/load, and both existing modes; source syntax alone is not acceptance.
+
+
+## P1-03 effects boundary
+`ThanhGioiSimulationEffects` is a small DOM-free event bus. The legacy chronicle writer still mutates `W.log`, then emits a `notification` effect; the browser subscribes and displays it. Roleplay elimination now emits `roleplay-game-over` with a message; the browser adapter owns timer stop, speed-button state, and dialog presentation. This removes those two direct presentation paths from the simulation call chain, but does not yet make every function reachable from `step()` pure or server-ready. Other domain helpers may still call browser services directly and require a full dependency audit.
