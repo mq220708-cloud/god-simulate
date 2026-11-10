@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-const CONFIG=window.THAN_GIOI_CLOUD_CONFIG||{},BUCKET='world-saves',VERSION='1.6.3';
+const CONFIG=window.THAN_GIOI_CLOUD_CONFIG||{},BUCKET='world-saves',VERSION='1.6.3',SAVE_KEY='than-gioi-save',BACKUP_KEY='than-gioi-save-before-cloud-restore';
 let client=null,user=null,ready=false;
 const $=s=>document.querySelector(s);
 function panel(){
@@ -38,12 +38,12 @@ async function init(){
 }
 async function login(){if(!client)return;try{const r=await client.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.href,queryParams:{access_type:'offline',prompt:'consent'}}});if(r.error)throw r.error}catch(e){status('Đăng nhập Google thất bại: '+e.message,true)}}
 async function logout(){if(!client)return;try{const r=await client.auth.signOut();if(r.error)throw r.error;$('#tg-save-list').hidden=true;status('Đã đăng xuất. Bản lưu trên thiết bị vẫn an toàn.')}catch(e){status('Không thể đăng xuất: '+e.message,true)}}
-function worldId(save){if(!save.W.cloudId)save.W.cloudId=save.W.id||save.W.worldId||(crypto.randomUUID?crypto.randomUUID():'world-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2));return save.W.cloudId}
+function worldId(save){if(!save.W.cloudId)save.W.cloudId=save.W.id||save.W.worldId||(window.crypto&&crypto.randomUUID?crypto.randomUUID():'world-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2));return save.W.cloudId}
 function worldName(save){return save?.W?.name||('Thế giới năm '+(save?.W?.year??0))}
 async function saveWorld(save){
  if(!client||!user||!save)return {ok:false,reason:'not-authenticated'};
  try{
-  const id=worldId(save),path=user.id+'/'+id+'.json',blob=new Blob([JSON.stringify(save)],{type:'application/json'});localStorage.setItem('than-gioi-save',JSON.stringify(save));
+  const id=worldId(save),path=user.id+'/'+id+'.json',blob=new Blob([JSON.stringify(save)],{type:'application/json'});localStorage.setItem(SAVE_KEY,JSON.stringify(save));
   const up=await client.storage.from(BUCKET).upload(path,blob,{upsert:true,contentType:'application/json'});if(up.error)throw up.error;
   const db=await client.from('world_saves').upsert({user_id:user.id,world_id:id,world_name:worldName(save),game_version:VERSION,storage_path:path,updated_at:new Date().toISOString()},{onConflict:'user_id,world_id'});if(db.error)throw db.error;
   status('☁ Đã đồng bộ "'+worldName(save)+'" lên đám mây.');return {ok:true};
@@ -59,9 +59,9 @@ async function listSaves(){
 }
 async function loadSave(item){
  if(!client||!user)return;
- try{const r=await client.storage.from(BUCKET).download(item.storage_path);if(r.error)throw r.error;const save=JSON.parse(await r.data.text());if(!save||!Array.isArray(save.T)||!save.W)throw new Error('Dữ liệu bản đồ không hợp lệ');localStorage.setItem('than-gioi-save',JSON.stringify(save));const button=$('#ld');if(!button)throw new Error('Không tìm thấy nút tải bản đồ trong game');button.click();status('Đã tải bản đồ "'+item.world_name+'".')}catch(e){status('Không thể tải bản đồ: '+e.message,true)}
+ try{const r=await client.storage.from(BUCKET).download(item.storage_path);if(r.error)throw r.error;const save=JSON.parse(await r.data.text());if(!save||!Array.isArray(save.T)||!Array.isArray(save.O)||!save.W)throw new Error('Dữ liệu bản đồ không hợp lệ');const current=localStorage.getItem(SAVE_KEY);if(current)localStorage.setItem(BACKUP_KEY,current);localStorage.setItem(SAVE_KEY,JSON.stringify(save));const button=$('#ld');if(!button)throw new Error('Không tìm thấy nút tải bản đồ trong game');button.click();status('Đã tải bản đồ "'+item.world_name+'". Bản lưu trước đó được sao lưu trên thiết bị.')}catch(e){status('Không thể tải bản đồ: '+e.message,true)}
 }
 window.ThanhGioiCloudAccount={getUser:()=>user,isReady:()=>ready,saveWorld,refreshSaves:listSaves};
 document.addEventListener('DOMContentLoaded',init);if(document.readyState!=='loading')init();
-document.addEventListener('click',e=>{if(e.target?.id!=='sv')return;setTimeout(()=>{if(!user||!client)return;try{const raw=localStorage.getItem('than-gioi-save');if(raw)saveWorld(JSON.parse(raw))}catch(err){status('Không thể chuẩn bị bản lưu đám mây: '+err.message,true)}},0)});
+document.addEventListener('click',e=>{if(e.target?.id!=='sv')return;setTimeout(()=>{if(!user||!client)return;try{const raw=localStorage.getItem(SAVE_KEY);if(raw)saveWorld(JSON.parse(raw))}catch(err){status('Không thể chuẩn bị bản lưu đám mây: '+err.message,true)}},0)});
 })();
