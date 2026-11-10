@@ -5,7 +5,8 @@
 - Google OAuth qua Supabase Auth; phiên đăng nhập được lưu trong trình duyệt.
 - Đăng nhập, đăng xuất, tên và ảnh đại diện Google.
 - Khi nhấn nút lưu game hiện tại, bản lưu cục bộ vẫn được tạo; nếu đã đăng nhập, bản lưu được tải lên Supabase Storage.
-- Có danh sách bản đồ đám mây và nút tải về, dùng lại luồng tải cũ của game.
+- Có danh sách nhiều bản đồ đám mây; mỗi bản đồ có thể tải về, đổi tên hoặc xóa riêng.
+- Tự động lưu cục bộ khi thế giới sang tháng mới; nếu đã đăng nhập, tự đồng bộ lên đám mây sau mỗi 3 tháng trong game. Nút Lưu vẫn đồng bộ ngay lập tức.
 - Chưa thể bật đăng nhập thật cho tới khi chủ dự án cấu hình Supabase và Google OAuth.
 
 ## Cấu hình bắt buộc
@@ -22,12 +23,13 @@
 - Bucket private, giới hạn file 50 MB.
 - RLS giới hạn metadata theo `auth.uid()`; Storage policies giới hạn file theo thư mục UUID tài khoản.
 - Tải bản đồ từ cloud sẽ sao lưu bản lưu local hiện tại vào khóa `than-gioi-save-before-cloud-restore`, rồi chạy luồng tải game cũ.
+- Mỗi thế giới có `W.cloudId` riêng; danh sách cloud lưu nhiều thế giới độc lập. Đổi tên cập nhật cả metadata và dữ liệu thế giới; xóa sẽ xóa tệp trong Storage và dòng metadata tương ứng.
+- Tự động lưu chỉ chạy khi thời gian mô phỏng tiến sang tháng mới; nếu game đang tạm dừng thì không tạo bản lưu lặp lại. Bản cục bộ vẫn hoạt động khi chưa đăng nhập hoặc mất mạng.
 - Bản lưu sử dụng đúng cấu trúc hiện tại của game: `T`, `O`, `X`, `RV`, `n`, `c`, `cfg`, `W`, `CD`, `BL`, `RD`.
 
 ## Việc tiếp theo trước khi gọi là hoàn thiện hoàn toàn
 - Các thế giới mới có `W.cloudId` riêng; bản lưu cũ được cấp ID khi đồng bộ lần đầu.
-- Hỗ trợ nhiều slot thế giới, đổi tên và xóa.
-- Tự động lưu định kỳ có debounce; phát hiện xung đột khi mở cùng thế giới trên nhiều thiết bị.
+- Phát hiện xung đột khi mở cùng một thế giới trên nhiều thiết bị; hiện tại thiết bị lưu sau cùng sẽ ghi đè bản cloud.
 - Versioned migration và bản sao lưu trước khi chuyển schema game.
 - Bảng xếp hạng phải dùng RPC/Edge Function để kiểm tra điểm ở phía server, không tin dữ liệu client gửi trực tiếp.
 
