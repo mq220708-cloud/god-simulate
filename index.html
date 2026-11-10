@@ -70,6 +70,20 @@ h3{font-family:Georgia,serif;margin:14px 0 6px;font-size:17px}
 }
 
 .fleet-req{display:block;margin:5px 0;padding:6px 8px;border:1px dashed var(--bd);border-radius:7px;line-height:1.5}.fleet-req b{color:var(--tx)}
+/* Technology tree */
+.tech-overview{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:9px;background:linear-gradient(120deg,rgba(53,112,150,.18),rgba(105,83,150,.12));border:1px solid var(--bd);border-radius:9px}
+.tech-overview b{display:block;font-size:14px}.tech-overview small{display:block;color:var(--mu);font-size:10px}
+.tech-progress{height:7px;background:var(--bd);border-radius:9px;overflow:hidden;margin-top:7px}.tech-progress i{display:block;height:100%;background:linear-gradient(90deg,#45a6d8,#9a83df);border-radius:9px}
+.tech-open{border:1px solid var(--bd);background:var(--panel);color:var(--tx);border-radius:8px;padding:7px 9px;font-size:11px}
+.tech-tree{display:grid;gap:9px;margin-top:8px}
+.tech-branch{padding:8px;border:1px solid var(--bd);border-radius:9px;background:var(--panel)}
+.tech-branch> b{font-size:11px;display:block;margin-bottom:6px}
+.tech-nodes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+.tech-node{min-width:0;padding:6px;border:1px solid var(--bd);border-radius:7px;background:var(--bg)}
+.tech-node b{display:block;font-size:10px;line-height:1.3}.tech-node small{display:block;font-size:9px;color:var(--mu);line-height:1.35;margin-top:3px}
+.tech-node.done{border-color:#398c68;background:rgba(57,140,104,.09)}
+.tech-node.ready{border-color:#b58b36;background:rgba(181,139,54,.09)}
+@media(max-width:420px){.tech-nodes{grid-template-columns:1fr}}
 /* Roleplay national dashboard */
 #tbs .rpboard{display:flex;flex-direction:column;gap:9px;padding:5px 1px 10px}
 .rptop{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -1214,6 +1228,21 @@ function detail(k){const g=k.king,a=k.pol&&pol(k.pol.id),ws=Object.keys(k.war).f
  ds+='<small>'+raceInfo(k.race)+'</small>';
  h+=sec('inf','📋 Thông tin chi tiết',ds);
  return h}
+const TECH_AGES=[{v:0,n:'Tiền văn minh'},{v:1.5,n:'Văn minh cổ đại'},{v:3,n:'Thời cổ điển'},{v:5,n:'Công nghiệp hóa'},{v:8,n:'Điện khí hóa'},{v:15,n:'Cơ giới hóa'},{v:30,n:'Nguyên tử'},{v:60,n:'Chinh phục không gian'},{v:100,n:'Kỷ nguyên số'},{v:200,n:'Văn minh liên hành tinh'},{v:300,n:'Siêu văn minh'}];
+function techAge(v){let a=TECH_AGES[0];for(const x of TECH_AGES)if(v>=x.v)a=x;return a.n}
+function roleplayTechTree(k){
+ const branches=[
+ ['📚 Khoa học & tri thức',[['✍️','Chữ viết',1.5,'write','Lưu trữ tri thức'],['📰','In ấn',4.5,'print','Phổ biến tri thức'],['🔬','Phương pháp khoa học',6,null,'Nghiên cứu có hệ thống'],['💻','Máy tính',45,null,'Tự động hóa tính toán'],['🌐','Mạng toàn cầu',70,null,'Kết nối thông tin'],['🧠','Trí tuệ nhân tạo',100,null,'Máy học và tự động hóa'],['✨','Siêu trí tuệ',300,null,'Mốc phát triển công nghệ cao nhất hiện tại']]],
+ ['⚙️ Công nghiệp & năng lượng',[['🚂','Động cơ hơi nước',5,'steam','Cơ giới hóa sản xuất'],['💡','Điện năng',8,null,'Điện khí hóa nền kinh tế'],['🚗','Động cơ đốt trong',12,null,'Giao thông cơ giới'],['🤖','Robot công nghiệp',25,null,'Tự động hóa nhà máy'],['🧬','Công nghệ nano',150,null,'Vật liệu và chế tạo cấp nano'],['☀️','Năng lượng nhiệt hạch',220,null,'Nguồn năng lượng thế hệ mới']]],
+ ['⚔️ Quân sự & quốc phòng',[['🔫','Thuốc súng',4,'gun','Vũ khí hỏa lực'],['✈️','Không quân',7,null,'Làm chủ bầu trời'],['🚀','Tên lửa',7.5,'missile','Vũ khí tầm xa'],['☢️','Công nghệ hạt nhân',30,null,'Năng lượng và vũ khí hạt nhân'],['🛰️','Phòng thủ quỹ đạo',140,null,'Hệ thống phòng thủ ngoài khí quyển']]],
+ ['🌍 Hàng hải & khám phá',[['🚢','Đóng tàu',1.5,'ship','Vượt đại dương'],['⛵','Hàng hải',2.5,'sail','Điều hướng đường biển'],['🛩️','Hàng không',7,null,'Vận tải trên không'],['🌕','Chinh phục Mặt Trăng',60,null,'Thám hiểm ngoài Trái Đất'],['🪐','Căn cứ ngoài hành tinh',100,null,'Định cư ngoài Trái Đất'],['🌌','Du hành liên hành tinh',200,null,'Mở rộng ra hệ hành tinh']]],
+ ['🧬 Y học & sinh học',[['💊','Y học',3.5,'med','Điều trị và phòng dịch'],['🧫','Công nghệ sinh học',40,null,'Can thiệp sinh học'],['🧬','Kéo dài tuổi thọ',80,null,'Kiểm soát lão hóa'],['🧪','Sinh học tổng hợp',160,null,'Thiết kế hệ sinh học']]]
+ ];
+ const nodes=branches.map(([name,items])=>'<div class="tech-branch"><b>'+name+'</b><div class="tech-nodes">'+items.map(([ico,n,req,inv,desc])=>{const researched=inv&&k.inv.includes(inv),ready=k.tech>=req,done=inv?researched:ready,cls=done?'done':ready?'ready':'',state=done?(inv?'Đã phát minh':'Đã đạt mốc'):ready?'Đủ cấp công nghệ · chờ phát minh':'Cần cấp '+req.toFixed(1);return '<div class="tech-node '+cls+'"><b>'+(done?'✅ ':ready?'🟡 ':'🔒 ')+ico+' '+n+'</b><small>Cấp '+req.toFixed(1)+' · '+state+'</small><small>'+desc+'</small></div>'}).join('')+'</div></div>').join('');
+ const current=TECH_AGES.reduce((a,x,i)=>k.tech>=x.v?{now:x,next:TECH_AGES[i+1]||null}:a,{now:TECH_AGES[0],next:TECH_AGES[1]});
+ const pct=current.next?Math.max(0,Math.min(100,(k.tech-current.now.v)/(current.next.v-current.now.v)*100)):100;
+ return '<div class="rpsection"><div class="rplabel"><b>🌳 CÂY CÔNG NGHỆ VĂN MINH</b><button class="tech-open" data-rp="tech-tree">'+(techTreeOpen?'Thu gọn ▲':'Mở cây công nghệ ▼')+'</button></div><div class="tech-overview"><div><b>'+techAge(k.tech)+'</b><small>Cấp công nghệ '+k.tech.toFixed(1)+(current.next?' · Mục tiêu tiếp theo: '+current.next.n+' ('+current.next.v+')':' · Đã đạt mốc cao nhất hiện tại')+'</small><div class="tech-progress"><i style="width:'+pct.toFixed(1)+'%"></i></div></div><strong>'+pct.toFixed(0)+'%</strong></div>'+(techTreeOpen?'<div class="tech-tree">'+nodes+'</div><small class="mu">Các phát minh hiện có được đánh dấu theo dữ liệu nghiên cứu; những mốc tương lai là cột mốc tiến trình công nghệ, chưa tự cấp hiệu ứng gameplay riêng.</small>':'<small class="mu">Mở cây để xem 5 nhánh nghiên cứu và các mốc công nghệ đã đạt/chưa đạt.</small>')+'</div>';
+}
 function roleplayControls(k){
  const e=econOf(k),tax=k.playerTax||0,b=k.playerBudget||(k.playerBudget={mil:1,ind:1,edu:1}),levels=[.5,1,1.5,2],label=v=>({'.5':'Tiết kiệm','1':'Bình thường','1.5':'Cao','2':'Rất cao'}[String(v)]||'Bình thường');
  const btn=(a,v,txt)=>'<button class="pb" data-rpc="'+a+'"'+(v?' data-v="'+v+'"':'')+'>'+txt+'</button>',q=eqOf(k),ships=100*((q.s.galley||0)+(q.s.ironclad||0)),doctrine=k.playerArmyDoctrine||'balanced',doctrineName={balanced:'Cân bằng',offensive:'Tấn công',defensive:'Phòng thủ'}[doctrine];
@@ -1224,7 +1253,7 @@ function roleplayControls(k){
  '<div class="rplabel"><b>📊 Phân bổ ngân sách</b></div><div class="row2">'+btn('budget','mil','🛡 Quốc phòng: '+label(b.mil))+btn('budget','ind','🏭 Công nghiệp: '+label(b.ind))+btn('budget','edu','🎓 Giáo dục: '+label(b.edu))+'</div>'+
  '<div class="rplabel"><b>⚔️ Quản lý lục quân</b><strong>'+fmt(k.army*100)+' quân · '+doctrineName+'</strong></div><div class="row2">'+btn('recruit','','🪖 Tuyển quân · 8 ngân khố')+btn('demob','','📉 Giải ngũ 12%')+btn('doctrine','balanced','⚖️ Cân bằng')+btn('doctrine','offensive','⚔️ Tấn công')+btn('doctrine','defensive','🛡️ Phòng thủ')+'</div><small>Học thuyết Tấn công tăng 12% sức tiến công nhưng giảm 6% phòng thủ; Phòng thủ tăng 12% khả năng giữ đất nhưng giảm 6% sức tiến công.</small>'+ 
  '<div class="rplabel"><b>⚓ Hạm đội tàu chiến</b><strong>'+fmt(ships)+' tàu · Sức mạnh '+eqSum(k,'navy').toFixed(2)+'</strong></div><div class="row2">'+shipButton('galley')+shipButton('ironclad')+'</div><small>Nhấn để đóng từng lô 10 tàu. Chiến thuyền cần công nghệ, phát minh và cảng; chiến hạm cần thêm công nghệ hơi nước. Hạm đội giao chiến tự động khi hai quốc gia ven biển có tàu chiến, đồng thời tiêu hao ngân khố và nhiên liệu qua bảo dưỡng.</small>'+ 
- '<div class="rplabel"><b>🧰 Quyết định phát triển</b><strong>Năm '+W.year+'</strong></div><small>🔬 Cấp công nghệ: <b>'+k.tech.toFixed(2)+'</b> · '+ERA[Math.min(5,Math.max(0,Math.floor(k.tech)))]+' (năm lịch sử và cấp công nghệ là hai chỉ số riêng biệt).</small><div class="row2">'+btn('industry','','🏭 Đầu tư công nghiệp · 8')+btn('research','','🔬 Đầu tư nghiên cứu · 8')+'</div>'+fleetChecks('galley')+fleetChecks('ironclad')+
+ '<div class="rplabel"><b>🧰 Quyết định phát triển</b><strong>Năm '+W.year+'</strong></div>'+roleplayTechTree(k)+'<div class="row2">'+btn('industry','','🏭 Đầu tư công nghiệp · 8')+btn('research','','🔬 Đầu tư nghiên cứu · 8')+'</div>'+fleetChecks('galley')+fleetChecks('ironclad')+
  '<div class="rplabel"><b>🏛 Thay đổi thể chế</b></div>'+(k.tech<5?'<small class="mu">🔒 Chưa thể cải cách thể chế. Cần bước vào Thời Công nghiệp (Cách mạng công nghiệp lần thứ nhất). Tiến trình hiện tại: '+ERA[Math.min(5,Math.max(0,k.tech|0))]+' · Công nghệ '+k.tech.toFixed(1)+'/5.0.</small>': '<div class="row2">'+(k.ideo?['cap','soc','mon','rep','dict','fas'].filter(id=>id!==k.ideo).map(id=>btn('ideology',id,IDE[id].e+' Cải cách sang '+IDE[id].n)).join(''):'<small class="mu">Chưa có mô hình xã hội. Hệ thống sẽ mở sự kiện lựa chọn khi quốc gia đủ điều kiện lịch sử.</small>')+'</div>')+
  '<small>Ngân sách cao giúp lĩnh vực tương ứng phát triển nhanh hơn nhưng làm tăng chi tiêu. Thuế cao tăng thu ngân sách nhưng làm giảm lòng trung thành.</small></div>';
 }
@@ -1269,14 +1298,14 @@ const kh=e=>{const b=e.target.closest('button');
   if(a==='war'&&(!divine||pay(8)))war(A,B);ui();draw();return}
  const c=e.target.closest('[data-sel]');if(c){kv=+c.dataset.sel;W.sel=kv;ui();$('#kg').querySelector('.ob').scrollTop=0}};
 $('#kl').onclick=kh;$('#kd').onclick=kh;
-$('#tbs').onclick=e=>{if(e.target.closest('[data-rp="manage"]'))openK()};$('#kback').onclick=()=>{kv=0;W.sel=0;ui()};$('#kd').addEventListener('toggle',e=>{const d=e.target;if(d.dataset&&d.dataset.o)kO[d.dataset.o]=d.open},true);
+$('#tbs').onclick=e=>{if(e.target.closest('[data-rp="manage"]'))openK();if(e.target.closest('[data-rp="tech-tree"]')){techTreeOpen=!techTreeOpen;ui()}};$('#kback').onclick=()=>{kv=0;W.sel=0;ui()};$('#kd').addEventListener('toggle',e=>{const d=e.target;if(d.dataset&&d.dataset.o)kO[d.dataset.o]=d.open},true);
 $('#tabs').onclick=e=>{const b=e.target.closest('[data-g]');if(b){sys=0;grp=+b.dataset.g;cur=TOOLS[grp][1][0][0];ui()}};
 $('#chips').onclick=e=>{const b=e.target.closest('[data-t]');if(b){cur=b.dataset.t;ui()}};
 document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{W.sp=+b.dataset.s;run();ui()});
 function renderCh(force){if($('#ch').hidden)return;if(!force&&$('#chb').scrollTop>8)return;const entries=(W.log||[]).filter(l=>importantChronicle(l));$('#cc').textContent=entries.length+' sự kiện quan trọng';$('#lg').innerHTML=entries.length?entries.map(l=>'<p>'+l+'</p>').join(''):'<p class="mu">Chưa có biến cố lớn nào được ghi nhận.</p>'}
 const openCh=()=>{$('#ch').hidden=false;renderCh(1);$('#chb').scrollTop=0;$('#chx').focus()},closeCh=()=>{$('#ch').hidden=true;$('#cb').focus()};
 const openK=()=>{$('#kg').hidden=false;kv=W.playerId||0;W.sel=W.playerId||0;ui();$('#kgx').focus()},closeK=()=>{$('#kg').hidden=true;ui();$('#kb').focus()};$('#kb').onclick=openK;$('#kgx').onclick=closeK;$('#kg').onclick=e=>{if(e.target.id==='kg')closeK()};$('#cb').onclick=openCh;$('#chx').onclick=closeCh;$('#ch').onclick=e=>{if(e.target.id==='ch')closeCh()};addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(!$('#kg').hidden)closeK();else if(!$('#ch').hidden)closeCh();else if(!$('#wm').hidden)closeW()});
-let sys=0,kv=0,kO={gov:1,govArmy:1};const setH=(el,h)=>{if(el._h!==h){el._h=h;el.innerHTML=h}};
+let sys=0,kv=0,techTreeOpen=0,kO={gov:1,govArmy:1};const setH=(el,h)=>{if(el._h!==h){el._h=h;el.innerHTML=h}};
 $('#sy').onclick=()=>{sys=!sys;ui()};const tb=$('#tb'),fitTb=()=>document.documentElement.style.setProperty('--tbh',tb.offsetHeight+'px');$('#tg').onclick=()=>{const m=tb.classList.toggle('min');$('#tg').textContent=m?'▴':'▾';$('#tg').setAttribute('aria-expanded',!m);fitTb()};if(window.ResizeObserver)new ResizeObserver(fitTb).observe(tb);fitTb();
 const SK='than-gioi-save';
 $('#sv').onclick=()=>{try{localStorage.setItem(SK,JSON.stringify({T:Array.from(T),O:Array.from(O),X:Array.from(X),RV:Array.from(RV),n:N,c:C,cfg:CFG,W,CD,BL,RD}));toast('💾 Đã lưu thế giới (năm '+W.year+', tháng '+mo()+')')}catch(e){toast('Không thể lưu trên thiết bị này')}};
