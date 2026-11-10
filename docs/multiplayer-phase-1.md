@@ -137,3 +137,5 @@ The roleplay ideology eligibility check now computes and records the pending cho
 - Added `setKingdomStat(id, field, value)` to World Context. It only updates an existing numeric field on an existing kingdom, rejects non-finite values, and increments the context revision.
 - Routed the recurring monthly population and technology growth writes in `step()` through this API, with a pre-attachment fallback retained for startup compatibility.
 - This covers only these two growth writes; combat, diplomacy, policy, events, and other kingdom-stat mutations still update legacy kingdom records directly. The context is not yet the sole owner of kingdom state.
+
+- Mở rộng seam chỉ số quốc gia: cập nhật lòng trung thành và quân số trong `upkeep()` (tăng/giảm quân theo điều kiện công nghệ, giới hạn quân số theo dân số) cũng đi qua `setKingdomStat`; các nhánh startup trước khi attach vẫn giữ fallback ở lớp gọi.
