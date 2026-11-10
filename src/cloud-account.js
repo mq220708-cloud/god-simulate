@@ -33,7 +33,7 @@ async function init(){
   client=window.supabase.createClient(CONFIG.supabaseUrl,CONFIG.supabaseAnonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   const result=await client.auth.getSession();if(result.error)throw result.error;
   user=result.data.session?.user||null;ready=true;render();listLeaderboard();
-  client.auth.onAuthStateChange((_event,session)=>{user=session?.user||null;render();status(user?'Đã đăng nhập. Tự động đồng bộ sẽ diễn ra sau mỗi 3 tháng trong game.':'Đã đăng xuất. Bản lưu trên thiết bị không bị ảnh hưởng.');if(user)setTimeout(()=>{try{const raw=localStorage.getItem(SAVE_KEY);if(raw)saveWorld(JSON.parse(raw))}catch(e){console.warn('Initial cloud sync skipped:',e)}},1500)});
+  client.auth.onAuthStateChange((_event,session)=>{user=session?.user||null;render();status(user?'Đã đăng nhập. Tự động đồng bộ sẽ diễn ra sau mỗi 3 tháng trong game.':'Đã đăng xuất. Bản lưu trên thiết bị không bị ảnh hưởng.');if(user)setTimeout(()=>{try{const snapshot=window.ThanhGioiCreateSaveSnapshot?.();if(snapshot)saveWorld(snapshot);else{const raw=localStorage.getItem(SAVE_KEY);if(raw)saveWorld(JSON.parse(raw))}}catch(e){console.warn('Initial cloud sync skipped:',e)}},1500)});
   if(user)status('Đã đăng nhập. Bản đồ cục bộ vẫn được giữ nguyên.');
  }catch(e){status('Không thể khởi tạo tài khoản: '+(e.message||e),true)}
 }
