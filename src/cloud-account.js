@@ -38,12 +38,12 @@ async function init(){
 }
 async function login(){if(!client)return;try{const r=await client.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.href,queryParams:{access_type:'offline',prompt:'consent'}}});if(r.error)throw r.error}catch(e){status('Đăng nhập Google thất bại: '+e.message,true)}}
 async function logout(){if(!client)return;try{const r=await client.auth.signOut();if(r.error)throw r.error;$('#tg-save-list').hidden=true;status('Đã đăng xuất. Bản lưu trên thiết bị vẫn an toàn.')}catch(e){status('Không thể đăng xuất: '+e.message,true)}}
-function worldId(save){return save?.W?.id||save?.W?.worldId||'default-world'}
+function worldId(save){if(!save.W.cloudId)save.W.cloudId=save.W.id||save.W.worldId||(crypto.randomUUID?crypto.randomUUID():'world-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2));return save.W.cloudId}
 function worldName(save){return save?.W?.name||('Thế giới năm '+(save?.W?.year??0))}
 async function saveWorld(save){
  if(!client||!user||!save)return {ok:false,reason:'not-authenticated'};
  try{
-  const id=worldId(save),path=user.id+'/'+id+'.json',blob=new Blob([JSON.stringify(save)],{type:'application/json'});
+  const id=worldId(save),path=user.id+'/'+id+'.json',blob=new Blob([JSON.stringify(save)],{type:'application/json'});localStorage.setItem('than-gioi-save',JSON.stringify(save));
   const up=await client.storage.from(BUCKET).upload(path,blob,{upsert:true,contentType:'application/json'});if(up.error)throw up.error;
   const db=await client.from('world_saves').upsert({user_id:user.id,world_id:id,world_name:worldName(save),game_version:VERSION,storage_path:path,updated_at:new Date().toISOString()},{onConflict:'user_id,world_id'});if(db.error)throw db.error;
   status('☁ Đã đồng bộ "'+worldName(save)+'" lên đám mây.');return {ok:true};
