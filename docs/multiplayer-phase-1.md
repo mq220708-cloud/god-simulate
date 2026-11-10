@@ -54,5 +54,19 @@ Introduce a small, DOM-free world-state codec with a versioned envelope and lega
 - No server deployment or database.
 - No changes to gameplay balance, historical pace, technologies, warfare, diplomacy, map generation, or existing modes.
 
+## Progress on this branch
+
+- [x] P1-01 dependency audit documented.
+- [x] P1-02 initial versioned world-state codec added at `src/shared/world-state.js`.
+- [x] Existing save/load path routed through the codec.
+- [x] Legacy v1.6.x unwrapped save objects remain readable.
+- [x] Codec tests added at `tests/world-state.test.js`.
+- [ ] P1-02 full state ownership extraction (the live globals remain in `index.html`).
+- [ ] P1-03 DOM-independent simulation tick.
+- [ ] P1-04 renderer extraction.
+- [ ] P1-05 command facade.
+- [ ] P1-06 complete save/load normalization and migration coverage.
+- [ ] P1-07 regression testing in browser for free and roleplay modes.
+
 ## Verification notes
-Source-level JavaScript syntax checks are required after each edit. Browser/device runtime testing is still required for render, simulation, save/load, and both existing modes; source syntax alone is not acceptance.
+The current inline application script passes a JavaScript syntax compilation check. The codec has also passed isolated round-trip, legacy compatibility, and schema-version checks. These are source-level checks only: browser/device runtime testing is still required for render, simulation, save/load, and both existing modes; source syntax alone is not acceptance.
