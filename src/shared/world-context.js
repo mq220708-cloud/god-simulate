@@ -23,6 +23,8 @@
       getKingdom(id){const index=Number(id)-1;if(!Number.isInteger(index)||index<0)return undefined;return requireState().W.ks[index]},
       getKingdoms(){return requireState().W.ks},
       getLivingKingdoms(){return requireState().W.ks.filter(kingdom=>kingdom&&kingdom.alive)},
+      getOwner(index){const current=requireState(),i=Number(index);if(!Number.isInteger(i)||i<0||i>=current.n*current.n)return 0;return Number(current.O[i])||0},
+      setOwner(index,kingdomId){const current=requireState(),i=Number(index),owner=Number(kingdomId);if(!Number.isInteger(i)||i<0||i>=current.n*current.n)throw new RangeError('Owner tile index is out of range');if(!Number.isInteger(owner)||owner<0)throw new TypeError('Kingdom owner must be a non-negative integer');current.O[i]=owner;revision++;return owner},
       getResource(index){const current=requireState(),i=Number(index);if(!Number.isInteger(i)||i<0||i>=current.n*current.n)return 0;return Number(current.W.oil?.[i])||0},
       setResource(index,value){const current=requireState(),i=Number(index),amount=Number(value);if(!Number.isInteger(i)||i<0||i>=current.n*current.n)throw new RangeError('Resource tile index is out of range');if(!Number.isFinite(amount))throw new TypeError('Resource amount must be finite');if(!Array.isArray(current.W.oil)&&!ArrayBuffer.isView(current.W.oil))current.W.oil=new Array(current.n*current.n).fill(0);current.W.oil[i]=amount;revision++;return amount},
       adjustResource(index,delta){const amount=Number(delta);if(!Number.isFinite(amount))throw new TypeError('Resource adjustment must be finite');return this.setResource(index,this.getResource(index)+amount)},
