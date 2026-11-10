@@ -577,7 +577,7 @@ function use(id,x,y,drag){VER++;if(x<0||y<0||x>=N||y>=H)return;const i=y*N+x,o=O
  if(id==='quake'){if(pay(12))disaster('quake',i,1);return}
  if(GF[id]){if(!k)return toast('Hãy chạm vào lãnh thổ của một nước');return gift(id,k,i)}
  if(!k)return toast('Hãy chọn một vương quốc');
- if(id==='c_city'){if(o!==k.id)return;if(T[i]<2||T[i]===6)return toast('Không thể lập thành phố ở đây');if(i===k.cap||k.cities.some(c=>c.i===i))return toast('Ô này đã có thành phố');if(k.cities.length>=8)return toast('Đã đạt số thành phố tối đa');if(!pay(10))return;const c={i,n:rnd(SY)+rnd(SY).toLowerCase()};BL=BL.filter(b=>b.i!==i);k.cities.push(c);log('🏘 Theo ý chúa, '+title(k)+' lập thành phố '+c.n+'.');return}
+ if(id==='c_city'){if(o!==k.id)return;if(T[i]<2||T[i]===6)return toast('Không thể lập thành phố ở đây');if(i===k.cap||k.cities.some(c=>c.i===i))return toast('Ô này đã có thành phố');if(k.cities.length>=8)return toast('Đã đạt số thành phố tối đa');if(!pay(10))return;const c={i,n:rnd(SY)+rnd(SY).toLowerCase()};if(ThanhGioiWorld.isAttached())ThanhGioiWorld.removeBuildingsAt(i);else BL=BL.filter(b=>b.i!==i);k.cities.push(c);log('🏘 Theo ý chúa, '+title(k)+' lập thành phố '+c.n+'.');return}
  if(id==='c_cap'){if(i===k.cap)return toast('Đây đã là thủ đô');if(T[i]<2||T[i]===6)return toast('Không thể đặt thủ đô ở đây');if(!pay(12))return;const ci=k.cities.findIndex(c=>c.i===i);k.cities.push({i:k.cap,n:k.cname});k.cname=ci>=0?k.cities.splice(ci,1)[0].n:rnd(SY)+rnd(SY).toLowerCase();k.cap=i;k.loy=Math.max(-100,k.loy-3);log('🚩 Theo ý chúa, '+title(k)+' dời đô về '+k.cname+'.');return}
  if(id==='c_link'){if(!cts(k).some(a=>a[0]===i))return toast('Hãy chạm vào một thành phố');if(!LK||LK===i){LK=i;return toast('Đã chọn '+nameAt(i)+' — chạm thành phố thứ hai')}
   const a=LK;LK=0;const p=planRoad(a,i);if(typeof p!=='object')return toast(p);if(!canPay(p.k,p.c))return toast('Thiếu tài nguyên: cần 🪵'+(p.c[0]|0)+' 🪨'+(p.c[1]|0)+' 💰'+(p.c[2]|0));if(!pay(8))return;payC(p.k,p.c);addRoad(p,a,i);log('🤝 Theo ý chúa, '+(p.s?'tuyến đường biển':'con đường')+' nối '+nameAt(a)+' với '+nameAt(i)+' bắt đầu được xây ('+p.n+' lượt).');return}
@@ -600,7 +600,7 @@ const LIM={house:8,farm:5,sawmill:2,quarry:2},HB=[8,18,36,64],LVN=['Làng','Th�
 const bd=t=>BLD.find(v=>v[0]===t),dist=(a,b)=>Math.abs(a%N-b%N)+Math.abs((a/N|0)-(b/N|0)),coast=i=>nb(i).some(j=>T[j]<=1);
 const cd=i=>CD[i]||(CD[i]={lv:0,f:10,pop:0,cap:8,area:0,bal:0,fam:0,y:[0,0,0]}),cts=k=>[[k.cap,k.cname,1],...k.cities.map(c=>[c.i,c.n,0])],rs=k=>k.rs||(k.rs={w:8,s:3,g:5});
 const canPay=(k,c)=>{const R=rs(k);return R.w>=c[0]&&R.s>=c[1]&&R.g>=c[2]},payC=(k,c)=>{const R=rs(k);R.w-=c[0];R.s-=c[1];R.g-=c[2]};
-const startB=(k,ci,v,i)=>{payC(k,v[11]);BL.push({t:v[0],i,c:ci,h:100,p:0,n:v[12]})},hasB=(ci,t)=>BL.some(b=>b.c===ci&&b.t===t&&b.p>=b.n),hasK=(k,t)=>BL.some(b=>b.t===t&&b.p>=b.n&&O[b.i]===k.id);
+const startB=(k,ci,v,i)=>{payC(k,v[11]);const building={t:v[0],i,c:ci,h:100,p:0,n:v[12]};if(ThanhGioiWorld.isAttached())ThanhGioiWorld.addBuilding(building);else BL.push(building)},hasB=(ci,t)=>BL.some(b=>b.c===ci&&b.t===t&&b.p>=b.n),hasK=(k,t)=>BL.some(b=>b.t===t&&b.p>=b.n&&O[b.i]===k.id);
 const hurt=(t,r,a)=>{for(const q of BL)if(dist(q.i,t)<=r)q.h-=a},lk=i=>RD.some(r=>!r.cut&&r.p>=r.n&&(r.a===i||r.b===i));
 const nameAt=i=>{const o=O[i],k=o&&K(o);return k?(i===k.cap?k.cname:(k.cities.find(c=>c.i===i)||{n:'?'}).n):'?'};
 function pathBfs(s,e,ok,max){const pv=new Map([[s,-1]]),q=[s];for(let h=0;h<q.length;h++){const i=q[h];if(i===e){const p=[];for(let j=e;j!==-1;j=pv.get(j))p.push(j);return p.reverse()}if(pv.size>max)break;for(const j of nb(i))if(!pv.has(j)&&(j===e||ok(j))){pv.set(j,i);q.push(j)}}return null}
@@ -622,7 +622,7 @@ function roads(){for(let x=RD.length;x--;){const r=RD[x],A=O[r.a],B=O[r.b],a=A&&
  rs(a).g+=.8;rs(b).g+=.8;a.tech+=.015;b.tech+=.015;if(A!==B)sr(a,b,1)}}
 // Thiên tai
 function disaster(ty,c,god){const[em,nm,r,a,b]={flood:['🌊','Lũ lụt tràn qua',3,25,35],fire:['🏚','Hỏa hoạn thiêu rụi',2,30,40],quake:['🌋','Động đất làm rung chuyển',4,30,50],storm:['🌪','Bão lớn quét qua',5,10,25]}[ty];let n=0;const dead=[];
- for(const q of BL.slice())if(dist(q.i,c)<=r){q.h-=a+Math.random()*b;n++;if(q.h<=0){BL.splice(BL.indexOf(q),1);dead.push(bd(q.t)[1])}}
+ for(const q of BL.slice())if(dist(q.i,c)<=r){q.h-=a+Math.random()*b;n++;if(q.h<=0){if(ThanhGioiWorld.isAttached())ThanhGioiWorld.removeBuilding(q);else BL.splice(BL.indexOf(q),1);dead.push(bd(q.t)[1])}}
  for(const rd of RD)if(rd.pts.some(p=>dist(p,c)<=r)){rd.h-=20+Math.random()*30;n++}
  const o=O[c],k=o&&K(o);if(k&&(n||god)){k.pop*=1-.01*r;k.loy=Math.max(-100,k.loy-2)}
  if(n||god)log(em+' '+nm+(k?' lãnh thổ '+title(k):' vùng đất hoang')+(dead.length?', phá hủy '+dead.join(' '):n?', gây hư hại '+n+' công trình/tuyến đường':'')+'.');return n}
@@ -1216,7 +1216,7 @@ function step(){W.month=(W.month|0)+1;if(W.month>=12){W.month=0;W.year++}civiliz
  if(!(W.scd>0)){const n0=W.ks.length;if(rb.length)rebel(rb[Math.random()*rb.length|0]);else if(sc.length){const a=rnd(sc);secede(a[0],a[1])}if(W.ks.length>n0)W.scd=12}else W.scd--;
  for(const[pk,[a,b]]of pr){const A=K(a),B=K(b);if(!A.alive||!B.alive)continue;if(A.war[b])front(A,B,BP.get(pk));else{if(A.ideo&&B.ideo)sr(A,B,A.ideo===B.ideo?1:-1.2);if(Math.random()<.14)event(A,B,A.rel[b]||0)}}
  for(const k of W.ks)if(k.alive)for(const id in k.war){const o=K(id);if(!k.war[id]||!o||!o.alive||k.id>o.id)continue;if(!pr.has(k.id*1000+o.id))remoteWar(k,o)}remoteContact(pr);
- fillTerritoryHoles();BL=BL.filter(b=>b.h>0&&O[b.i]&&T[b.i]>=2);roads();checkWorldConquest();if(Math.random()<.2)randDis();W.mana=Math.min(200,W.mana+1.5+tp/40);VER++;if(W.playerId)checkPlayerIdeology();if(checkRoleplayGameOver())return}
+ fillTerritoryHoles();const survivingBuildings=BL.filter(b=>b.h>0&&O[b.i]&&T[b.i]>=2);if(ThanhGioiWorld.isAttached())ThanhGioiWorld.replaceBuildings(survivingBuildings);else BL=survivingBuildings;roads();checkWorldConquest();if(Math.random()<.2)randDis();W.mana=Math.min(200,W.mana+1.5+tp/40);VER++;if(W.playerId)checkPlayerIdeology();if(checkRoleplayGameOver())return}
 function card(k){const ws=Object.keys(k.war).filter(i=>k.war[i]&&K(i).alive),lc=k.loy<30?'#e53935':k.loy<55?'#f9a825':'#43a047';
  return '<div class="card'+(W.sel===k.id?' on':'')+'" data-sel="'+k.id+'"><div class="hd">'+flagSVG(k,16)+'<b>'+k.race.e+' '+k.name+bsvg(k.ideo,14)+'</b><span class="st">👥'+fmt(k.pop*100)+' <i style="color:'+lc+';font-style:normal">❤'+(k.loy|0)+'</i></span><span class="mu">›</span></div></div>'}
 function detail(k){const g=k.king,a=k.pol&&pol(k.pol.id),ws=Object.keys(k.war).filter(i=>k.war[i]&&K(i).alive),lc=k.loy<30?'#e53935':k.loy<55?'#f9a825':'#43a047';
