@@ -63,7 +63,7 @@ Introduce a small, DOM-free world-state codec with a versioned envelope and lega
 - [x] Codec tests added at `tests/world-state.test.js`.
 - [ ] P1-02 full state ownership extraction (the live globals remain in `index.html`).
 - [x] P1-03 initial simulation execution boundary added; browser scheduler now invokes the DOM-free engine facade. The legacy `step()` callback still uses shared globals and must be progressively made DOM-independent.
-- [x] First simulation-effects seam added at `src/shared/simulation-effects.js`; important chronicle notifications and roleplay game-over now emit typed events consumed by browser adapters. `W.log` remains simulation state, while notification DOM and game-over presentation stay in the client.
+- [x] First simulation-effects seam added at `src/shared/simulation-effects.js`; important chronicle notifications, roleplay game-over, and roleplay ideology-choice prompts now emit typed events consumed by browser adapters. `W.log` and roleplay pending state remain simulation state, while notification DOM, game-over presentation, and ideology-choice dialog rendering stay in the client.
 - [ ] P1-04 renderer extraction.
 - [ ] P1-05 command facade.
 - [ ] P1-06 complete save/load normalization and migration coverage.
@@ -78,3 +78,6 @@ The current inline application script passes a JavaScript syntax compilation che
 
 ## P1-03 effects boundary
 `ThanhGioiSimulationEffects` is a small DOM-free event bus. The legacy chronicle writer still mutates `W.log`, then emits a `notification` effect; the browser subscribes and displays it. Roleplay elimination now emits `roleplay-game-over` with a message; the browser adapter owns timer stop, speed-button state, and dialog presentation. This removes those two direct presentation paths from the simulation call chain, but does not yet make every function reachable from `step()` pure or server-ready. Other domain helpers may still call browser services directly and require a full dependency audit.
+
+
+The roleplay ideology eligibility check now computes and records the pending choice in world state, then emits `ideology-choice-required` with a serializable list of choices and a reason string. The browser adapter alone builds the dialog markup. This removes the direct DOM access previously found in this audited `step()`-reachable domain function; it is not yet proof that every indirect helper or every simulation entry path is browser-independent.
