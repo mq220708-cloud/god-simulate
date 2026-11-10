@@ -29,3 +29,24 @@ drop policy if exists "Players update own world files" on storage.objects;
 create policy "Players update own world files" on storage.objects for update to authenticated using (bucket_id = 'world-saves' and (storage.foldername(name))[1] = auth.uid()::text) with check (bucket_id = 'world-saves' and (storage.foldername(name))[1] = auth.uid()::text);
 drop policy if exists "Players delete own world files" on storage.objects;
 create policy "Players delete own world files" on storage.objects for delete to authenticated using (bucket_id = 'world-saves' and (storage.foldername(name))[1] = auth.uid()::text);
+
+-- Public leaderboard: only public display fields are exposed; player email is never stored here.
+create table if not exists public.leaderboard (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  display_name text not null default 'Người chơi',
+  world_name text not null default 'Thế giới',
+  score bigint not null default 0 check (score >= 0),
+  world_year integer not null default 0 check (world_year >= 0),
+  population bigint not null default 0 check (population >= 0),
+  technology numeric(8,2) not null default 0 check (technology >= 0),
+  updated_at timestamptz not null default now()
+);
+alter table public.leaderboard enable row level security;
+drop policy if exists "Anyone can read leaderboard" on public.leaderboard;
+create policy "Anyone can read leaderboard" on public.leaderboard for select using (true);
+drop policy if exists "Players insert own leaderboard entry" on public.leaderboard;
+create policy "Players insert own leaderboard entry" on public.leaderboard for insert to authenticated with check (auth.uid() = user_id);
+drop policy if exists "Players update own leaderboard entry" on public.leaderboard;
+create policy "Players update own leaderboard entry" on public.leaderboard for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
+drop policy if exists "Players delete own leaderboard entry" on public.leaderboard;
+create policy "Players delete own leaderboard entry" on public.leaderboard for delete to authenticated using (auth.uid() = user_id);
