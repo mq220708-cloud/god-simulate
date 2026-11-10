@@ -241,7 +241,7 @@ body.rp-mode #chips { display:none !important; }
 #build-version{position:fixed;right:10px;bottom:8px;z-index:2147483000;padding:4px 8px;border:1px solid rgba(255,255,255,.18);border-radius:7px;background:rgba(5,12,22,.82);color:#e5edf7;font:11px/1.2 system-ui,sans-serif;letter-spacing:.2px;pointer-events:none;user-select:none;box-shadow:0 1px 5px rgba(0,0,0,.35)}
 </style>
 
-</head><body><div id="build-version" aria-label="Phiên bản trò chơi">THẦN GIỚI · v1.10.0</div><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button><button class="mode" id="mode-guide"><span class="ico">📖</span><span><b>Cẩm nang cơ chế & chỉ số</b><small>Giải thích cách vận hành thế giới, ý nghĩa các chỉ số và mẹo quản lý quốc gia.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
+</head><body><div id="build-version" aria-label="Phiên bản trò chơi">THẦN GIỚI · v1.10.1</div><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button><button class="mode" id="mode-guide"><span class="ico">📖</span><span><b>Cẩm nang cơ chế & chỉ số</b><small>Giải thích cách vận hành thế giới, ý nghĩa các chỉ số và mẹo quản lý quốc gia.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
 <div id="game-guide" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="guide-title">
  <div class="pn guide-panel">
   <div class="ph"><b id="guide-title">📖 Cẩm nang Thần Giới</b><small>Giải thích cơ chế và chỉ số</small><button id="guide-close" aria-label="Đóng">✕</button></div>
@@ -429,7 +429,7 @@ function flagCanvas(k){const f=flagOf(k),key=JSON.stringify(f);if(FLC[key])retur
 const agk=k=>k.aggr||(k.aggr={});
 function roles(k){const atk=[],def=[],unk=[];for(const o of W.ks){if(!o.alive||o===k||!k.war[o.id])continue;if(k.aggr&&k.aggr[o.id])atk.push(o);else if(o.aggr&&o.aggr[k.id])def.push(o);else unk.push(o)}return{atk,def,unk}}
 const roleIc=k=>{const r=roles(k);return(r.atk.length?'🗡️':'')+(r.def.length?'🛡️':'')+(r.unk.length?'⚔️':'')};
-function drawMechanized(sc){if(!W)return;const fz=Math.max(13,Math.min(23,17/sc));for(const k of W.ks){if(!k.alive||!k.eq)continue;const tanks=k.eq.s?.tank||0;if(tanks<.12)continue;const x=(k.cap%N+.5)*C,y=(Math.floor(k.cap/N)+.5)*C-C*.85;cx.globalAlpha=Math.min(.98,.55+tanks*.25);E(cx,'🛡️',x,y,fz);if(tanks>=.65)E(cx,'🚜',x+C*.65,y-C*.12,fz*.9);cx.globalAlpha=1;}}
+function drawMechanized(sc){if(!W||sc<.72)return;const fz=Math.max(14,Math.min(25,18/sc));for(const k of W.ks){if(!k.alive||!k.eq)continue;const tanks=k.eq.s?.tank||0;if(tanks<.12)continue;const x=(k.cap%N+.5)*C,y=(Math.floor(k.cap/N)+.5)*C-C*.85;cx.globalAlpha=Math.min(.98,.55+tanks*.25);E(cx,tanks>=.65?'🚜':'🚙',x,y,fz);cx.globalAlpha=1;}}
 function drawShips(sc){const now=Date.now(),fz=Math.min(30,Math.max(14,16/sc)),D=1800;
  for(const v of SH){if(!v.ship)continue;const e=now-v.t0;if(e<0||e>D)continue;const f=e/D,n=v.pts.length-1;if(n<1)continue;const pos=f*n,ix=Math.min(n-1,pos|0),u=pos-ix,A=v.pts[ix],B=v.pts[ix+1],px=(A%N+(B%N-A%N)*u+.5)*C,py=((A/N|0)+((B/N|0)-(A/N|0))*u+.5)*C;
   for(let w=1;w<=4;w++){const bp=Math.max(0,pos-w*.5),bi=Math.min(n-1,bp|0),bf=bp-bi,a2=v.pts[bi],b2=v.pts[bi+1];cx.globalAlpha=.55-w*.12;cx.fillStyle='#fff';cx.beginPath();cx.arc((a2%N+(b2%N-a2%N)*bf+.5)*C,((a2/N|0)+((b2/N|0)-(a2/N|0))*bf+.5)*C,Math.max(1,C*.25)*(1+w*.15),0,7);cx.fill()}
@@ -455,15 +455,17 @@ function queueMarch(k,target){
  if(p[p.length-1]!==target)p.push(target);
  if(p.length>1)queueMarchPath(k,p);
 }
-function drawArmies(){
- const now=Date.now(),rate=[0,6.5,10,17,25,40][W.sp]||0;
+function drawArmies(sc){
+ const now=Date.now(),rate=[0,6.5,10,17,25,40][W.sp]||0,visible=sc>=.72;
  for(let z=AR.length-1;z>=0;z--){
   const a=AR[z],k=K(a.id);
   if(!k||!k.alive||a.p>=1){AR.splice(z,1);continue}
   const dt=Math.max(0,Math.min(100,now-a.last));a.last=now;
   if(rate>0)a.p=Math.min(1,a.p+dt*rate/a.duration);
   const n=a.pts.length-1;if(n<1){AR.splice(z,1);continue}
-  // Bốn lính nối đuôi nhau, có quầng màu của vương quốc để dễ nhận ra trên bản đồ.
+  if(!visible)continue;
+  const eq=k.eq?.s||{},tanks=eq.tank||0,unitSize=Math.max(15,Math.min(25,19/sc));
+  // Tiểu đội hành quân theo đội hình; phương tiện cơ giới đi cùng khi quốc gia đã sở hữu xe/tăng.
   for(let unit=3;unit>=0;unit--){
    const progress=Math.max(0,a.p-unit*.075);
    if(progress<=0)continue;
@@ -472,9 +474,13 @@ function drawArmies(){
    const radius=Math.max(2.8,C*.34);
    cx.globalAlpha=.28;cx.fillStyle='#101820';cx.beginPath();cx.arc(x+1,y+1,radius+2,0,Math.PI*2);cx.fill();
    cx.globalAlpha=.9;cx.fillStyle=k.col||'#ffe082';cx.beginPath();cx.arc(x,y,radius+1.5,0,Math.PI*2);cx.fill();
-   cx.globalAlpha=1;E(cx,unit%2===0?'🪖':'⚔️',x,y,Math.max(15,Math.min(23,C*2.15)));
+   cx.globalAlpha=1;E(cx,unit%2===0?'🪖':'⚔️',x,y,unitSize);
   }
-  cx.globalAlpha=1;
+  if(tanks>=.12&&a.p>0){
+   const progress=Math.max(0,a.p-.24),pos=progress*n,ix=Math.min(n-1,Math.floor(pos)),u=pos-ix,A=a.pts[ix],B=a.pts[ix+1];
+   const x=(A%N+(B%N-A%N)*u+.5)*C,y=((A/N|0)+((B/N|0)-(A/N|0))*u+.5)*C;
+   cx.globalAlpha=.95;E(cx,tanks>=.65?'🚜':'🚙',x,y-unitSize*.75,unitSize*1.12);cx.globalAlpha=1;
+  }
  }
 }
 // ---- Giao thương đường biển ----
@@ -556,7 +562,7 @@ function draw(){if(RQ)return;RQ=1;requestAnimationFrame(()=>{RQ=0;paint()})}
 function paint(){renderT();if(OLVER!==VER){if(updOL())VER++;OLVER=VER}const sc=(cv.clientWidth/cv.width)||.5,V=VER+'|'+N+'|'+C;
  cx.drawImage(TL,0,0);cx.drawImage(layer('ol'),0,0);if(W.oil){const oil=lyr('oil',W.seed+'|'+N+'|'+H,()=>{for(let i=0;i<W.oil.length;i++)if(W.oil[i]>0){const x=(i%N+.5)*C,y=((i/N|0)+.5)*C;cx.fillStyle='#252525';cx.beginPath();cx.arc(x,y,Math.max(1.2,C*.16),0,Math.PI*2);cx.fill();cx.fillStyle='#f5c542';cx.fillRect(x-1,y-1,2,2)}},1000);cx.globalAlpha=.9;cx.drawImage(oil,0,0);cx.globalAlpha=1}
  if(CBon)cx.drawImage(lyr('cb',V,drawCB,150),0,0);
- cx.drawImage(lyr('rd',V,drawRoads,150),0,0);drawTrade();drawArmies();
+ cx.drawImage(lyr('rd',V,drawRoads,150),0,0);drawTrade();drawArmies(sc);
  const at=warSet();if(at.size){const wl=lyr('wl',V,()=>{cx.fillStyle='#ff1e1e';for(let i=0;i<N*H;i++){const o=O[i];if(!o||!at.has(o))continue;const kw=K(o).war,xi=i%N,yi=i/N|0,x=xi*C,y=yi*C,E2=j=>O[j]&&O[j]!==o&&kw[O[j]];
    if(xi<N-1&&E2(i+1))cx.fillRect(x+C-3,y,3,C);if(xi>0&&E2(i-1))cx.fillRect(x,y,3,C);if(yi<H-1&&E2(i+N))cx.fillRect(x,y+C-3,C,3);if(yi>0&&E2(i-N))cx.fillRect(x,y,C,3)}},120);
   cx.globalAlpha=.55+.45*(.5+.5*Math.sin(Date.now()/150));cx.drawImage(wl,0,0);cx.globalAlpha=1}
