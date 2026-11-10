@@ -302,8 +302,8 @@ const PAL=['#ff1744','#ff6d00','#f50087','#9c27ff','#ff80ab','#5b2bff','#1b1b1b'
 const R={human:{n:'Loài người',e:'🧑',g:1,t:1,a:.5,s:1,d:1,life:1,b:1,pt:[3]},elf:{n:'Tiên tộc',e:'🧝',g:.8,t:1.3,a:.2,s:.9,d:1.3,life:3,b:.9,pt:[4]},dwarf:{n:'Người lùn',e:'⛏️',g:.9,t:1.2,a:.4,s:1.15,d:.9,life:1.5,b:1.4,pt:[5,6]},orc:{n:'Quỷ nhân',e:'👹',g:1.25,t:.8,a:1,s:1.25,d:.6,life:.7,b:.8,pt:[5,2]}};
 const ERA=['Thời đồ đá','Thời đồ đồng','Thời đồ sắt','Trung cổ','Phục hưng','Công nghiệp'];
 const SY=['Ka','Lo','Ar','Vel','Dor','Mi','Thar','Ni','Zun','El','Ba','Or','Syl','Gra','Tum'];
-const TT={ocean:[0,0],sea:[1,0],lake:[1,6],river:'r',sand:[2,0],land:[3,0],for:[4,0],jungle:[4,4],desert:[3,1],snow:[3,2],swamp:[3,3],hill:[5,0],mtn:[6,0]};
-const TOOLS=[['Địa hình',[['ocean','🌊 Đại dương'],['sea','💧 Nước nông'],['lake','🏞 Hồ'],['river','〰️ Sông'],['sand','🏖 Bãi biển'],['land','🌿 Đồng cỏ'],['for','🌲 Rừng'],['jungle','🌴 Rừng rậm'],['desert','🏜 Sa mạc'],['snow','❄️ Tuyết'],['swamp','🐸 Đầm lầy'],['hill','⛰ Đồi'],['mtn','🏔 Núi']]],
+const TT={ocean:[0,0],sea:[1,0],lake:[1,6],river:'r',sand:[2,0],land:[3,0],for:[4,0],jungle:[4,4],desert:[3,1],snow:[3,2],swamp:[3,3],autumn:[4,5],badland:[3,7],hill:[5,0],rockhill:[5,7],mtn:[6,0]};
+const TOOLS=[['Địa hình',[['ocean','🌊 Đại dương'],['sea','💧 Nước nông'],['lake','🏞 Hồ'],['river','〰️ Sông'],['sand','🏖 Bãi biển'],['land','🌿 Đồng cỏ'],['for','🌲 Rừng'],['jungle','🌴 Rừng rậm'],['desert','🏜 Sa mạc'],['snow','❄️ Tuyết'],['swamp','🐸 Đầm lầy'],['autumn','🍁 Rừng lá đỏ'],['badland','🪨 Đất đá xám'],['hill','⛰ Đồi'],['rockhill','🪨 Đồi đá'],['mtn','🏔 Núi']]],
 ['Sinh vật',[['human','🧑 Người 15'],['elf','🧝 Tiên 15'],['dwarf','⛏️ Lùn 15'],['orc','👹 Quỷ 15']]],
 ['Quyền năng',[['sel','🔍 Xem'],['rain','🌧 Mưa 10'],['bolt','⚡ Sét 5'],['b_food','🌾 Phì nhiêu 12'],['b_war','🔱 Chiến thần 15'],['b_peace','🕯 Thái bình 12'],['wise','📜 Khai sáng 15'],['plague','☠️ Dịch bệnh 15'],['meteor','☄️ Thiên thạch 20'],['quake','🌋 Động đất 12']]]];
 let X=new Uint8Array(N*H),RV=new Uint8Array(N*H),CD={},BL=[],RD=[],LK=0,T=new Uint8Array(N*H),O=new Uint16Array(N*H),W,grp=1,cur='human',tm,z=0,pan=0;
@@ -355,25 +355,27 @@ function mkTerrain(seed){const[n,c0]=SZ[CFG.size];N=H=n;C=c0;const NH=N*H,L=CFG.
  for(let t=0;t<nr*6&&src.length<nr&&cands.length;t++){const i=cands[rr()*cands.length|0];if(src.every(s=>dist(s,i)>8))src.push(i)}
  for(const s of src){let c=s;const vis=new Set();for(let st=0;st<500;st++){if(tt[c]<=1)break;if(tt[c]!==6)rv[c]=1;vis.add(c);let b=-1,bv=1e9;for(const j of nb(c)){if(vis.has(j))continue;const v=fh[j]+rr()*.004;if(v<bv){bv=v;b=j}}if(b<0)break;if(bv>fh[c]+.01&&tt[b]>1){lakeAt(c,4+(rr()*8|0));break}c=b}}
  const nl=Math.round(CFG.river/100*land.length/700);for(let t=0;t<nl;t++)for(let a=0;a<40;a++){const i=land[rr()*land.length|0];if(tt[i]!==3&&tt[i]!==4)continue;let ok=1;for(let dy=-3;dy<=3&&ok;dy++)for(let dx=-3;dx<=3;dx++){const u=i%N+dx,v=(i/N|0)+dy;if(u<0||v<0||u>=N||v>=H||tt[v*N+u]<=1){ok=0;break}}if(ok){lakeAt(i,5+(rr()*10|0));break}}
- for(let i=0;i<NH;i++)if(tt[i]<2)rv[i]=0;T=tt;X=xx;RV=rv;O=new Uint16Array(NH)}
+ for(let i=0;i<NH;i++){if(tt[i]<2)rv[i]=0;else if(!rv[i]&&xx[i]===0&&tt[i]===4&&fn[i]>.68&&mo[i]>.42)xx[i]=5;else if(!rv[i]&&xx[i]===0&&tt[i]===3&&rg[i]>.76&&mo[i]>.46)xx[i]=5;else if(!rv[i]&&xx[i]===0&&(tt[i]===3||tt[i]===5)&&rg[i]<.19&&el[i]>.28)xx[i]=7;}T=tt;X=xx;RV=rv;O=new Uint16Array(NH)}
 function gen(seed){seed=(seed||'').trim()||Math.random().toString(36).slice(2,8);mkTerrain(seed);cv.width=N*C;cv.height=H*C;TD=1;DQ=[];FX.length=0;SH.length=0;clearN();VER++;OS=null;TLS={};CD={};BL=[];RD=[];LK=0;
  W={year:0,month:0,mana:80,ks:[],factions:[],log:[],sel:0,sp:2,seed,oil:Array.from({length:N*H},(_,i)=>{const h=Math.imul(i+1,2654435761)>>>0;return T[i]>=2&&T[i]<=5&&((h^(h>>>13))%97===0)?80+((h>>>8)%120):0})};log('Hư vô tan biến, thế giới ra đời (seed: '+seed+'). Hãy gieo mầm sự sống!')}
 // ---- pixel art: vẽ địa hình vào canvas ẩn ----
 const S=v=>Math.round(v*C/10),TL=document.createElement('canvas'),tx=TL.getContext('2d');let TD=1,DQ=[];
-const fer=i=>{const t=T[i],x=X[i];let f=t===3?([1,.1,.12,.35][x]??1):t===4?(x===4?.75:.6):t===5?(x===1||x===2?.2:.5):t===6?.2:FERT[t];if(RV[i])f+=.45;return f};
-const tname=i=>{const t=T[i],x=X[i];return t===0?'Đại dương':t===1?(x===6?'Hồ':'Biển nông'):t===2?'Bãi biển':t===3?(['Đồng cỏ','Sa mạc','Vùng tuyết','Đầm lầy'][x]||'Đồng cỏ'):t===4?(x===4?'Rừng rậm':'Rừng ôn đới'):t===5?(x===2?'Đồi tuyết':x===1?'Đồi khô':'Đồi'):(x===2?'Núi tuyết':'Núi')};
+const fer=i=>{const t=T[i],x=X[i];let f=t===3?([1,.1,.12,.35,1,.72,1,.18][x]??1):t===4?(x===4?.75:x===5?.48:.6):t===5?(x===1||x===2||x===7?.2:.5):t===6?.2:FERT[t];if(RV[i])f+=.45;return f};
+const tname=i=>{const t=T[i],x=X[i];return t===0?'Đại dương':t===1?(x===6?'Hồ':'Biển nông'):t===2?'Bãi biển':t===3?(['Đồng cỏ','Sa mạc','Vùng tuyết','Đầm lầy','Đồng cỏ lá đỏ','Đồng đá xám'][x]||'Đồng cỏ'):t===4?(x===4?'Rừng rậm':x===5?'Rừng lá đỏ':'Rừng ôn đới'):t===5?(x===2?'Đồi tuyết':x===1?'Đồi khô':x===7?'Đồi đá':'Đồi'):(x===2?'Núi tuyết':'Núi')};
 function tile(i){const xi=i%N,yi=i/N|0,x0=xi*C,y0=yi*C,t=T[i],xv=X[i],h=Math.imul(i+1,2654435761)>>>0,a=h&7,b=h>>3&7,c=h>>6&7,d=h>>9&7,e=h>>12&15;
  const P=(x,y,w,q,col)=>{tx.fillStyle=col;const u=S(x),v=S(y);tx.fillRect(x0+u,y0+v,Math.max(1,S(x+w)-u),Math.max(1,S(y+q)-v))},F=col=>{tx.fillStyle=col;tx.fillRect(x0,y0,C,C)},wt=j=>T[j]<=1||RV[j];
  const tr=(ox,oy,c1,c2)=>{P(ox+2,oy+5,1,2,'#5b3d22');P(ox+2,oy,1,1,c1);P(ox+1,oy+1,3,1,c1);P(ox,oy+2,5,1,c1);P(ox+1,oy+3,3,1,c1);P(ox,oy+4,5,1,c1);P(ox+2,oy+1,1,1,c2);P(ox+1,oy+3,1,1,c2)};
  if(t<2){const lk=xv===6;F(t===0?'#17406e':lk?'#3a8fd0':'#2b79b8');const w=t===0?'#215488':lk?'#78bfe8':'#4a99d4';P(a,b+1,3,1,w);P(c+2,d+4,2,1,w);if(e<4)P(d,c+1,2,1,w);
   const fo='rgba(255,255,255,.55)';if(xi>0&&T[i-1]>=2)P(0,0,1,10,fo);if(xi<N-1&&T[i+1]>=2)P(9,0,1,10,fo);if(yi>0&&T[i-N]>=2)P(0,0,10,1,fo);if(yi<H-1&&T[i+N]>=2)P(0,9,10,1,fo);return}
  if(t===2){F('#e6d596');P(a,b,1,1,'#cdb877');P(c,d+2,1,1,'#f6ecc4');P(e&7,(e>>1)+4,1,1,'#cdb877')}
- else if(t===3){if(xv===1){F('#e2bc66');P(a,3,4,1,'#c99a47');P(b+1,7,3,1,'#c99a47');P(c,1,2,1,'#f0d58b');if(e===0){P(4,3,1,4,'#4f8f3a');P(3,4,1,1,'#4f8f3a');P(5,5,1,1,'#4f8f3a')}}
+ else if(t===3){if(xv===7){F('#858579');P(a,2,3,1,'#a8a69a');P(c,6,4,1,'#555b59');P(b+1,8,2,1,'#6b706b');if(e<5)P(d,4,2,1,'#c1bba7')}
+  else if(xv===5){F('#9b7545');P(a,2,3,1,'#c18a43');P(c,6,3,1,'#704d38');P(b+1,8,2,1,'#d19a4d');if(e<4){P(d,3,1,2,'#b94c32');P(d+1,4,2,1,'#d76a36')}}
+  else if(xv===1){F('#e2bc66');P(a,3,4,1,'#c99a47');P(b+1,7,3,1,'#c99a47');P(c,1,2,1,'#f0d58b');if(e===0){P(4,3,1,4,'#4f8f3a');P(3,4,1,1,'#4f8f3a');P(5,5,1,1,'#4f8f3a')}}
   else if(xv===2){F('#eaf1f7');P(a,b,2,1,'#c6d6e4');P(c,d+2,1,1,'#fff');P(e&7,7,2,1,'#c6d6e4')}
   else if(xv===3){F('#5f7d4c');P(a,b+1,3,2,'#3f6350');P(c+3,d+5,3,2,'#3f6350');P(d,c,1,3,'#9bb05d');P(a+3,b+5,1,2,'#9bb05d')}
   else{F(['#6fb34f','#69ab4a','#76ba56'][a%3]);P(b,c+1,1,2,'#4d8f3a');P(d+2,a+3,1,1,'#4d8f3a');P(c+1,7,1,1,'#4d8f3a');if(e<2)P(e*4+1,d,1,1,'#ffe27a')}}
- else if(t===4){if(xv===4){F('#2c7a3b');P(0,1,5,4,'#1f6330');P(1,1,3,2,'#4fa04a');P(5,4,5,5,'#1f6330');P(6,5,3,2,'#4fa04a');P(a,8,2,1,'#164a22')}else{F('#4d9443');tr(1,1+(a&1),'#2f6b35','#5aad4f');tr(5,3+(b&1),'#2f6b35','#5aad4f')}}
- else if(t===5){const pa=xv===2?['#e4ecf2','#b9c8d6','#ffffff']:xv===1?['#d9b46a','#bf9650','#ecd08f']:['#88a458','#6f8a45','#a6bf72'];F(pa[0]);P(1,6,8,3,pa[1]);P(2,4,6,2,pa[1]);P(3,3,4,1,pa[1]);P(3,3,2,1,pa[2]);P(2,4,2,1,pa[2])}
+ else if(t===4){if(xv===5){F('#a65a32');tr(1,1+(a&1),'#a63e2e','#e28a3e');tr(5,3+(b&1),'#873c2c','#d36a35');P(a,8,2,1,'#d7a04a')}else if(xv===4){F('#2c7a3b');P(0,1,5,4,'#1f6330');P(1,1,3,2,'#4fa04a');P(5,4,5,5,'#1f6330');P(6,5,3,2,'#4fa04a');P(a,8,2,1,'#164a22')}else{F('#4d9443');tr(1,1+(a&1),'#2f6b35','#5aad4f');tr(5,3+(b&1),'#2f6b35','#5aad4f')}}
+ else if(t===5){const pa=xv===2?['#e4ecf2','#b9c8d6','#ffffff']:xv===1?['#d9b46a','#bf9650','#ecd08f']:xv===7?['#777c78','#555c5b','#a0a19a']:['#88a458','#6f8a45','#a6bf72'];F(pa[0]);P(1,6,8,3,pa[1]);P(2,4,6,2,pa[1]);P(3,3,4,1,pa[1]);P(3,3,2,1,pa[2]);P(2,4,2,1,pa[2])}
  else{F(xv===2?'#cfd8e0':'#7e8a6a');const L=xv===2?'#aeb8c2':'#9ea3ab',D='#4f535c';P(4,1,2,1,L);P(3,2,4,1,L);P(2,3,6,1,L);P(2,4,6,1,L);P(1,5,8,2,L);P(0,7,10,2,L);P(5,2,2,1,D);P(5,3,3,1,D);P(5,4,3,1,D);P(5,5,4,2,D);P(5,7,5,2,D);if(xv===2||e<5){P(4,1,2,1,'#fff');P(3,2,3,1,'#fff');P(3,3,2,1,'#fff')}}
  if(RV[i]&&t!==6){const rc='#3f95d8';P(3,3,4,4,rc);if(xi>0&&wt(i-1))P(0,3,3,4,rc);if(xi<N-1&&wt(i+1))P(7,3,3,4,rc);if(yi>0&&wt(i-N))P(3,0,4,3,rc);if(yi<H-1&&wt(i+N))P(3,7,4,3,rc);P(4,4,2,2,'#8ccaf2')}}
 function renderT(){if(TL.width!==N*C||TL.height!==H*C){TL.width=N*C;TL.height=H*C;TD=1}if(TD){for(let i=0;i<N*H;i++)tile(i);TD=0;DQ=[]}else if(DQ.length){const s=new Set();for(const i of DQ){s.add(i);for(const j of nb(i))s.add(j)}s.forEach(tile);DQ=[]}}
