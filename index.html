@@ -227,7 +227,7 @@ body.rp-mode #chips { display:none !important; }
 #build-version{position:fixed;right:10px;bottom:8px;z-index:2147483000;padding:4px 8px;border:1px solid rgba(255,255,255,.18);border-radius:7px;background:rgba(5,12,22,.82);color:#e5edf7;font:11px/1.2 system-ui,sans-serif;letter-spacing:.2px;pointer-events:none;user-select:none;box-shadow:0 1px 5px rgba(0,0,0,.35)}
 </style>
 
-</head><body><div id="build-version" aria-label="Phiên bản trò chơi">THẦN GIỚI · v1.9.0</div><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button><button class="mode" id="mode-guide"><span class="ico">📖</span><span><b>Cẩm nang cơ chế & chỉ số</b><small>Giải thích cách vận hành thế giới, ý nghĩa các chỉ số và mẹo quản lý quốc gia.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
+</head><body><div id="build-version" aria-label="Phiên bản trò chơi">THẦN GIỚI · v1.9.1</div><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button><button class="mode" id="mode-guide"><span class="ico">📖</span><span><b>Cẩm nang cơ chế & chỉ số</b><small>Giải thích cách vận hành thế giới, ý nghĩa các chỉ số và mẹo quản lý quốc gia.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
 <div id="game-guide" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="guide-title">
  <div class="pn guide-panel">
   <div class="ph"><b id="guide-title">📖 Cẩm nang Thần Giới</b><small>Giải thích cơ chế và chỉ số</small><button id="guide-close" aria-label="Đóng">✕</button></div>
@@ -785,7 +785,7 @@ function expand(k){
  for(const i of owned)for(const j of nb(i))if(!O[j]&&T[j]>=2&&(T[j]!==6||k.tech>=2))cs.add(j);
  const c=[...cs],cx=(N-1)/2,cy=(H-1)/2;
  const earlyExpansion=!!(W.playerId&&W.rpPace==='slow'&&(civFor(k)?.era??0)<2);
- for(let m=0,q=earlyExpansion?2+Math.min(2,k.n/16|0):1+(k.n/20|0)+(k.inv.includes('wheel')?1:0);m<q&&c.length;m++){
+ for(let m=0,q=earlyExpansion?1+Math.min(1,k.n/35|0):1+(k.n/45|0)+(k.inv.includes('wheel')?1:0);m<q&&c.length;m++){
   let b=-1,bi=-1,bs=-1;
   for(let r=0;r<Math.min(12,c.length);r++){
    const ri=Math.random()*c.length|0,j=c[ri],t=T[j],x=j%N,y=j/N|0;
@@ -983,9 +983,9 @@ function front(A,B,pre){navalBattle(A,B);const ed=(i,e)=>nb(i).some(j=>O[j]===e)
  if(pre)bd=[...new Set(pre)].filter(i=>O[i]===A.id?ed(i,B.id):O[i]===B.id&&ed(i,A.id));else for(const q of[A,B]){const e=q===A?B.id:A.id;for(const i of tilesOf(q))if(ed(i,e))bd.push(i)}
  if(!bd.length)return remoteWar(A,B);
  const S=(q,o)=>{const w=q.ws||(q.ws={});return w[o.id]||(w[o.id]={a:q.army,p:q.pop,n:q.n,y:q.loy,l:0})},sa=S(A,B),sb=S(B,A),a0=A.army+A.pop*.5,b0=B.army+B.pop*.5;
- const pw=k=>str(k)*(.7+Math.random()*.6),rounds=1+(Math.min(A.n,B.n)/25|0),ga=eqFront(A),gb=eqFront(B);
+ const pw=k=>str(k)*(.7+Math.random()*.6),rounds=1+Math.min(1,Math.min(A.n,B.n)/80|0),ga=eqFront(A),gb=eqFront(B);
  for(let r=0;r<rounds&&bd.length;r++){if(Math.random()>.5)continue;const bi=Math.random()*bd.length|0,t=bd[bi],l=O[t]===A.id?A:B,w=l===A?B:A;
-  const el=l===A?ga:gb,ew=l===A?gb:ga,cs=coast(t)?1:0;queueMarch(w,t);if(pw(w)*(1+ew.sg+cs*ew.nv)>pw(l)*dt(l,t)*(1+cs*el.nv*.5)*resistanceFactor(l,w,t)){if(ew.sg>.12&&Math.random()<.05)log('💥 Khí tài công thành của '+title(w)+' phá vỡ phòng tuyến '+title(l)+'.');take(w,l,t);bd.splice(bi,1);w.army*=1-.008*warDamage();l.army*=1-.018*warDamage();w.pop*=1-.0005*warDamage();l.pop*=1-.001*warDamage();
+  const el=l===A?ga:gb,ew=l===A?gb:ga,cs=coast(t)?1:0;queueMarch(w,t);if(pw(w)*(1+ew.sg+cs*ew.nv)>pw(l)*dt(l,t)*(1+cs*el.nv*.5)*resistanceFactor(l,w,t)*1.12){if(ew.sg>.12&&Math.random()<.05)log('💥 Khí tài công thành của '+title(w)+' phá vỡ phòng tuyến '+title(l)+'.');take(w,l,t);bd.splice(bi,1);w.army*=1-.008*warDamage();l.army*=1-.018*warDamage();w.pop*=1-.0005*warDamage();l.pop*=1-.001*warDamage();
    if(Math.random()<.08)log('🗡 '+title(w)+' đẩy lùi quân '+title(l)+' và chiếm thêm đất.');if(l.n<=0){l.inv.forEach(x=>w.inv.includes(x)||w.inv.push(x));die(l,'bị '+title(w)+' xóa sổ sau cuộc chinh phạt dài');return}}else{resistanceCounter(l,w,t);}}
  sr(A,B,-2);const wd=(A.war[B.id]|0)+1,att=(.005+Math.min(.01,bd.length*.0005))*warDamage();A.war[B.id]=B.war[A.id]=wd;for(const q of[A,B]){const ls=q.army*att;q.army-=ls;q.pop=Math.max(.5,q.pop-ls*.5);eqWear(q,att*1.2)}
  sa.l+=Math.max(0,a0-A.army-A.pop*.5);sb.l+=Math.max(0,b0-B.army-B.pop*.5);if(sa.r)sa.r*=.97;if(sb.r)sb.r*=.97;
