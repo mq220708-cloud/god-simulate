@@ -227,7 +227,7 @@ body.rp-mode #chips { display:none !important; }
 #build-version{position:fixed;right:10px;bottom:8px;z-index:2147483000;padding:4px 8px;border:1px solid rgba(255,255,255,.18);border-radius:7px;background:rgba(5,12,22,.82);color:#e5edf7;font:11px/1.2 system-ui,sans-serif;letter-spacing:.2px;pointer-events:none;user-select:none;box-shadow:0 1px 5px rgba(0,0,0,.35)}
 </style>
 
-</head><body><div id="build-version" aria-label="Phiên bản trò chơi">THẦN GIỚI · v1.4.1</div><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
+</head><body><div id="build-version" aria-label="Phiên bản trò chơi">THẦN GIỚI · v1.5.0</div><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
 <div id="game-guide" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="guide-title">
  <div class="pn guide-panel">
   <div class="ph"><b id="guide-title">📖 Cẩm nang Thần Giới</b><small>Giải thích cơ chế và chỉ số</small><button id="guide-close" aria-label="Đóng">✕</button></div>
@@ -550,7 +550,7 @@ function paint(){renderT();if(OLVER!==VER){if(updOL())VER++;OLVER=VER}const sc=(
    wh=lyr('sw',SV,()=>{cx.fillStyle='#fff';for(const i of tilesOf(sk))cx.fillRect(i%N*C,(i/N|0)*C,C,C)},120);cx.globalAlpha=.14+.12*Math.sin(Date.now()/230);cx.drawImage(wh,0,0);cx.globalAlpha=1;cx.drawImage(yl,0,0)}
  cx.drawImage(lyr('top',V+'|'+sc.toFixed(2),()=>{for(const k of W.ks)if(k.alive)E(cx,R[k.rid].e,k.cap%N*C+C/2,(k.cap/N|0)*C+C/2+1,18);drawNames()},220),0,0);drawShips(sc)}
 function livingKingdomCount(){return W.ks.filter(k=>k.alive).length}
-function spawn(id,x,y,suppressIdeology){if(livingKingdomCount()>=8)return toast('🌍 Thế giới đã đạt giới hạn 8 vương quốc!');const k={id:W.ks.length+1,rid:id,race:R[id],name:rnd(SY)+rnd(SY).toLowerCase()+(Math.random()<.5?rnd(SY).toLowerCase():''),col:colFor(W.ks.length),pop:3,tech:0,era:0,rel:{},ally:{},war:{},alive:1,cap:y*N+x,n:0,army:.6,loy:70,fav:0,inv:[],bld:[],cname:rnd(SY)+rnd(SY).toLowerCase(),cities:[],bf:{food:0,war:0,peace:0}};
+function spawn(id,x,y,suppressIdeology,initialPopulation){if(livingKingdomCount()>=8)return toast('🌍 Thế giới đã đạt giới hạn 8 vương quốc!');const foundingPop=Number.isFinite(initialPopulation)?initialPopulation:3;const k={id:W.ks.length+1,rid:id,race:R[id],name:rnd(SY)+rnd(SY).toLowerCase()+(Math.random()<.5?rnd(SY).toLowerCase():''),col:colFor(W.ks.length),pop:foundingPop,tech:0,era:0,rel:{},ally:{},war:{},alive:1,cap:y*N+x,n:0,army:Number.isFinite(initialPopulation)?.01:.6,loy:70,fav:0,inv:[],bld:[],cname:rnd(SY)+rnd(SY).toLowerCase(),cities:[],bf:{food:0,war:0,peace:0}};
  W.ks.push(k);if(!suppressIdeology)foundIdeology(k,null);for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const u=x+dx,v=y+dy;if(u<0||v<0||u>=N||v>=H)continue;const j=v*N+u;if(T[j]>=2&&T[j]!==6&&!O[j])O[j]=k.id}
  log('🌱 '+k.race.e+' Một bộ tộc mới xuất hiện, lập nên '+title(k)+'.');mkKing(k)}
 function use(id,x,y,drag){VER++;if(x<0||y<0||x>=N||y>=H)return;const i=y*N+x,o=O[i],k=o&&K(o);
@@ -1075,7 +1075,7 @@ function makeCivilization(k,index){
   population:k.pop,stability:70,centralization:origin==='east'?18:origin==='west'?10:14,
   culture:{east:origin==='east'?65:origin==='west'?10:40,west:origin==='west'?65:origin==='east'?10:40,hybrid:origin==='mixed'?20:5},
   society:{classes:{hunters:45,gatherers:30,herders:15,leaders:10}},
-  resources:{food:Math.max(20,k.pop*7),wood:n*.35,stone:n*.2,copper:0,tin:0,ironOre:0,bronze:0,iron:0,livestock:0,gold:0},
+  resources:{food:Math.max(1,k.pop*7),wood:n*.35,stone:n*.2,copper:0,tin:0,ironOre:0,bronze:0,iron:0,livestock:0,gold:0},
   natural:{food:Math.max(30,n*fertility*8),wood:forest*5+n*.25,stone:(hills+mountains)*4+n*.25,copper:hills*.65+mountains*.35+n*.04,tin:hills*.32+mountains*.2+n*.02,ironOre:mountains*1.4+hills*.55+n*.05,gold:mountains*.08},
   production:{food:0,wood:0,stone:0,copper:0,tin:0,ironOre:0,bronze:0,iron:0,livestock:0,gold:0},knownTiles:tiles.slice(),lastEventYear:0};
 }
@@ -1197,7 +1197,7 @@ function step(){W.month=(W.month|0)+1;if(W.month>=12){W.month=0;W.year++}civiliz
  TLS=tl;
  for(const k of W.ks){if(!k.alive)continue;k.n=n[k.id]||0;if(!k.n){die(k,'đã diệt vong');continue}
   if(O[k.cap]!==k.id)relocate(k);
-  k.pop+=(Math.min((6+(fe[k.id]||0)*5)*(1+Math.min(k.tech,6)*.08),((k.hc||12)+(k.rc||k.n*.9))*1.15)*(k.ff||1)-k.pop)*.05*(W.playerId&&W.rpPace==='slow'?.55:1)*k.race.g*(1+ef(k,5)+eb(k,5)+.03*k.cities.length)*(k.bf.food>0?1.6:1)*civPopulationFactor(k)*ide(k).gr;k.tech+=k.pop*.0006*(W.playerId&&W.rpPace==='slow'?.5:1)*k.race.t*ide(k).t*(1+ef(k,7)+eb(k,7)+TR[k.king.t][2])*(k.id===W.playerId?1+((k.playerBudget?.edu??1)-1)*.18:1);
+  k.pop+=(Math.min((6+(fe[k.id]||0)*5)*(1+Math.min(k.tech,6)*.08),((k.hc||12)+(k.rc||k.n*.9))*1.15)*(k.ff||1)-k.pop)*.05*(W.playerId&&W.rpPace==='slow'?.18:1)*k.race.g*(1+ef(k,5)+eb(k,5)+.03*k.cities.length)*(k.bf.food>0?1.6:1)*civPopulationFactor(k)*ide(k).gr;k.tech+=k.pop*.0006*(W.playerId&&W.rpPace==='slow'?.5:1)*k.race.t*ide(k).t*(1+ef(k,7)+eb(k,7)+TR[k.king.t][2])*(k.id===W.playerId?1+((k.playerBudget?.edu??1)-1)*.18:1);
   if(k.pop<.4){die(k,'tuyệt chủng vì đói kém');continue}
   tp+=k.pop;upkeep(k);invent(k);updateEconomy(k);eqTick(k);if(k.id!==W.playerId&&(W.year*12+W.month)>=400&&!k.ideo&&Math.random()<.1){k.ideo=Math.random()<.5?'soc':'cap';if(k.ideo==='soc'){k.flag=mkFlag(1);log('🚩 '+title(k)+' đổi quốc kỳ sang sắc đỏ và vàng.')}log(IDE[k.ideo].e+' '+title(k)+' đi theo con đường '+IDE[k.ideo].n+(k.ideo==='soc'?': nhà nước nắm kinh tế, chia đều lương thực, quân đội và lòng dân vững chắc hơn nhưng phát triển chậm.':': thị trường tự do thúc đẩy thương mại và khoa học, đổi lại lòng dân bất ổn hơn.'))}if(k.n>=12&&!k.cool&&W.ks.filter(a=>a.alive).length<(k.ideo==='dict'?24:14)&&((k.ideo==='dict'&&k.loy<65&&Math.random()<Math.min(.22,.025+(65-k.loy)*.003))||(k.ideo!=='dict'&&k.loy<0&&Math.random()<(15-k.loy)/200)))rb.push(k);else if(k.n>=30&&!k.rcool&&k.loy<0){const fi=farInfo(k);if(Math.random()<risk(k,fi.far)&&W.ks.filter(a=>a.alive).length<30)sc.push([k,fi.far])}if(k.pop>=k.n*(k.tech<1?.85:1)&&Math.random()<(W.playerId&&W.rpPace==='slow'?.32:.7))expand(k);if(Math.random()<(W.playerId&&W.rpPace==='slow'?.12:.25))voyage(k);
   const e=Math.min(5,k.tech|0);if(e>k.era){k.era=e;log('📈 '+title(k)+' bước vào <i>'+ERA[e]+'</i>.')}
@@ -1409,7 +1409,7 @@ function createRoleplayWorld(config){
    if(value>score){score=value;best=i;}
   }
   if(best<0)return null;
-  const x=best%N,y=best/N|0;chosen.push({x,y});spawn(race,x,y,!!name);
+  const x=best%N,y=best/N|0;chosen.push({x,y});spawn(race,x,y,!!name,.055);
   const k=K(W.ks.length);if(name)k.name=name;
   
   if(leader&&k.king){k.king.n=leader;const p=k.dynasty?.people?.find(v=>v.id===k.king.pid);if(p){p.name=leader;p.role='Đương kim quân chủ';}}
