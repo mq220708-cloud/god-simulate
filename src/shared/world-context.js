@@ -20,6 +20,7 @@
       attach(next){state=validate(next);revision++;return revision},
       getState(){return requireState()},
       read(key){const current=requireState();if(!(key in current))throw new RangeError('Unknown world state field: '+key);return current[key]},
+      getKingdom(id){const index=Number(id)-1;if(!Number.isInteger(index)||index<0)return undefined;return requireState().W.ks[index]},
       write(key,value){const current=requireState();if(!(key in current))throw new RangeError('Unknown world state field: '+key);current[key]=value;revision++;return revision},
       getRevision(){return revision},
       isAttached(){return state!==null}
