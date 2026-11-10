@@ -11,7 +11,7 @@ function panel(){
  const root=document.createElement('section');root.id='tg-account';
  root.innerHTML='<div class="tg-account-head"><div class="tg-avatar" id="tg-avatar">👤</div><div class="tg-account-meta"><b id="tg-account-name">Tài khoản Thần Giới</b><small id="tg-account-caption">Đăng nhập để đồng bộ bản đồ và thành tích</small></div></div><div class="tg-account-actions"><button class="primary" id="tg-google-login">🌐 Đăng nhập bằng Google</button><button id="tg-account-logout" hidden>Đăng xuất</button><button id="tg-cloud-list" hidden>☁ Bản đồ đám mây</button></div><div class="tg-account-status" id="tg-account-status">Bản đồ vẫn được lưu trên thiết bị. Đăng nhập Google để bật đồng bộ đám mây.</div><div class="tg-save-list" id="tg-save-list" hidden></div>';
  lobby.appendChild(root);
- const board=document.createElement('section');board.id='tg-leaderboard';board.innerHTML='<div class="tg-lb-head"><b>🏆 Bảng xếp hạng online</b><button type="button" id="tg-lb-refresh">↻ Làm mới</button></div><div class="tg-lb-note">Xếp hạng theo điểm văn minh của thế giới đã đồng bộ. Chỉ hiển thị tên công khai, không hiển thị email.</div><div class="tg-lb-list" id="tg-lb-list">Đang chờ kết nối dịch vụ…</div>';document.querySelector('#lobby').appendChild(board);$('#tg-lb-refresh').addEventListener('click',listLeaderboard);
+ const board=document.createElement('section');board.id='tg-leaderboard';board.innerHTML='<div class="tg-lb-head"><b>🏆 Bảng xếp hạng online</b><button type="button" id="tg-lb-refresh">↻ Làm mới</button></div><div class="tg-lb-note">Xếp hạng theo điểm văn minh của thế giới đã đồng bộ. Chỉ hiển thị tên công khai, không hiển thị email.</div><div class="tg-lb-list" id="tg-lb-list">Đang chờ kết nối dịch vụ…</div>';document.querySelector('#lobby').appendChild(board);$('#tg-lb-refresh').addEventListener('click',listLeaderboard);listLeaderboard();
  $('#tg-google-login').addEventListener('click',login);$('#tg-account-logout').addEventListener('click',logout);$('#tg-cloud-list').addEventListener('click',listSaves);
  if(!configured()){$('#tg-google-login').disabled=true;status('Chưa cấu hình dịch vụ tài khoản. Quản trị viên cần thêm Supabase URL và anon key trong src/cloud-config.js. Lưu cục bộ vẫn hoạt động bình thường.')}
 }
@@ -47,8 +47,8 @@ async function saveWorld(save){
   const id=worldId(save),path=user.id+'/'+id+'.json',blob=new Blob([JSON.stringify(save)],{type:'application/json'});localStorage.setItem(SAVE_KEY,JSON.stringify(save));
   const up=await client.storage.from(BUCKET).upload(path,blob,{upsert:true,contentType:'application/json'});if(up.error)throw up.error;
   const db=await client.from('world_saves').upsert({user_id:user.id,world_id:id,world_name:worldName(save),game_version:VERSION,storage_path:path,updated_at:new Date().toISOString()},{onConflict:'user_id,world_id'});if(db.error)throw db.error;
-  await updateLeaderboard(save);
-  status('☁ Đã đồng bộ "'+worldName(save)+'" lên đám mây và cập nhật bảng xếp hạng.');return {ok:true};
+  let leaderboardUpdated=false;try{await updateLeaderboard(save);leaderboardUpdated=true}catch(lbError){console.warn('Leaderboard update failed:',lbError)}
+  status(leaderboardUpdated?'☁ Đã đồng bộ "'+worldName(save)+'" và cập nhật bảng xếp hạng.':'☁ Đã đồng bộ bản đồ; bảng xếp hạng chưa cập nhật (kiểm tra schema Supabase).');return {ok:true,leaderboardUpdated};
  }catch(e){status('Lưu đám mây thất bại: '+e.message+'. Bản trên thiết bị vẫn được giữ.',true);return {ok:false,error:e.message}}
 }
 function leaderboardStats(save){
