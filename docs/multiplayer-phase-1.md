@@ -109,3 +109,10 @@ The roleplay ideology eligibility check now computes and records the pending cho
 - Economy extraction and the roleplay oil-site summary now read/update deposits through these methods instead of directly indexing `W.oil`.
 - Terrain fertility and terrain-name helpers now obtain terrain, variant, and river arrays from the attached world context, retaining a guarded fallback during pre-world startup.
 - Other map/render/gameplay code still uses legacy arrays directly; this is a staged migration and not yet a server-authoritative map command layer.
+
+
+### Territory ownership mutation seam
+
+- Added `getOwner(index)` and validated `setOwner(index, kingdomId)` to the DOM-free world context. Owner writes increment the context revision; invalid tile indices and negative/non-integer kingdom IDs are rejected.
+- Routed the combat occupation write and overseas-colony founding/adjacent-claim writes through `setOwner`, with pre-attachment fallbacks retained for startup compatibility.
+- This is a narrow first migration of runtime ownership mutations. Other territory writes (including initial map generation, divine terrain actions, rebellion/succession, death cleanup, and AI expansion) remain to be migrated deliberately; direct `O` access still exists throughout the legacy simulation.
