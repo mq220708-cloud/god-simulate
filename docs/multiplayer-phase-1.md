@@ -146,3 +146,10 @@ The roleplay ideology eligibility check now computes and records the pending cho
 - Added `setEconomyStat(id, field, value)` to World Context. It updates only supported numeric fields on an initialized kingdom economy, validates finite values, and tracks revisions; the three monthly flow fields may be initialized on first write.
 - Routed recurring economy updates (oil, treasury, monthly income/expense/net, industry, GDP, unemployment, exports) and military-equipment upkeep/purchases (oil and treasury) through this API. Treasury-shortfall loyalty penalties also use the existing kingdom-stat seam.
 - The economy object remains nested inside the legacy kingdom record, and reads still use the existing `econOf(k)` compatibility helper. This is a mutation seam only; other nested economy or trade data still needs separate migration.
+
+
+### Military equipment inventory mutation seam
+
+- Added validated `setEquipmentAmount` and `adjustEquipmentAmount` methods to World Context. Inventory writes reject invalid identifiers, non-finite values, and negative stock; zero stock removes the item key and each successful mutation advances the world revision.
+- Routed equipment wear, battlefield loot transfer, army-split distribution, monthly upkeep attrition, automatic production, and roleplay fleet purchases through the context API. Pre-attachment startup fallbacks remain.
+- Equipment preferences, production capacity, and UI-only counters remain on the legacy equipment record; this step centralizes stock mutations without changing the equipment balance formulas.
