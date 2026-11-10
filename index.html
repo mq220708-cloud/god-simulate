@@ -820,6 +820,52 @@ function fillTerritoryHoles(){
  }
 }
 function alliance(A,B){A.ally[B.id]=B.ally[A.id]=1;sr(A,B,10);log('🤝 '+title(A)+' và '+title(B)+' ký kết liên minh.')}
+const PACTS={trade:{name:'Hiệp định thương mại',icon:'💱',months:36,min:12},nonaggression:{name:'Hiệp ước không xâm lược',icon:'🕊️',months:48,min:8},research:{name:'Hiệp định hợp tác học thuật',icon:'📚',months:36,min:18},defense:{name:'Hiệp ước phòng thủ',icon:'🛡️',months:48,min:28}};
+const pactOf=(A,B,type)=>A&&A.pacts&&A.pacts[B.id]&&(!type||A.pacts[B.id].type===type)?A.pacts[B.id]:null;
+function signPact(A,B,type){
+ const spec=PACTS[type];if(!A||!B||!spec||A===B||!A.alive||!B.alive)return false;
+ if(A.war[B.id]||B.war[A.id])return false;
+ if(pactOf(A,B))return false;
+ const rel=A.rel[B.id]||0;if(rel<spec.min)return false;
+ const until=TM()+spec.months;
+ A.pacts??={};B.pacts??={};
+ A.pacts[B.id]={type,since:TM(),until,trust:60};B.pacts[A.id]={type,since:TM(),until,trust:60};
+ if(type==='defense')alliance(A,B);
+ sr(A,B,type==='trade'?9:type==='research'?7:12);
+ log(spec.icon+' '+title(A)+' và '+title(B)+' ký '+spec.name.toLowerCase()+' (thời hạn '+Math.round(spec.months/12)+' năm).');
+ return true;
+}
+function breakPact(A,B,reason){
+ const p=pactOf(A,B);if(!p)return false;
+ const spec=PACTS[p.type];delete A.pacts[B.id];delete B.pacts[A.id];
+ if(p.type==='defense'){delete A.ally[B.id];delete B.ally[A.id]}
+ sr(A,B,-(reason==='breach'?22:7));
+ if(reason==='breach'){A.grievances??={};B.grievances??={};A.grievances[B.id]=(A.grievances[B.id]||0)+25;B.grievances[A.id]=(B.grievances[A.id]||0)+12;log('⚠️ '+title(A)+' đơn phương phá vỡ '+spec.name.toLowerCase()+' với '+title(B)+'. Uy tín ngoại giao suy giảm.')}
+ else log('📜 '+spec.name+' giữa '+title(A)+' và '+title(B)+' đã kết thúc.');
+ return true;
+}
+function diplomacyTick(){
+ const alive=W.ks.filter(k=>k.alive),month=TM();
+ for(const A of alive){A.pacts??={};A.grievances??={};}
+ for(let i=0;i<alive.length;i++)for(let j=i+1;j<alive.length;j++){
+  const A=alive[i],B=alive[j],p=pactOf(A,B);
+  if(p&&p.until<=month){breakPact(A,B,'expire');continue}
+  if(p){
+   if(p.type==='trade'){const ea=econOf(A),eb=econOf(B);ea.cash=Math.min(999999,ea.cash+.16);eb.cash=Math.min(999999,eb.cash+.16);if(month%6===0)sr(A,B,.8)}
+   else if(p.type==='research'&&month%3===0){A.tech=Math.min(99,A.tech+.012);B.tech=Math.min(99,B.tech+.012);if(month%12===0)log('📚 Các học giả của '+title(A)+' và '+title(B)+' trao đổi tri thức.')}
+   else if(p.type==='defense'&&!A.war[B.id]&&!B.war[A.id]){A.ally[B.id]=B.ally[A.id]=1}
+  }
+  for(const id of [A.id,B.id]){const owner=id===A.id?A:B,other=id===A.id?B:A;const g=owner.grievances[other.id]||0;if(g>0)owner.grievances[other.id]=Math.max(0,g-.025)}
+ }
+ if(month%6!==0)return;
+ for(const A of alive){if(A.id===W.playerId||Math.random()>.16)continue;
+  const B=alive.filter(o=>o!==A&&!A.war[o.id]&&!pactOf(A,o)&&(A.rel[o.id]||0)>=12).sort((x,y)=>(A.rel[y.id]||0)-(A.rel[x.id]||0))[0];
+  if(!B)continue;const r=A.rel[B.id]||0,roll=Math.random();
+  if(r>=35&&roll<.12)signPact(A,B,'trade');
+  else if(r>=48&&roll<.2)signPact(A,B,'research');
+  else if(r>=58&&roll<.27)signPact(A,B,'nonaggression');
+ }
+}
 function factionOf(k){return (W.factions||[]).find(f=>f.id===k.factionId)||null}
 function factionMembers(f){return W.ks.filter(k=>k.alive&&k.factionId===f.id)}
 function createFaction(k){
@@ -955,7 +1001,7 @@ function found(k){k.cities=k.cities.filter(c=>O[c.i]===k.id);const R=rs(k),cs=ct
 function event(A,B,r,rem){const ag=(A.race.a+B.race.a)/2,x=Math.random();
  if(A.war[B.id])return front(A,B);
  if(A.ally[B.id]&&r<0){delete A.ally[B.id];delete B.ally[A.id];return log('💔 Liên minh giữa '+title(A)+' và '+title(B)+' tan vỡ.')}
- if(r<-35&&x<.35+ag*.4&&!(A.bf.peace>0||B.bf.peace>0)&&!(A.tr&&A.tr[B.id]>TM()))return Math.random()<A.race.a*str(A)/(A.race.a*str(A)+B.race.a*str(B)+1e-9)?war(A,B):war(B,A);
+ if(r<-35&&x<.35+ag*.4&&!(A.bf.peace>0||B.bf.peace>0)&&!(A.tr&&A.tr[B.id]>TM())&&!pactOf(A,B,'nonaggression'))return Math.random()<A.race.a*str(A)/(A.race.a*str(A)+B.race.a*str(B)+1e-9)?war(A,B):war(B,A);
  if(r>35&&!A.ally[B.id]&&x<.6)return alliance(A,B);
  const ev=[['🤝 trao đổi thương mại với',()=>{sr(A,B,12);A.pop*=1.05;B.pop*=1.05;A.tech+=.15;B.tech+=.15;share(A,B)}],
  ['💍 kết thông gia với',()=>sr(A,B,18)],['📚 trao đổi học giả với',()=>{sr(A,B,6);A.tech+=.3;B.tech+=.3;share(A,B)}],
@@ -1192,7 +1238,7 @@ function civilizationTick(){
   }
  }
 }
-function step(){W.month=(W.month|0)+1;if(W.month>=12){W.month=0;W.year++}civilizationTick();updateFactions();for(let i=FX.length;i--;)if(--FX[i][1]<=0)FX.splice(i,1);for(let i=SH.length;i--;)if(--SH[i].l<=0)SH.splice(i,1);DBL=BL.filter(b=>b.p>=b.n&&bd(b.t)[10]==='d');const fe=new Float64Array(W.ks.length+1),n=new Uint32Array(W.ks.length+1),pr=new Map(),BP=new Map(),tl={};let tp=0;const rb=[],sc=[];
+function step(){W.month=(W.month|0)+1;if(W.month>=12){W.month=0;W.year++}civilizationTick();updateFactions();diplomacyTick();for(let i=FX.length;i--;)if(--FX[i][1]<=0)FX.splice(i,1);for(let i=SH.length;i--;)if(--SH[i].l<=0)SH.splice(i,1);DBL=BL.filter(b=>b.p>=b.n&&bd(b.t)[10]==='d');const fe=new Float64Array(W.ks.length+1),n=new Uint32Array(W.ks.length+1),pr=new Map(),BP=new Map(),tl={};let tp=0;const rb=[],sc=[];
  for(let i=0;i<N*H;i++){const a=O[i];if(!a)continue;n[a]=(n[a]||0)+1;(tl[a]||(tl[a]=[])).push(i);fe[a]=(fe[a]||0)+fer(i)*(K(a).race.pt.includes(T[i])?1.4:1);
   const j=i%N<N-1?i+1:-1;if(j>=0){const b=O[j];if(b&&b!==a){const q=Math.min(a,b)*1000+Math.max(a,b);pr.set(q,[a,b]);if(K(a).war[b]){let l=BP.get(q);if(!l)BP.set(q,l=[]);l.push(i,j)}}}const d=i+N;if(d<N*H){const b=O[d];if(b&&b!==a){const q=Math.min(a,b)*1000+Math.max(a,b);pr.set(q,[a,b]);if(K(a).war[b]){let l=BP.get(q);if(!l)BP.set(q,l=[]);l.push(i,d)}}}}
  TLS=tl;
@@ -1216,7 +1262,7 @@ function detail(k){const g=k.king,a=k.pol&&pol(k.pol.id),ws=Object.keys(k.war).f
  h+='<small>👑 '+rt(k)+' '+g.n+'</small>';{const r=roles(k),nm=l=>l.map(o=>o.name).join(', ');if(r.atk.length)h+='<small>🗡️ Đang tấn công: '+nm(r.atk)+'</small>';if(r.def.length)h+='<small>🛡️ Đang phòng thủ trước: '+nm(r.def)+'</small>';if(r.unk.length)h+='<small>⚔️ Đang giao chiến với: '+nm(r.unk)+'</small>'}
  const os=W.ks.filter(o=>o.alive&&o!==k).sort((x,y)=>Math.abs(k.rel[y.id]||0)-Math.abs(k.rel[x.id]||0)).slice(0,7);
  let dp=os.length?'<small>Ngoại giao (6–8 thần lực)</small>':'<small>Chưa có nước nào khác.</small>';
- for(const o of os){const r=k.rel[o.id]||0,d=' data-k="'+k.id+'" data-o="'+o.id+'"';dp+='<div class="rl"><span>'+o.race.e+' '+o.name+' <small style="display:inline">'+(r>0?'+':'')+(r|0)+(k.ally[o.id]?' 🤝':'')+(k.war[o.id]?' ⚔️':'')+(factionOf(o)?' 🏛':'')+'</small></span><button data-a="peace"'+d+'>🕊</button><button data-a="ally"'+d+'>🤝</button><button data-a="war"'+d+'>⚔️</button>'+(k.factionId&& !factionOf(o)?'<button data-fa="invite"'+d+'>➕Phe</button>':(!k.factionId&&factionOf(o)?'<button data-fa="join"'+d+' data-f="'+factionOf(o).id+'">Vào phe</button>':''))+'</div>'}
+ for(const o of os){const r=k.rel[o.id]||0,p=pactOf(k,o),d=' data-k="'+k.id+'" data-o="'+o.id+'"';dp+='<div class="rl"><span>'+o.race.e+' '+o.name+' <small style="display:inline">'+(r>0?'+':'')+(r|0)+(k.ally[o.id]?' 🤝':'')+(k.war[o.id]?' ⚔️':'')+(factionOf(o)?' 🏛':'')+(p?' · '+PACTS[p.type].icon:'')+'</small></span><button data-a="peace"'+d+' title="Hòa giải">🕊</button><button data-a="ally"'+d+' title="Liên minh">🤝</button><button data-a="war"'+d+' title="Tuyên chiến">⚔️</button>'+(p?'<button data-a="breakpact"'+d+' title="Phá hiệp ước">📜✕</button>':'<button data-a="pact" data-t="trade"'+d+' title="Ký hiệp định thương mại">💱</button><button data-a="pact" data-t="nonaggression"'+d+' title="Không xâm lược">🕊️</button><button data-a="pact" data-t="research"'+d+' title="Hợp tác học thuật">📚</button>')+(k.factionId&& !factionOf(o)?'<button data-fa="invite"'+d+'>➕Phe</button>':(!k.factionId&&factionOf(o)?'<button data-fa="join"'+d+' data-f="'+factionOf(o).id+'">Vào phe</button>':''))+'</div>'}
  h+=sec('fam','🌳 Gia phả & kế vị',dynastyHtml(k));
  const ec=econOf(k),oilTiles=tilesOf(k).filter(i=>(W.oil?.[i]||0)>0).length;
  let eh='<div class="econ"><div><small>GDP ước tính</small><b>📈 '+Math.round(ec.gdp)+'</b></div><div><small>Ngân khố</small><b>💰 '+Math.round(ec.cash)+'</b></div><div><small>Dầu dự trữ</small><b>🛢️ '+ec.oil.toFixed(1)+'</b></div><div><small>Công nghiệp</small><b>⚙️ '+ec.industry.toFixed(1)+'</b></div><div><small>Thất nghiệp</small><b>👷 '+ec.unemployment.toFixed(1)+'%</b></div><div><small>Mỏ dầu đang kiểm soát</small><b>⛽ '+oilTiles+'</b></div></div>';
@@ -1302,7 +1348,7 @@ function ui(preserveInteractive=false){const bt=BLD.find(b=>'x_'+b[0]===cur);if(
  document.querySelectorAll('[data-s]').forEach(b=>b.classList.toggle('on',+b.dataset.s===W.sp))}
 const kh=e=>{const b=e.target.closest('button');
  if(b){if(b.dataset.rpc){roleplayAction(K(W.playerId),b.dataset.rpc,b.dataset.v||'');return}if(b.dataset.fa){const A=K(+b.dataset.k),divine=A&&A.id!==W.playerId;if(!A)return;if(b.dataset.fa==='create'){if(!divine||pay(10))createFaction(A)}else if(b.dataset.fa==='leave'){leaveFaction(A)}else if(b.dataset.fa==='invite'){const B=K(+b.dataset.o);if(B&&(!divine||pay(8)))inviteFaction(A,B)}else if(b.dataset.fa==='join'){const f=(W.factions||[]).find(x=>x.id===+(b.dataset.f||0))||factionOf(K(+b.dataset.o));if(f&&(!divine||pay(8))){if((A.rel[f.leader]||0)<15)toast('Quan hệ với phe này chưa đủ tốt');else joinFaction(A,f)}}ui();draw();return}if(b.dataset.citycfg){const d=cd(+b.dataset.ci);d.plan??={priority:'balanced',budget:'normal',layout:'organic'};const lists={priority:['balanced','commerce','industry','agriculture','military','culture'],budget:['low','normal','high'],layout:['organic','compact','spread']},key=b.dataset.citycfg,arr=lists[key],ix=arr.indexOf(d.plan[key]);d.plan[key]=arr[(ix+1)%arr.length];ui();draw();return}if(b.dataset.eqf){eqOf(K(+b.dataset.k)).f=b.dataset.eqf;ui();return}if(b.dataset.eqb){const k=K(+b.dataset.k);if(pay(10)){eqOf(k).b=12;log('🏭 Thần lực thúc đẩy các xưởng vũ khí của '+title(k)+' làm việc hết công suất.')}ui();return}if(b.dataset.p){const target=K(+b.dataset.k);enact(target,b.dataset.p,target.id!==W.playerId);ui();return}const A=K(+b.dataset.k),B=K(+b.dataset.o),a=b.dataset.a;
-  const divine=A.id!==W.playerId;if(a==='peace'&&(!divine||pay(6))){delete A.war[B.id];delete B.war[A.id];sr(A,B,30);log((divine?'🕊 Điềm lành từ thần linh giúp ':'🕊 Chính phủ '+title(A)+' chủ động hòa giải với ')+title(B)+'.')}
+  const divine=A.id!==W.playerId;if(a==='pact'){const type=b.dataset.t,spec=PACTS[type];if(spec){if(pactOf(A,B))toast('Hai nước đã có hiệp ước song phương.');else if((A.rel[B.id]||0)<spec.min)toast('Quan hệ chưa đủ tốt. Cần tối thiểu '+spec.min+' điểm.');else if(A.war[B.id])toast('Không thể ký hiệp ước khi đang chiến tranh.');else if(!divine||pay(8)){if(!signPact(A,B,type))toast('Đàm phán chưa thành công.')}}ui();draw();return}if(a==='breakpact'){if(pactOf(A,B)){if(!divine||pay(5))breakPact(A,B,'breach')}else toast('Không có hiệp ước để chấm dứt.');ui();draw();return}if(a==='peace'&&(!divine||pay(6))){delete A.war[B.id];delete B.war[A.id];sr(A,B,30);log((divine?'🕊 Điềm lành từ thần linh giúp ':'🕊 Chính phủ '+title(A)+' chủ động hòa giải với ')+title(B)+'.')}
   if(a==='ally'){if((A.rel[B.id]||0)<0)toast('Quan hệ quá căng thẳng, hãy hòa giải trước');else if(A.war[B.id])toast('Đang có chiến tranh');else if(!divine||pay(8))alliance(A,B)}
   if(a==='war'&&(!divine||pay(8)))war(A,B);ui();draw();return}
  const c=e.target.closest('[data-sel]');if(c){kv=+c.dataset.sel;W.sel=kv;ui();$('#kg').querySelector('.ob').scrollTop=0}};
