@@ -161,3 +161,5 @@ The roleplay ideology eligibility check now computes and records the pending cho
 - Added setKingdomBudget for roleplay allocations (defence, industry, education), validating supported fields and discrete levels.
 - Routed roleplay recruit/demobilize, industry/research spending, ideology reform costs and loyalty effects, plus starting treasury/oil grants through existing kingdom/economy mutation APIs.
 - Trade revenue remains a derived value calculated from diplomatic relations; there is no independent persisted trade ledger to migrate yet. This step does not introduce new trade state or alter the formula.
+
+- Thuế quốc gia trong chế độ nhập vai cũng được chuyển sang API setKingdomTax; việc dựng lại bảng điều khiển không còn tự khởi tạo ngân sách bằng cách ghi trực tiếp vào state.
