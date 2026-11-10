@@ -94,3 +94,10 @@ The roleplay ideology eligibility check now computes and records the pending cho
 - Added `getKingdom(id)` to the DOM-free world context. The legacy `K(id)` accessor now resolves kingdom records through this context once a world has been attached, with a guarded pre-attachment fallback for startup compatibility.
 - This moves a high-frequency read path behind the context without changing the kingdom objects or their mutation semantics. The broader simulation still reads and writes many legacy globals directly; this is an incremental seam, not complete state ownership extraction.
 - Added context tests for valid, zero, and invalid kingdom identifiers. Browser gameplay regression remains required.
+
+
+### Living-kingdom collection migration seam
+
+- Added `getKingdoms()` and `getLivingKingdoms()` to the world context. The latter returns the current living kingdom records from the attached world.
+- Routed the living-kingdom count, faction membership, remote diplomacy scan, world-conquest check, roleplay initialization, roleplay country picker, and kingdom-list UI through the context accessor.
+- The returned collection is a live-world-derived array of the existing kingdom objects; this does not clone records or change simulation mutations. Other code paths still access `W.ks` directly and remain future migration work.
