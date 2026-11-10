@@ -333,6 +333,7 @@ const mo=()=>(W.month|0)+1;
 function importantChronicle(m){return /🌱|⚔️|🛡|💀|☠️|☄️|🌋|🌪|🏴|🔥|🏯|💔|📉|📈|🚩|tuyên bố độc lập|tách ra giành độc lập|nổi dậy|diệt vong|tuyệt chủng|qua đời|kế vị|lên ngôi|tranh chấp kế vị|đã thống nhất toàn bộ thế giới|chiếm thành phố|thất thủ|ký kết liên minh|liên minh giữa .* tan vỡ|bước vào <i>/i.test(m)}
 const log=m=>{if(!importantChronicle(m))return;const t='<b>Năm '+W.year+' · T'+mo()+'</b> '+m;W.log.unshift(t);if(W.log.length>180)W.log.pop();ThanhGioiSimulationEffects.emit({type:'notification',html:'<b>T'+mo()+'/'+W.year+'</b> '+m})};
 ThanhGioiSimulationEffects.subscribe(effect=>{if(effect.type==='notification')notify(effect.html)});
+ThanhGioiSimulationEffects.subscribe(effect=>{if(effect.type!=='ideology-choice-required')return;$('#rp-ideology-options').innerHTML=effect.options.map(x=>'<button class="rioption" data-rp-ideology="'+x.id+'"><b>'+x.icon+' '+x.name+'</b><small>'+x.desc+'</small></button>').join('');$('#rp-ideology-reason').textContent=effect.reason;$('#rp-ideology-event').hidden=false});
 const toast=m=>{const t=$('#toast');t.textContent=m;t.style.opacity=1;clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.opacity=0,1700)};
 const pay=c=>{if(W.mana<c){toast('Không đủ thần lực');return 0}W.mana-=c;return 1};
 const nb=i=>{const x=i%N,r=[];if(x>0)r.push(i-1);if(x<N-1)r.push(i+1);if(i>=N)r.push(i-N);if(i<N*(H-1))r.push(i+N);return r};
@@ -1360,9 +1361,8 @@ function checkPlayerIdeology(){
  const deferred=W.rpIdeologyDeferred||(W.rpIdeologyDeferred=[]);
  const options=eligible.filter(x=>!deferred.includes(x.id));if(!options.length)return;
  W.rpIdeologyPending=true;W.sp=0;
- $('#rp-ideology-options').innerHTML=options.map(x=>'<button class="rioption" data-rp-ideology="'+x.id+'"><b>'+x.icon+' '+x.name+'</b><small>'+x.desc+'</small></button>').join('');
- $('#rp-ideology-reason').textContent='Điều kiện đã đạt: '+options.map(x=>x.name).join(' · ')+'. Bạn có thể chọn ngay hoặc chờ một mô hình khác xuất hiện.';
- $('#rp-ideology-event').hidden=false;
+ const reason='Điều kiện đã đạt: '+options.map(x=>x.name).join(' · ')+'. Bạn có thể chọn ngay hoặc chờ một mô hình khác xuất hiện.';
+ ThanhGioiSimulationEffects.emit({type:'ideology-choice-required',options:options.map(x=>({id:x.id,icon:x.icon,name:x.name,desc:x.desc})),reason});
 }
 function deferRoleplayIdeology(){
  const k=K(W.playerId);if(!k)return;
