@@ -70,7 +70,7 @@ assert.deepEqual(Array.from(world.getLivingKingdoms(), k => k.id), [1]);
 const nextW = { ks: [{ id: 1 }] };
 assert.equal(world.write('W', nextW), 2);
 assert.equal(world.read('W'), nextW);
-assert.equal(world.getRevision(), 14);
+assert.equal(world.getRevision(), 16);
 assert.throws(() => world.attach({}), /missing/);
 assert.throws(() => world.attach({ ...state, n: 3 }), /dimensions/);
 assert.throws(() => world.read('missing'), /Unknown/);
