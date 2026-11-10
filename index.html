@@ -854,6 +854,8 @@ function factionPanel(k){
 const WD=.3;
 /* Cường độ chiến tranh riêng cho chế độ nhập vai; Tiêu chuẩn giữ nguyên nhịp cân bằng gốc. */
 function warDamage(){const level=W.playerId?(W.rpWar||'standard'):'standard';return WD*(level==='low'?.65:level==='high'?1.5:1);}
+function resistanceFactor(def,att,tile){const ratio=str(att)/(str(def)+.01),terrain=T[tile]>=4?.08:0,tech=Math.max(0,def.tech-att.tech)*.012;return 1+Math.min(.42,Math.max(0,ratio-1.25)*.1)+terrain+Math.min(.12,tech)}
+function resistanceCounter(def,att,tile){const ratio=str(att)/(str(def)+.01);if(ratio<1.5)return false;const terrain=T[tile]>=4?.06:0,doctrine=def.id===W.playerId&&def.playerArmyDoctrine==='defensive'?.07:0,chance=Math.min(.32,.05+Math.min(.16,(ratio-1.5)*.055)+terrain+doctrine+Math.min(.04,Math.max(0,def.tech-att.tech)*.008));if(Math.random()>=chance)return false;const loss=att.army*(.006+Math.random()*.009)*warDamage();att.army=Math.max(.1,att.army-loss);eqWear(att,.004*warDamage());if(Math.random()<.12)log('🛡️ '+title(def)+' tổ chức phản kích, gây tổn thất cho lực lượng áp đảo của '+title(att)+'.');return true}
 function war(p,q){if(p.war[q.id])return;p.war[q.id]=q.war[p.id]=1;agk(p)[q.id]=1;if(q.aggr)delete q.aggr[p.id];delete p.ally[q.id];delete q.ally[p.id];sr(p,q,-40);log('⚔️ '+title(p)+' tuyên chiến với '+title(q)+'!');
  for(const[s,t]of[[p,q],[q,p]])for(const o of W.ks)if(o.alive&&o!==p&&o!==q&&s.ally[o.id]&&!o.war[t.id]&&Math.random()<.6){o.war[t.id]=t.war[o.id]=1;if(s===p)agk(o)[t.id]=1;else agk(t)[o.id]=1;sr(o,t,-30);log('🛡 '+title(o)+' tham chiến, hậu thuẫn đồng minh '+title(s)+'.')}}
 const dt=(l,t)=>{const ct=t===l.cap||l.cities.some(c=>c.i===t),doctrine=l.id===W.playerId?l.playerArmyDoctrine:'balanced';return(T[t]>=5?1.25:T[t]===4?1.1:1)*(X[t]===3?1.15:1)*(t===l.cap?1.7:ct?1.35:1)*(ct?1+.1*cd(t).lv:1)*(doctrine==='defensive'?1.12:doctrine==='offensive'?.94:1)*Math.min(1.5,1+DBL.reduce((a,b)=>a+(O[b.i]===l.id&&dist(b.i,t)<=2?.12*Math.max(0,b.h)/100:0),0))};
@@ -875,8 +877,8 @@ function front(A,B,pre){navalBattle(A,B);const ed=(i,e)=>nb(i).some(j=>O[j]===e)
  const S=(q,o)=>{const w=q.ws||(q.ws={});return w[o.id]||(w[o.id]={a:q.army,p:q.pop,n:q.n,y:q.loy,l:0})},sa=S(A,B),sb=S(B,A),a0=A.army+A.pop*.5,b0=B.army+B.pop*.5;
  const pw=k=>str(k)*(.7+Math.random()*.6),rounds=1+(Math.min(A.n,B.n)/25|0),ga=eqFront(A),gb=eqFront(B);
  for(let r=0;r<rounds&&bd.length;r++){if(Math.random()>.5)continue;const bi=Math.random()*bd.length|0,t=bd[bi],l=O[t]===A.id?A:B,w=l===A?B:A;
-  const el=l===A?ga:gb,ew=l===A?gb:ga,cs=coast(t)?1:0;queueMarch(w,t);if(pw(w)*(1+ew.sg+cs*ew.nv)>pw(l)*dt(l,t)*(1+cs*el.nv*.5)){if(ew.sg>.12&&Math.random()<.05)log('💥 Khí tài công thành của '+title(w)+' phá vỡ phòng tuyến '+title(l)+'.');take(w,l,t);bd.splice(bi,1);w.army*=1-.008*warDamage();l.army*=1-.018*warDamage();w.pop*=1-.0005*warDamage();l.pop*=1-.001*warDamage();
-   if(Math.random()<.08)log('🗡 '+title(w)+' đẩy lùi quân '+title(l)+' và chiếm thêm đất.');
+  const el=l===A?ga:gb,ew=l===A?gb:ga,cs=coast(t)?1:0;queueMarch(w,t);if(pw(w)*(1+ew.sg+cs*ew.nv)>pw(l)*dt(l,t)*(1+cs*el.nv*.5)*resistanceFactor(l,w,t)){if(ew.sg>.12&&Math.random()<.05)log('💥 Khí tài công thành của '+title(w)+' phá vỡ phòng tuyến '+title(l)+'.');take(w,l,t);bd.splice(bi,1);w.army*=1-.008*warDamage();l.army*=1-.018*warDamage();w.pop*=1-.0005*warDamage();l.pop*=1-.001*warDamage();
+   if(Math.random()<.08)log('🗡 '+title(w)+' đẩy lùi quân '+title(l)+' và chiếm thêm đất.');}else{resistanceCounter(l,w,t);
    if(l.n<=0){l.inv.forEach(x=>w.inv.includes(x)||w.inv.push(x));die(l,'bị '+title(w)+' xóa sổ sau cuộc chinh phạt dài');return}}}
  sr(A,B,-2);const wd=(A.war[B.id]|0)+1,att=(.005+Math.min(.01,bd.length*.0005))*warDamage();A.war[B.id]=B.war[A.id]=wd;for(const q of[A,B]){const ls=q.army*att;q.army-=ls;q.pop=Math.max(.5,q.pop-ls*.5);eqWear(q,att*1.2)}
  sa.l+=Math.max(0,a0-A.army-A.pop*.5);sb.l+=Math.max(0,b0-B.army-B.pop*.5);if(sa.r)sa.r*=.97;if(sb.r)sb.r*=.97;
@@ -898,12 +900,12 @@ function expedition(w,l){const ok=i=>T[i]>=2&&T[i]<=5,cw=cts(w).map(c=>c[0]),sea
  if(!p){const a=near(mine);if(a>=0)p=pathBfs(a,b,i=>T[i]>=2&&T[i]!==6,4000)}
  if(!p||p.length>rg*2.2)return;
  const f=k=>str(k)*(.7+Math.random()*.6),sup=1/(1+p.length/(rg*2));
- if(f(w)*(1+(by?eqFront(w).nv:0))*sup*1.3>f(l)*dt(l,b)){
+ if(f(w)*(1+(by?eqFront(w).nv:0))*sup*1.3>f(l)*dt(l,b)*resistanceFactor(l,w,b)){
   if(by)SH.push({pts:p,l:6,ship:1,t0:Date.now()});else queueMarchPath(w,p);FX.push([b,6,by?'⛵':'🥾']);
   take(w,l,b);w.army*=1-.01*warDamage();l.army*=1-.006*warDamage();agk(w)[l.id]=1;
   log(by?'⛵ '+title(w)+' đổ bộ lên bờ biển '+title(l)+', mở ra một mặt trận mới.':'🥾 '+title(w)+' hành quân xa, đánh chiếm một vùng đất của '+title(l)+'.');
   if(l.n<=0){l.inv.forEach(x=>w.inv.includes(x)||w.inv.push(x));die(l,'bị '+title(w)+' xóa sổ sau cuộc viễn chinh')}
- }else{w.army*=1-.008*warDamage();l.army*=1-.003*warDamage();if(Math.random()<.25)log('⚓ Cuộc '+(by?'đổ bộ':'viễn chinh')+' của '+title(w)+' lên đất '+title(l)+' bị đẩy lùi.')}}
+ }else{resistanceCounter(l,w,b);w.army*=1-.008*warDamage();l.army*=1-.003*warDamage();if(Math.random()<.25)log('⚓ Cuộc '+(by?'đổ bộ':'viễn chinh')+' của '+title(w)+' lên đất '+title(l)+' bị đẩy lùi.')}}
 function airStrike(w,l){if(!w.eq)return;const q=w.eq,ap=eqSum(w,'air'),mp=(q.s.missile||0)*14*q.fu,pw=(ap+mp)/(w.army+.5),rg=(q.s.missile||0)>.05?55:ap>.05?30:0;
  if(!rg||pw<.05)return;
  const cw=cts(w).map(c=>c[0]),tg=cts(l).filter(c=>cw.some(x=>dist(x,c[0])<=rg));if(!tg.length)return;
