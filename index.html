@@ -241,7 +241,7 @@ body.rp-mode #chips { display:none !important; }
 #build-version{position:fixed;right:10px;bottom:8px;z-index:2147483000;padding:4px 8px;border:1px solid rgba(255,255,255,.18);border-radius:7px;background:rgba(5,12,22,.82);color:#e5edf7;font:11px/1.2 system-ui,sans-serif;letter-spacing:.2px;pointer-events:none;user-select:none;box-shadow:0 1px 5px rgba(0,0,0,.35)}
 </style>
 
-</head><body><div id="build-version" aria-label="Phiên bản trò chơi">THẦN GIỚI · v1.10.1</div><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button><button class="mode" id="mode-guide"><span class="ico">📖</span><span><b>Cẩm nang cơ chế & chỉ số</b><small>Giải thích cách vận hành thế giới, ý nghĩa các chỉ số và mẹo quản lý quốc gia.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
+</head><body><div id="build-version" aria-label="Phiên bản trò chơi">THẦN GIỚI · v1.10.2</div><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button><button class="mode" id="mode-guide"><span class="ico">📖</span><span><b>Cẩm nang cơ chế & chỉ số</b><small>Giải thích cách vận hành thế giới, ý nghĩa các chỉ số và mẹo quản lý quốc gia.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
 <div id="game-guide" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="guide-title">
  <div class="pn guide-panel">
   <div class="ph"><b id="guide-title">📖 Cẩm nang Thần Giới</b><small>Giải thích cơ chế và chỉ số</small><button id="guide-close" aria-label="Đóng">✕</button></div>
@@ -462,25 +462,27 @@ function drawArmies(sc){
   if(!k||!k.alive||a.p>=1){AR.splice(z,1);continue}
   const dt=Math.max(0,Math.min(100,now-a.last));a.last=now;
   if(rate>0)a.p=Math.min(1,a.p+dt*rate/a.duration);
-  const n=a.pts.length-1;if(n<1){AR.splice(z,1);continue}
-  if(!visible)continue;
-  const eq=k.eq?.s||{},tanks=eq.tank||0,unitSize=Math.max(15,Math.min(25,19/sc));
-  // Tiểu đội hành quân theo đội hình; phương tiện cơ giới đi cùng khi quốc gia đã sở hữu xe/tăng.
-  for(let unit=3;unit>=0;unit--){
-   const progress=Math.max(0,a.p-unit*.075);
-   if(progress<=0)continue;
-   const pos=progress*n,ix=Math.min(n-1,Math.floor(pos)),u=pos-ix,A=a.pts[ix],B=a.pts[ix+1];
-   const x=(A%N+(B%N-A%N)*u+.5)*C,y=((A/N|0)+((B/N|0)-(A/N|0))*u+.5)*C;
-   const radius=Math.max(2.8,C*.34);
-   cx.globalAlpha=.28;cx.fillStyle='#101820';cx.beginPath();cx.arc(x+1,y+1,radius+2,0,Math.PI*2);cx.fill();
-   cx.globalAlpha=.9;cx.fillStyle=k.col||'#ffe082';cx.beginPath();cx.arc(x,y,radius+1.5,0,Math.PI*2);cx.fill();
-   cx.globalAlpha=1;E(cx,unit%2===0?'🪖':'⚔️',x,y,unitSize);
-  }
-  if(tanks>=.12&&a.p>0){
-   const progress=Math.max(0,a.p-.24),pos=progress*n,ix=Math.min(n-1,Math.floor(pos)),u=pos-ix,A=a.pts[ix],B=a.pts[ix+1];
-   const x=(A%N+(B%N-A%N)*u+.5)*C,y=((A/N|0)+((B/N|0)-(A/N|0))*u+.5)*C;
-   cx.globalAlpha=.95;E(cx,tanks>=.65?'🚜':'🚙',x,y-unitSize*.75,unitSize*1.12);cx.globalAlpha=1;
-  }
+  const n=a.pts.length-1;if(n<1||!visible)continue;
+  const eq=k.eq?.s||{},unitSize=Math.max(15,Math.min(25,19/sc));
+  const at=(progress,icon,side=0,lift=0)=>{
+   if(progress<=0)return;
+   const pos=Math.min(n-.001,progress*n),ix=Math.min(n-1,Math.floor(pos)),u=pos-ix,A=a.pts[ix],B=a.pts[ix+1];
+   const dx=(B%N-A%N),dy=((B/N|0)-(A/N|0)),len=Math.hypot(dx,dy)||1;
+   const x=(A%N+dx*u+.5)*C+(-dy/len)*side*C*.48;
+   const y=((A/N|0)+dy*u+.5)*C+(dx/len)*side*C*.48-lift*unitSize;
+   cx.globalAlpha=.28;cx.fillStyle='#101820';cx.beginPath();cx.arc(x+1,y+1,Math.max(2.8,C*.34)+2,0,Math.PI*2);cx.fill();
+   cx.globalAlpha=.95;cx.fillStyle=k.col||'#ffe082';cx.beginPath();cx.arc(x,y,Math.max(2.8,C*.34)+1.5,0,Math.PI*2);cx.fill();
+   cx.globalAlpha=1;E(cx,icon,x,y,unitSize);
+  };
+  // Bộ binh là lực lượng nòng cốt của mọi đội quân hành quân.
+  for(let unit=3;unit>=0;unit--)at(a.p-unit*.075,unit%2===0?'🪖':'⚔️',(unit%2?1:-1)*.35,0);
+  // Kỵ binh cơ động, pháo binh yểm trợ và thiết giáp chỉ xuất hiện khi đã được phát triển.
+  if((eq.horse||0)>.12)at(a.p-.12,'🐎',1.15,0);
+  if((eq.cannon||0)+(eq.catapult||0)>.12)at(a.p-.2,'💣',-1.15,0);
+  if((eq.tank||0)>.12)at(a.p-.28,(eq.tank||0)>=.65?'🚜':'🚙',0,1.05);
+  if((eq.plane||0)>.12)at(a.p-.08,'✈️',0,1.85);
+  if((eq.missile||0)>.12)at(a.p-.36,'🚀',1.2,1.65);
+  cx.globalAlpha=1;
  }
 }
 // ---- Giao thương đường biển ----
