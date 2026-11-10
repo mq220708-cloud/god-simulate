@@ -87,3 +87,10 @@ The roleplay ideology eligibility check now computes and records the pending cho
 
 ## P1-02 transitional world context
 `ThanhGioiWorldContext` now provides a DOM-free API (`attach`, `getState`, `read`, `write`, `getRevision`) around the current live world references. A newly generated world and a successfully loaded save attach their current map arrays, configuration, world object, and supporting collections. The existing save action obtains these references from the context before passing plain arrays into the versioned codec. This creates one explicit seam for the next migration step while preserving the legacy globals and their mutation behavior. It does not yet make the context the sole owner: existing simulation functions still read and mutate the globals directly, and any future code path that replaces a referenced top-level collection must reattach it. The context module is intentionally transitional; do not treat this as multiplayer/server readiness.
+
+
+### Kingdom lookup migration seam
+
+- Added `getKingdom(id)` to the DOM-free world context. The legacy `K(id)` accessor now resolves kingdom records through this context once a world has been attached, with a guarded pre-attachment fallback for startup compatibility.
+- This moves a high-frequency read path behind the context without changing the kingdom objects or their mutation semantics. The broader simulation still reads and writes many legacy globals directly; this is an incremental seam, not complete state ownership extraction.
+- Added context tests for valid, zero, and invalid kingdom identifiers. Browser gameplay regression remains required.
