@@ -21,6 +21,7 @@
       getState(){return requireState()},
       read(key){const current=requireState();if(!(key in current))throw new RangeError('Unknown world state field: '+key);return current[key]},
       getKingdom(id){const index=Number(id)-1;if(!Number.isInteger(index)||index<0)return undefined;return requireState().W.ks[index]},
+      setKingdomStat(id,field,value){const kingdom=this.getKingdom(id),amount=Number(value);if(!kingdom)throw new RangeError('Kingdom does not exist');if(typeof field!=='string'||!Object.prototype.hasOwnProperty.call(kingdom,field)||typeof kingdom[field]!=='number')throw new TypeError('Kingdom field must be an existing numeric stat');if(!Number.isFinite(amount))throw new TypeError('Kingdom stat must be finite');kingdom[field]=amount;revision++;return amount},
       getKingdoms(){return requireState().W.ks},
       getLivingKingdoms(){return requireState().W.ks.filter(kingdom=>kingdom&&kingdom.alive)},
       getTerrain(index){const current=requireState(),i=Number(index);return Number.isInteger(i)&&i>=0&&i<current.n*current.n?Number(current.T[i])||0:0},
