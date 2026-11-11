@@ -1319,7 +1319,7 @@ function civilizationTick(){
      }
     }
    }
-   c.stability=Math.max(15,Math.min(100,c.stability+(surplus>k.pop?0.25:-.18)));
+   const govStability=c.governance?.model==='local'?.22:c.governance?.model==='centralized'?-.04:0;c.stability=Math.max(15,Math.min(100,c.stability+(surplus>k.pop?0.25:-.18)+govStability));
    // Quá tải đế chế: chỉ áp dụng trong nhập vai, đánh giá mỗi năm.
    if(annual&&W.playerId){
     const admin=c.technology?.administration||0,hasLaw=k.inv.includes('law'),hasWrite=k.inv.includes('write'),palace=hasK(k,'palace');
