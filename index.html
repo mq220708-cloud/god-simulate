@@ -1641,7 +1641,7 @@ function warDashboard(k){
  return '<div class="rpwar-card"><div class="rpwar-head"><b>⚔️ '+k.name+' <span>VS</span> '+enemy.name+'</b><small>⏳ '+duration+'</small></div><div class="rpwar-side"><span>🏳️ '+k.name+'</span><strong>'+fmt(k.army*100)+'</strong><small>quân còn lại</small></div><div class="rpwar-side"><span>🏴 '+enemy.name+'</span><strong>'+fmt(enemy.army*100)+'</strong><small>quân còn lại</small></div><div class="rpwar-metrics"><div><small>Quân số ban đầu</small><b>'+fmt(ownStart)+' / '+fmt(enemyStart)+'</b></div><div><small>Thương vong ước tính</small><b class="rpwar-loss">'+fmt(ownLoss)+' / '+fmt(enemyLoss)+'</b></div></div></div>'}).join('');
 }
 function roleplayDashboard(k){
- const e=econOf(k),wars=Object.keys(k.war||{}).filter(id=>k.war[id]&&K(id)?.alive).length,allies=Object.keys(k.ally||{}).filter(id=>k.ally[id]&&K(id)?.alive).length;
+ const e=econOf(k),wars=activeWarPartners(k).length?1:0,allies=Object.keys(k.ally||{}).filter(id=>k.ally[id]&&K(id)?.alive).length;
  const loy=Math.max(0,Math.min(100,k.loy|0)),loyColor=loy<30?'#e05252':loy<60?'#e5ad43':'#4caf80';
  const status=loy<25?'Bất ổn nghiêm trọng':loy<45?'Căng thẳng':loy<70?'Tạm ổn':'Ổn định';
  const recent=(W.log||[]).slice(0,3),policy=k.pol?pol(k.pol.id):null;
