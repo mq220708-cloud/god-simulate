@@ -242,7 +242,7 @@ body.rp-mode #chips { display:none !important; }
 #build-version{position:fixed;right:10px;bottom:8px;z-index:2147483000;padding:4px 8px;border:1px solid rgba(255,255,255,.18);border-radius:7px;background:rgba(5,12,22,.82);color:#e5edf7;font:11px/1.2 system-ui,sans-serif;letter-spacing:.2px;pointer-events:none;user-select:none;box-shadow:0 1px 5px rgba(0,0,0,.35)}
 </style>
 
-</head><body><div id="build-version" aria-label="Phiên bản trò chơi">THẦN GIỚI · v1.16.0</div><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button><button class="mode" id="mode-guide"><span class="ico">📖</span><span><b>Cẩm nang cơ chế & chỉ số</b><small>Giải thích cách vận hành thế giới, ý nghĩa các chỉ số và mẹo quản lý quốc gia.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
+</head><body><div id="build-version" aria-label="Phiên bản trò chơi">THẦN GIỚI · v1.17.0</div><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button><button class="mode" id="mode-guide"><span class="ico">📖</span><span><b>Cẩm nang cơ chế & chỉ số</b><small>Giải thích cách vận hành thế giới, ý nghĩa các chỉ số và mẹo quản lý quốc gia.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
 <div id="game-guide" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="guide-title">
  <div class="pn guide-panel">
   <div class="ph"><b id="guide-title">📖 Cẩm nang Thần Giới</b><small>Giải thích cơ chế và chỉ số</small><button id="guide-close" aria-label="Đóng">✕</button></div>
@@ -935,11 +935,22 @@ function issueUltimatum(A,B){
  sr(A,B,-12);log('📜 '+title(B)+' bác bỏ tối hậu thư của '+title(A)+'. Căng thẳng song phương gia tăng.');return false;
 }
 function maybeWorldEvent(month){
- const P=K(W.playerId);if(!P||!P.alive||W.diploEvent||month<(W.diploNextEvent||0)||Math.random()>.16)return;
- const c=civFor(P);if(!c)return;const over=Number(c.overextension||0),stability=Number(c.stability??100);
- let ev=null;
- if(over>=18&&Math.random()<.55)ev={category:'political',type:'autonomy',title:'Các địa phương đòi quyền tự trị',from:'Hội đồng các thống đốc',body:'Các quan chức vùng xa cho rằng triều đình can thiệp quá sâu trong khi bộ máy trung ương không đủ sức quản lý. Họ yêu cầu trao thêm quyền tự quyết cho địa phương.',terms:'Nếu chấp thuận, quyền lực trung ương giảm nhưng ổn định và khả năng kiểm soát vùng xa được cải thiện.'};
- else if(stability<62&&Math.random()<.7)ev={category:'political',type:'reform',title:'Sức ép cải cách trong triều đình',from:'Phe cải cách và các học giả',body:'Một nhóm quan lại và học giả kiến nghị cải tổ bộ máy, chuẩn hóa sổ sách và giảm tình trạng trì trệ. Phe bảo thủ cảnh báo cải cách sẽ gây xáo trộn.',terms:'Cải cách tiêu tốn ngân khố nhưng có thể củng cố nền hành chính và ổn định lâu dài.'};
+ const P=K(W.playerId);if(!P||!P.alive||W.diploEvent||month<(W.diploNextEvent||0)||Math.random()>.22)return;
+ const c=civFor(P);if(!c)return;const over=Number(c.overextension||0),stability=Number(c.stability??100),e=econOf(P);
+ let ev=null;const candidates=[];const add=(type,title,from,body,terms,weight=1)=>candidates.push({category:'political',type,title,from,body,terms,weight});
+ if(over>=18)add('autonomy','Các thống đốc yêu cầu nhượng quyền','Hội đồng thống đốc vùng xa','Nhiều thống đốc cho rằng triều đình đang can thiệp quá sâu và yêu cầu được tự quyết một phần ngân sách, bổ nhiệm quan chức địa phương.','Chấp thuận giúp giảm quá tải quản trị nhưng làm suy yếu quyền lực trung ương.',.45);
+ if(over>=25)add('separatism','Phong trào ly khai trỗi dậy','Các thủ lĩnh địa phương','Một số thủ lĩnh tại vùng xa bắt đầu phủ nhận mệnh lệnh triều đình, vận động dân chúng đòi quyền tự quyết rộng hơn.','Nhượng bộ có thể xoa dịu khủng hoảng; đàn áp hoặc bác bỏ sẽ khiến bất ổn tăng mạnh.',.8);
+ if(stability<72)add('reform','Phong trào cải cách hành chính','Phe cải cách trong triều đình','Các học giả và quan lại trẻ đề xuất chuẩn hóa luật lệ, sổ sách và tuyển dụng quan chức theo năng lực. Phe bảo thủ phản đối thay đổi quá nhanh.','Cải cách cần ngân sách nhưng có thể nâng chất lượng quản trị.',.9);
+ if(stability<58)add('succession','Tranh chấp kế vị trong hoàng thất','Các phe phái trong triều','Những lời đồn về người kế vị và sự chia rẽ giữa các đại thần khiến triều đình đứng trước nguy cơ khủng hoảng quyền lực.','Một thỏa hiệp chính trị có thể giữ ổn định; xử lý cứng rắn có nguy cơ làm lòng trung thành suy giảm.',.75);
+ if((P.playerTax||0)>.12)add('tax_protest','Biểu tình phản đối thuế khóa','Đại diện các phường hội và dân chúng','Thuế khóa tăng cao khiến thương nhân và dân cư thành thị phản đối. Họ yêu cầu giảm thuế hoặc dành một phần ngân sách cho công trình công cộng.','Nhượng bộ làm giảm nguồn thu trước mắt nhưng có thể khôi phục lòng trung thành.',1.1);
+ if(e.cash<8)add('treasury','Ngân khố cạn kiệt','Quan coi ngân khố','Nguồn thu không đủ đáp ứng chi tiêu quân đội và bộ máy. Các quan chức cảnh báo chính phủ có thể phải trì hoãn nhiều khoản chi.','Cắt giảm chi tiêu hoặc vay mượn để vượt qua giai đoạn khó khăn.',1.05);
+ if(P.army>3)add('army_petition','Tướng lĩnh yêu cầu tăng quân lương','Hội đồng quân sự','Các tướng lĩnh báo cáo quân đội thiếu lương, trang bị và tiền thưởng. Một số đơn vị có dấu hiệu bất mãn.','Tăng chi phí giúp củng cố quân đội; từ chối có thể ảnh hưởng lòng trung thành.',.8);
+ add('corruption','Vụ bê bối tham nhũng','Cơ quan giám sát triều đình','Một vụ biển thủ ngân khố bị phanh phui. Quan lại địa phương đổ lỗi cho nhau, còn dân chúng đòi xử lý nghiêm những người liên quan.','Điều tra tốn ngân sách nhưng có thể cải thiện ổn định và uy tín chính quyền.',.9);
+ add('harvest','Mùa màng bội thu','Các trưởng lão nông nghiệp','Thời tiết thuận lợi mang lại một vụ mùa tốt. Các địa phương đề nghị triều đình tổ chức lễ mừng và dự trữ lương thực.','Tổ chức lễ hội tốn một khoản nhỏ nhưng khích lệ tinh thần toàn quốc.',.75);
+ add('epidemic','Dịch bệnh lan rộng','Các thầy thuốc và quan y tế','Một căn bệnh truyền nhiễm xuất hiện tại vài khu dân cư đông đúc. Giới y tế đề nghị lập khu cách ly và hỗ trợ thuốc men.','Chi ngân sách cứu trợ giúp hạn chế thiệt hại; bỏ mặc dịch bệnh sẽ gây tổn thất dân số và ổn định.',.65);
+ add('guild','Thương hội xin đặc quyền','Đại diện các thương hội','Các thương nhân đề nghị được giảm một số khoản phí và độc quyền khai thác tuyến buôn bán mới, đổi lại họ hứa đóng góp cho ngân khố.','Ưu đãi có thể kích thích kinh tế nhưng làm giảm nguồn thu ngắn hạn.',.8);
+ add('festival','Lễ hội thống nhất quốc gia','Các chức sắc và trưởng lão','Các cộng đồng đề nghị tổ chức lễ hội chung nhằm tôn vinh lịch sử và củng cố sự đoàn kết trong vương quốc.','Chi phí tổ chức không lớn, đổi lại tinh thần và lòng trung thành có thể được cải thiện.',.7);
+ if(candidates.length){let total=candidates.reduce((n,x)=>n+x.weight,0),roll=Math.random()*total;for(const x of candidates){roll-=x.weight;if(roll<=0){ev=x;break}}}
  if(!ev){
   const friendly=W.ks.filter(A=>A.alive&&A.id!==P.id&&!A.war[P.id]&&!P.war[A.id]&&!pactOf(A,P)&&(A.rel[P.id]||0)>=24);
   const hostile=W.ks.filter(A=>A.alive&&A.id!==P.id&&!A.war[P.id]&&!P.war[A.id]&&!pactOf(A,P,'nonaggression')&&(A.rel[P.id]||0)<=-14);
@@ -953,7 +964,7 @@ function maybeWorldEvent(month){
   }
  }
  if(!ev)return;
- W.diploEvent=ev;W.diploNextEvent=month+30;W.diploResumeSpeed=W.sp||1;W.sp=0;showDiplomacyEvent();
+ W.diploEvent=ev;W.diploNextEvent=month+18;W.diploResumeSpeed=W.sp||1;W.sp=0;showDiplomacyEvent();
 }
 function showDiplomacyEvent(){
  const ev=W?.diploEvent,modal=$('#diplomacy-event');if(!ev||!modal)return;
@@ -970,15 +981,22 @@ function resolveWorldEvent(choice){
  const ev=W?.diploEvent;if(!ev)return;const P=K(W.playerId),A=ev.fromId?K(ev.fromId):null,c=civFor(P),e=econOf(P);
  if(!P||!P.alive){W.diploEvent=null;$('#diplomacy-event').hidden=true;return}
  if(ev.category==='political'){
-  if(ev.type==='autonomy'){
-   if(choice==='accept'){c.centralization=Math.max(0,(c.centralization||0)-8);c.stability=Math.min(100,c.stability+7);c.overextension=Math.max(0,(c.overextension||0)-5);log('🏛️ Chính phủ '+title(P)+' chấp thuận trao thêm quyền tự trị cho các địa phương.')}
-   else if(choice==='counter'){if(e.cash<4){toast('Ngân khố không đủ để thực hiện thỏa hiệp.');return}e.cash-=4;c.centralization=Math.max(0,(c.centralization||0)-3);c.stability=Math.min(100,c.stability+3);c.overextension=Math.max(0,(c.overextension||0)-2);log('📜 Chính phủ '+title(P)+' đạt thỏa hiệp hạn chế với các thống đốc địa phương.')}
-   else{c.stability=Math.max(8,c.stability-6);P.loy=Math.max(-100,P.loy-3);log('⚠️ Chính phủ '+title(P)+' bác bỏ yêu cầu tự trị; bất mãn tại các vùng xa gia tăng.')}
-  }else{
-   if(choice==='accept'){e.cash=Math.max(0,e.cash-6);c.technology.administration=Math.min(3,(c.technology.administration||0)+.12);c.stability=Math.min(100,c.stability+3);log('📚 '+title(P)+' chấp thuận chương trình cải cách hành chính do các học giả đề xuất.')}
-   else if(choice==='counter'){if(e.cash<3){toast('Ngân khố không đủ để thực hiện thỏa hiệp.');return}e.cash-=3;c.technology.administration=Math.min(3,(c.technology.administration||0)+.05);c.stability=Math.min(100,c.stability+1);log('⚖️ '+title(P)+' thông qua một phần chương trình cải cách sau thương lượng.')}
-   else{c.stability=Math.max(8,c.stability-5);P.loy=Math.max(-100,P.loy-2);log('⚠️ Triều đình '+title(P)+' bác bỏ đề nghị cải cách; phe cải cách bất mãn.')}
-  }
+  const pay=n=>{if(e.cash<n){toast('Ngân khố không đủ để thực hiện lựa chọn này.');return false}e.cash-=n;return true};
+  const effects={
+   autonomy:()=>{if(choice==='accept'){c.centralization=Math.max(0,(c.centralization||0)-7);c.stability=Math.min(100,c.stability+5);c.overextension=Math.max(0,c.overextension-4)}else if(choice==='counter'){if(!pay(4))return;c.centralization=Math.max(0,(c.centralization||0)-3);c.stability=Math.min(100,c.stability+3);c.overextension=Math.max(0,c.overextension-2)}else{c.stability=Math.max(8,c.stability-5);P.loy=Math.max(-100,P.loy-3)}},
+   separatism:()=>{if(choice==='accept'){c.centralization=Math.max(0,(c.centralization||0)-10);c.overextension=Math.max(0,c.overextension-7);c.stability=Math.min(100,c.stability+2)}else if(choice==='counter'){if(!pay(6))return;c.centralization=Math.max(0,c.centralization-4);c.overextension=Math.max(0,c.overextension-3);c.stability=Math.max(8,c.stability-2)}else{c.stability=Math.max(5,c.stability-12);P.loy=Math.max(-100,P.loy-8)}},
+   reform:()=>{if(choice==='accept'){if(!pay(6))return;c.technology.administration=Math.min(3,(c.technology.administration||0)+.12);c.stability=Math.min(100,c.stability+3)}else if(choice==='counter'){if(!pay(3))return;c.technology.administration=Math.min(3,(c.technology.administration||0)+.05);c.stability=Math.min(100,c.stability+1)}else{c.stability=Math.max(8,c.stability-5);P.loy=Math.max(-100,P.loy-2)}},
+   succession:()=>{if(choice==='accept'){if(!pay(5))return;c.stability=Math.min(100,c.stability+7);P.loy=Math.min(100,P.loy+3)}else if(choice==='counter'){if(!pay(2))return;c.stability=Math.min(100,c.stability+3)}else{c.stability=Math.max(5,c.stability-11);P.loy=Math.max(-100,P.loy-7)}},
+   tax_protest:()=>{if(choice==='accept'){P.playerTax=Math.max(0,(P.playerTax||0)-.08);c.stability=Math.min(100,c.stability+5);P.loy=Math.min(100,P.loy+3)}else if(choice==='counter'){if(!pay(4))return;c.stability=Math.min(100,c.stability+3);P.loy=Math.min(100,P.loy+2)}else{c.stability=Math.max(8,c.stability-7);P.loy=Math.max(-100,P.loy-5)}},
+   treasury:()=>{if(choice==='accept'){P.playerBudget??={mil:1,ind:1,edu:1};P.playerBudget.mil=Math.max(.5,P.playerBudget.mil-.2);P.playerBudget.ind=Math.max(.5,P.playerBudget.ind-.2);c.stability=Math.min(100,c.stability+2)}else if(choice==='counter'){if(!pay(2))return;c.stability=Math.min(100,c.stability+1)}else{c.stability=Math.max(5,c.stability-5);P.loy=Math.max(-100,P.loy-3)}},
+   army_petition:()=>{if(choice==='accept'){if(!pay(5))return;P.loy=Math.min(100,P.loy+5)}else if(choice==='counter'){if(!pay(2))return;P.loy=Math.min(100,P.loy+2)}else{P.loy=Math.max(-100,P.loy-6);c.stability=Math.max(8,c.stability-2)}},
+   corruption:()=>{if(choice==='accept'){if(!pay(5))return;c.stability=Math.min(100,c.stability+5);P.loy=Math.min(100,P.loy+3)}else if(choice==='counter'){if(!pay(2))return;c.stability=Math.min(100,c.stability+2)}else{e.cash=Math.min(99999,e.cash+2);c.stability=Math.max(8,c.stability-6);P.loy=Math.max(-100,P.loy-4)}},
+   harvest:()=>{if(choice==='accept'){if(!pay(2))return;c.stability=Math.min(100,c.stability+5);P.loy=Math.min(100,P.loy+2)}else if(choice==='counter'){c.stability=Math.min(100,c.stability+2)}else{c.stability=Math.max(8,c.stability-2)}},
+   epidemic:()=>{if(choice==='accept'){if(!pay(6))return;P.pop=Math.max(1,(P.pop||1)*.995);c.stability=Math.min(100,c.stability+3)}else if(choice==='counter'){if(!pay(3))return;P.pop=Math.max(1,(P.pop||1)*.99)}else{P.pop=Math.max(1,(P.pop||1)*.97);c.stability=Math.max(5,c.stability-8)}},
+   guild:()=>{if(choice==='accept'){e.cash=Math.max(0,e.cash-3);e.industry=Math.min(100,(e.industry||0)+.15)}else if(choice==='counter'){if(!pay(1))return;e.industry=Math.min(100,(e.industry||0)+.08)}else{c.stability=Math.max(8,c.stability-2)}},
+   festival:()=>{if(choice==='accept'){if(!pay(3))return;c.stability=Math.min(100,c.stability+6);P.loy=Math.min(100,P.loy+3)}else if(choice==='counter'){if(!pay(1))return;c.stability=Math.min(100,c.stability+3)}else{c.stability=Math.max(8,c.stability-1)}}
+  };
+  if(effects[ev.type]){effects[ev.type]();log((choice==='accept'?'✅ Chính phủ ':choice==='counter'?'📜 Chính phủ ':'⚠️ Chính phủ ')+title(P)+(choice==='accept'?' chấp thuận xử lý sự kiện: ':choice==='counter'?' đạt thỏa hiệp về sự kiện: ':' bác bỏ đề xuất trong sự kiện: ')+ev.title+'.')}
  }else if(A&&A.alive){
   if(ev.type==='treaty'){
    if(choice==='accept'){if(!signPact(A,P,ev.pactType))toast('Hiệp ước không còn đủ điều kiện để ký kết.')}
