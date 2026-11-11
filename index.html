@@ -242,7 +242,7 @@ body.rp-mode #chips { display:none !important; }
 #build-version{position:fixed;right:10px;bottom:8px;z-index:2147483000;padding:4px 8px;border:1px solid rgba(255,255,255,.18);border-radius:7px;background:rgba(5,12,22,.82);color:#e5edf7;font:11px/1.2 system-ui,sans-serif;letter-spacing:.2px;pointer-events:none;user-select:none;box-shadow:0 1px 5px rgba(0,0,0,.35)}
 </style>
 
-</head><body><div id="build-version" aria-label="Phiên bản trò chơi">THẦN GIỚI · v1.12.1</div><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button><button class="mode" id="mode-guide"><span class="ico">📖</span><span><b>Cẩm nang cơ chế & chỉ số</b><small>Giải thích cách vận hành thế giới, ý nghĩa các chỉ số và mẹo quản lý quốc gia.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
+</head><body><div id="build-version" aria-label="Phiên bản trò chơi">THẦN GIỚI · v1.13.0</div><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button><button class="mode" id="mode-guide"><span class="ico">📖</span><span><b>Cẩm nang cơ chế & chỉ số</b><small>Giải thích cách vận hành thế giới, ý nghĩa các chỉ số và mẹo quản lý quốc gia.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
 <div id="game-guide" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="guide-title">
  <div class="pn guide-panel">
   <div class="ph"><b id="guide-title">📖 Cẩm nang Thần Giới</b><small>Giải thích cơ chế và chỉ số</small><button id="guide-close" aria-label="Đóng">✕</button></div>
@@ -1144,8 +1144,8 @@ function updateEconomy(k){const e=econOf(k),owned=tilesOf(k);let deposits=0,oilS
  const taxBase=isPlayerRP?Math.max(.8,k.pop*.035+factories*.4+markets*.2+e.industry*.06):Math.max(.2,k.pop*.018+factories*.25+markets*.12);
  const trade=Object.keys(k.rel).filter(id=>k.rel[id]>10&&!k.war[id]).length*.08;
  const pb=k.playerBudget||{mil:1,ind:1,edu:1},tax=isPlayerRP?(k.playerTax||0):0;
- const revenue=taxBase*(k.ideo==='cap'?1.12:k.ideo==='soc'?1.02:1)*(1+tax);
- const expense=isPlayerRP?Math.max(.05,.08+k.army*.006+factories*.07+industrial*.045+((pb.mil+pb.ind+pb.edu)-3)*.08):.12+k.army*.012+factories*.12+industrial*.08+((pb.mil+pb.ind+pb.edu)-3)*.12;
+ const govModel=isPlayerRP?(civFor(k)?.governance?.model||'balanced'):'balanced',govRevenue=govModel==='centralized'?1.05:govModel==='local'?.96:1;const revenue=taxBase*(k.ideo==='cap'?1.12:k.ideo==='soc'?1.02:1)*(1+tax)*govRevenue;
+ const expense=isPlayerRP?Math.max(.05,.08+k.army*.006+factories*.07+industrial*.045+((pb.mil+pb.ind+pb.edu)-3)*.08+(govModel==='professional'?.05:0)):.12+k.army*.012+factories*.12+industrial*.08+((pb.mil+pb.ind+pb.edu)-3)*.12;
  const totalIncome=revenue+trade,net=totalIncome-expense;
  e.monthlyIncome=totalIncome;e.monthlyExpense=expense;e.monthlyNet=net;
  e.cash=Math.max(0,Math.min(99999,e.cash+net));
@@ -1192,7 +1192,7 @@ function ensureCivilizations(){
  W.civs??=[];
  for(const k of W.ks||[])if(k.alive&&!W.civs.some(c=>c.polityId===k.id))W.civs.push(makeCivilization(k,W.civs.length));
  for(const c of W.civs){
-  c.resources??={};c.natural??={};c.production??={};
+  c.resources??={};c.natural??={};c.production??={};c.governance??={model:'balanced',investment:0,lastActionYear:-99};if(!['balanced','centralized','local','professional'].includes(c.governance.model))c.governance.model='balanced';if(!Number.isFinite(c.governance.investment))c.governance.investment=0;if(!Number.isFinite(c.governance.lastActionYear))c.governance.lastActionYear=-99;
   const defaults={food:20,wood:0,stone:0,copper:0,tin:0,ironOre:0,bronze:0,iron:0,livestock:0,gold:0};
   for(const key in defaults)if(c.resources[key]===undefined)c.resources[key]=defaults[key];
   if(c.natural.ironOre===undefined)c.natural.ironOre=c.natural.iron||0;
@@ -1218,6 +1218,22 @@ function ensureCivilizations(){
  }
 }
 function civFor(k){return (W.civs||[]).find(c=>c.polityId===k.id)}
+function adminModel(k){return civFor(k)?.governance?.model||'balanced'}
+function adminCapacity(k,c){
+ const g=c?.governance||{},bonus={balanced:0,centralized:5,local:8,professional:6}[g.model]||0;
+ return 22+(c?.technology?.administration||0)*8+k.cities.length*3+(k.inv.includes('law')?5:0)+(k.inv.includes('write')?4:0)+(hasK(k,'palace')?7:0)+(c?.centralization||0)*.08+bonus+(g.investment||0);
+}
+function adminGovernancePanel(k){
+ const c=civFor(k);if(!c)return '<small class="mu">Bộ máy hành chính đang được hình thành.</small>';
+ c.governance??={model:'balanced',investment:0,lastActionYear:-99};
+ const g=c.governance,model=g.model||'balanced',names={balanced:'Cân bằng',centralized:'Tập quyền',local:'Phân quyền địa phương',professional:'Quan liêu chuyên nghiệp'};
+ const desc={balanced:'Không thiên lệch; thu chi và ổn định ở mức cơ bản.',centralized:'Năng lực quản trị +5 ô, thu ngân sách +5%; tập quyền tăng dần.',local:'Năng lực quản trị +8 ô, ổn định tăng; thu ngân sách giảm 4%.',professional:'Năng lực quản trị +6 ô, nghiên cứu hành chính nhanh hơn; chi phí duy trì tăng.'};
+ const wait=Math.max(0,3-(W.year-(g.lastActionYear??-99))),capacity=adminCapacity(k,c),over=Math.max(0,k.n-capacity);
+ const choices=[['balanced','⚖️ Cân bằng'],['centralized','🏛 Tập quyền'],['local','🏘️ Phân quyền'],['professional','📚 Quan liêu chuyên nghiệp']];
+ const buttons=choices.map(([id,label])=>'<button class="pb" data-gov="model" data-v="'+id+'">'+(model===id?'✔ ':'')+label+'</button>').join('');
+ const actions=[['census','📋 Kiểm kê dân số & đất đai · 8'],['offices','🏢 Xây công sở địa phương · 14'],['reform','⚖️ Cải cách quan lại · 16'],['relief','🌾 Cứu tế kho lương · 10']];
+ return '<div class="rpsection"><div class="rplabel"><b>🏛 MÔ HÌNH QUẢN TRỊ</b><strong>'+names[model]+'</strong></div><small>'+desc[model]+'</small><div class="row2">'+buttons+'</div><div class="rpfoot"><span>📐 Năng lực quản trị: '+capacity.toFixed(1)+' ô</span><span>🗺 Lãnh thổ: '+k.n+' ô</span></div><div class="rpfoot"><span>⚠️ Quá tải: '+Math.round(c.overextension||0)+'%</span><span>🏛 Đang vượt ngưỡng: '+over.toFixed(1)+' ô</span></div><small class="mu">Mô hình tác động đến thu ngân sách, nghiên cứu, ổn định và khả năng quản lý vùng xa.</small><div class="rplabel"><b>📜 BIỆN PHÁP HÀNH CHÍNH</b><span>'+(wait?'Còn '+wait+' năm hồi phục':'Có thể ban hành')+'</span></div><div class="row2">'+actions.map(([id,label])=>'<button class="pb" data-gov="action" data-v="'+id+'"'+(wait?' disabled':'')+'>'+label+'</button>').join('')+'</div><small class="mu">Mỗi biện pháp cần ngân khố và có thời gian chuẩn bị 3 năm. Công sở tăng vĩnh viễn năng lực quản trị; kiểm kê và cải cách nâng công nghệ hành chính; cứu tế bổ sung lương thực và ổn định xã hội.</small></div>';
+}
 // Giới hạn công nghệ tổng hợp theo mức trưởng thành thực tế của 7 nhánh văn minh.
 // Giữ hệ công nghệ tự do nguyên trạng; trong nhập vai, điểm công nghệ không thể vượt quá nền tảng văn minh.
 function roleplayTechCeiling(k){
@@ -1274,7 +1290,7 @@ function civilizationTick(){
   if(annual){
    const surplus=Math.max(0,res.food-k.pop*2.5),support=Math.min(.018,surplus/(Math.max(1,k.pop)*1000));
    const education=k.id===W.playerId?(k.playerBudget?.edu??1):1;
-   const researchFactor=Math.max(.55,Math.min(1.6,.75+education*.25+(surplus>k.pop ? .12 : 0)));
+   const gov=c.governance?.model||'balanced',researchFactor=Math.max(.55,Math.min(1.6,.75+education*.25+(surplus>k.pop ? .12 : 0)+(gov==='professional'?.15:gov==='centralized'?.04:gov==='local'?-.03:0)));
    const base=(.024+Math.min(60,k.pop)*.00024+support)*researchFactor;
    tech.agriculture=Math.min(3,tech.agriculture+base*(fertility>.8?1.12:.82));
    tech.metallurgy=Math.min(3,tech.metallurgy+base*(res.copper+res.tin+res.ironOre>0.1?1.05:.62));
@@ -1307,7 +1323,7 @@ function civilizationTick(){
    // Quá tải đế chế: chỉ áp dụng trong nhập vai, đánh giá mỗi năm.
    if(annual&&W.playerId){
     const admin=c.technology?.administration||0,hasLaw=k.inv.includes('law'),hasWrite=k.inv.includes('write'),palace=hasK(k,'palace');
-    const capacity=22+admin*8+k.cities.length*3+(hasLaw?5:0)+(hasWrite?4:0)+(palace?7:0)+c.centralization*.08;
+    const capacity=adminCapacity(k,c);
     const overload=Math.max(0,count-capacity);
     c.overextension=overload?Math.min(100,overload/Math.max(8,capacity)*100):0;
     if(overload>0){
@@ -1320,7 +1336,7 @@ function civilizationTick(){
      if(c.stability>55)k.loy=Math.min(100,k.loy+.12);
     }
    }else c.overextension=0;
-   if(c.origin==='east')c.centralization=Math.min(100,c.centralization+.025);
+   const govModel=c.governance?.model||'balanced';if(govModel==='centralized')c.centralization=Math.min(100,c.centralization+.06);else if(govModel==='local')c.centralization=Math.max(0,c.centralization-.05);else if(c.origin==='east')c.centralization=Math.min(100,c.centralization+.025);
    else if(c.origin==='west')c.centralization=Math.min(100,c.centralization+.012);
   }
  }
@@ -1364,14 +1380,14 @@ function detail(k){const g=k.king,a=k.pol&&pol(k.pol.id),ws=Object.keys(k.war).f
  h+=sec('eco','📊 Kinh tế & dầu mỏ',eh);
  const policyButtons=ids=>'<div class="row2">'+POL.filter(p=>ids.includes(p.id)).map(p=>'<button class="pb" data-p="'+p.id+'" data-k="'+k.id+'">'+p.e+' '+p.n+' ❤'+(p.now>0?'+':'')+p.now+' · '+p.c+'</button>').join('')+'</div>';
  const armyPlan=eqHtml(k)+'<small>Biện pháp quân sự</small>'+policyButtons(['wall','draft']);
- const adminPlan='<small>'+(a?a.e+' '+a.n+' (còn '+k.pol.l+' lượt)':'Chưa có chính sách đang áp dụng')+'</small>'+policyButtons(['tax_low','feast','amnesty','tax_high','study']);
+ const adminPlan=(k.id===W.playerId?adminGovernancePanel(k):'<small>Quản trị quốc gia do chính quyền '+title(k)+' tự quyết định.</small>')+'<small>'+(a?a.e+' '+a.n+' (còn '+k.pol.l+' lượt)':'Chưa có chính sách đang áp dụng')+'</small>'+policyButtons(['tax_low','feast','amnesty','tax_high','study']);
  h+=sec('fac','🏛 Liên minh & phe phái',factionPanel(k));
  h+=sec('gov','🧭 Đường lối điều hành',sec('govArmy','🛡 Quân đội',armyPlan)+sec('govDip','🤝 Ngoại giao',dp)+sec('govAdmin','🏛 Điều hành',adminPlan));
  if(k.id===W.playerId)h+=sec('player','🎛️ Quyền điều hành trực tiếp',roleplayControls(k));
  let ds='<small>'+techAge(k.tech)+(k.ideo?' · '+IDE[k.ideo].n:'')+' · 💪 '+fmt(str(k)*100)+bfs(k)+'</small>';
  ds+='<small>👑 '+(rep_(k)?'':'niên hiệu “'+g.h+'” · ')+TR[g.t][0]+' · '+Math.round(g.age*k.race.life)+' tuổi · '+(k.dynasty?.history?.length||1)+' đời kế vị</small>';
  if(k.inv.length)ds+='<small>💡 '+k.inv.map(id=>{const v=INV.find(x=>x[0]===id);return v[1]+' '+v[2]}).join(' · ')+'</small>';
- if(W.playerId){const cv=civFor(k);if(cv)ds+='<small>🏛️ Ổn định xã hội: '+Math.round(cv.stability)+'/100 · Quá tải đế chế: '+Math.round(cv.overextension||0)+'% · Năng lực quản trị ước tính '+Math.round(22+(cv.technology?.administration||0)*8+k.cities.length*3+(k.inv.includes('law')?5:0)+(k.inv.includes('write')?4:0)+(hasK(k,'palace')?7:0)+cv.centralization*.08)+' ô</small>'}
+ if(W.playerId){const cv=civFor(k);if(cv)ds+='<small>🏛️ Ổn định xã hội: '+Math.round(cv.stability)+'/100 · Quá tải đế chế: '+Math.round(cv.overextension||0)+'% · Năng lực quản trị ước tính '+Math.round(adminCapacity(k,cv))+' ô</small>'}
  ds+=cityHtml(k);
  if(k.n>=30){const fi=farInfo(k);ds+='<small>📍 Vùng xa kinh đô: '+fi.far.length+' ô (bán kính kiểm soát '+(fi.R0|0)+') · Nguy cơ ly khai '+(risk(k,fi.far)*100|0)+'%/lượt</small>'}
  ds+='<small>'+raceInfo(k.race)+'</small>';
@@ -1405,6 +1421,39 @@ function roleplayControls(k){
  '<div class="rplabel"><b>🧰 Quyết định phát triển</b><strong>Năm '+W.year+'</strong></div>'+roleplayTechTree(k)+'<div class="row2">'+btn('industry','','🏭 Đầu tư công nghiệp · 8')+btn('research','','🔬 Đầu tư nghiên cứu · 8')+'</div>'+fleetChecks('galley')+fleetChecks('ironclad')+
  '<div class="rplabel"><b>🏛 Thay đổi thể chế</b></div>'+(k.tech<5?'<small class="mu">🔒 Chưa thể cải cách thể chế. Cần bước vào Thời Công nghiệp (Cách mạng công nghiệp lần thứ nhất). Tiến trình hiện tại: '+techAge(k.tech)+' · Công nghệ '+k.tech.toFixed(1)+'/5.0.</small>': '<div class="row2">'+(k.ideo?['cap','soc','mon','rep','dict','fas'].filter(id=>id!==k.ideo).map(id=>btn('ideology',id,IDE[id].e+' Cải cách sang '+IDE[id].n)).join(''):'<small class="mu">Chưa có mô hình xã hội. Hệ thống sẽ mở sự kiện lựa chọn khi quốc gia đủ điều kiện lịch sử.</small>')+'</div>')+
  '<small>Ngân sách cao giúp lĩnh vực tương ứng phát triển nhanh hơn nhưng làm tăng chi tiêu. Thuế cao tăng thu ngân sách nhưng làm giảm lòng trung thành.</small></div>';
+}
+function roleplayGovernanceAction(k,kind,v){
+ if(!k||k.id!==W.playerId)return;
+ const c=civFor(k),e=econOf(k);if(!c)return toast('Dữ liệu quản trị chưa sẵn sàng.');
+ c.governance??={model:'balanced',investment:0,lastActionYear:-99};const g=c.governance;
+ const models=['balanced','centralized','local','professional'];
+ if(kind==='model'&&models.includes(v)){
+  if(g.model===v)return;
+  g.model=v;log('🏛 '+title(k)+' chuyển mô hình quản trị sang '+({balanced:'Cân bằng',centralized:'Tập quyền',local:'Phân quyền địa phương',professional:'Quan liêu chuyên nghiệp'}[v])+'.');
+ }else if(kind==='action'){
+  const wait=3-(W.year-(g.lastActionYear??-99));if(wait>0)return toast('Bộ máy cần thêm '+wait+' năm để hoàn tất đợt cải cách trước.');
+  const costs={census:8,offices:14,reform:16,relief:10},cost=costs[v];if(!cost)return;
+  if(e.cash<cost)return toast('Ngân khố không đủ '+cost+' để thực hiện biện pháp này.');
+  e.cash-=cost;g.lastActionYear=W.year;
+  if(v==='census'){
+   c.technology.administration=Math.min(3,(c.technology.administration||0)+.1);
+   log('📋 '+title(k)+' hoàn thành kiểm kê dân số và đất đai, nâng cao năng lực hành chính.');
+  }else if(v==='offices'){
+   g.investment=Math.min(30,(g.investment||0)+3);
+   c.stability=Math.min(100,c.stability+.5);
+   log('🏢 '+title(k)+' xây dựng công sở tại các địa phương, năng lực quản trị tăng thêm 3 ô lâu dài.');
+  }else if(v==='reform'){
+   c.technology.administration=Math.min(3,(c.technology.administration||0)+.16);
+   c.centralization=Math.min(100,c.centralization+2);
+   c.stability=Math.max(8,c.stability-2);
+   log('⚖️ '+title(k)+' cải cách bộ máy quan lại: hành chính tiến bộ nhưng vấp phải sự phản đối từ các thế lực cũ.');
+  }else if(v==='relief'){
+   c.resources.food=Math.min(99999,(c.resources.food||0)+Math.max(2,k.pop*1.5));
+   c.stability=Math.min(100,c.stability+4);k.loy=Math.min(100,k.loy+2);
+   log('🌾 '+title(k)+' mở kho cứu tế, phân phát lương thực và xoa dịu bất ổn xã hội.');
+  }
+ }
+ ui();draw();
 }
 function roleplayAction(k,a,v){
  if(!k||k.id!==W.playerId)return;const e=econOf(k),levels=[.5,1,1.5,2];
@@ -1441,7 +1490,7 @@ function ui(preserveInteractive=false){const bt=BLD.find(b=>'x_'+b[0]===cur);if(
  setH($('#chips'),TOOLS[grp][1].map(t=>'<button data-t="'+t[0]+'" class="'+(t[0]===cur?'on':'')+'">'+t[1]+'</button>').join(''));$('#chips').hidden=!!sys||!!W.playerId;$('#sys').hidden=!sys;$('#sy').classList.toggle('on',!!sys);
  document.querySelectorAll('[data-s]').forEach(b=>b.classList.toggle('on',+b.dataset.s===W.sp))}
 const kh=e=>{const b=e.target.closest('button');
- if(b){if(b.dataset.rp==='tech-tree'){techTreeOpen=!techTreeOpen;ui();return}if(b.dataset.rpc){const action=b.dataset.rpc;roleplayAction(K(W.playerId),action,b.dataset.v||'');const labels={budget:'điều chỉnh ngân sách',tax:'điều chỉnh thuế',education:'đầu tư giáo dục',infrastructure:'phát triển hạ tầng',reform:'thực hiện cải cách',mobilize:'huy động quân đội',demobilize:'giảm quân thường trực',policy:'thay đổi chính sách'};toast('📜 Bạn đã quyết định: '+(labels[action]||'thực hiện '+action)+'.');return}if(b.dataset.fa){const A=K(+b.dataset.k),divine=A&&A.id!==W.playerId;if(!A)return;if(b.dataset.fa==='create'){if(!divine||pay(10))createFaction(A)}else if(b.dataset.fa==='leave'){leaveFaction(A)}else if(b.dataset.fa==='invite'){const B=K(+b.dataset.o);if(B&&(!divine||pay(8)))inviteFaction(A,B)}else if(b.dataset.fa==='join'){const f=(W.factions||[]).find(x=>x.id===+(b.dataset.f||0))||factionOf(K(+b.dataset.o));if(f&&(!divine||pay(8))){if((A.rel[f.leader]||0)<15)toast('Quan hệ với phe này chưa đủ tốt');else joinFaction(A,f)}}ui();draw();return}if(b.dataset.citycfg){const d=cd(+b.dataset.ci);d.plan??={priority:'balanced',budget:'normal',layout:'organic'};const lists={priority:['balanced','commerce','industry','agriculture','military','culture'],budget:['low','normal','high'],layout:['organic','compact','spread']},key=b.dataset.citycfg,arr=lists[key],ix=arr.indexOf(d.plan[key]);d.plan[key]=arr[(ix+1)%arr.length];if(+b.dataset.k===W.playerId)toast('🏙️ Đã cập nhật kế hoạch phát triển thành phố.');ui();draw();return}if(b.dataset.eqf){eqOf(K(+b.dataset.k)).f=b.dataset.eqf;if(+b.dataset.k===W.playerId)toast('🛡️ Đã thay đổi học thuyết quân sự.');ui();return}if(b.dataset.eqb){const k=K(+b.dataset.k);if(pay(10)){eqOf(k).b=12;log('🏭 Thần lực thúc đẩy các xưởng vũ khí của '+title(k)+' làm việc hết công suất.');if(k.id===W.playerId)toast('🏭 Đã ra lệnh tăng tốc sản xuất vũ khí.')}ui();return}if(b.dataset.p){const target=K(+b.dataset.k),policy=POL.find(x=>x.id===b.dataset.p);enact(target,b.dataset.p,target.id!==W.playerId);if(target.id===W.playerId)toast('📜 Quyết định đã được áp dụng: '+(policy?.n||'chính sách điều hành')+'.');ui();return}const A=K(+b.dataset.k),B=K(+b.dataset.o),a=b.dataset.a;
+ if(b){if(b.dataset.rp==='tech-tree'){techTreeOpen=!techTreeOpen;ui();return}if(b.dataset.rpc){const action=b.dataset.rpc;roleplayAction(K(W.playerId),action,b.dataset.v||'');const labels={budget:'điều chỉnh ngân sách',tax:'điều chỉnh thuế',education:'đầu tư giáo dục',infrastructure:'phát triển hạ tầng',reform:'thực hiện cải cách',mobilize:'huy động quân đội',demobilize:'giảm quân thường trực',policy:'thay đổi chính sách'};toast('📜 Bạn đã quyết định: '+(labels[action]||'thực hiện '+action)+'.');return}if(b.dataset.gov){roleplayGovernanceAction(K(W.playerId),b.dataset.gov,b.dataset.v||'');return}if(b.dataset.fa){const A=K(+b.dataset.k),divine=A&&A.id!==W.playerId;if(!A)return;if(b.dataset.fa==='create'){if(!divine||pay(10))createFaction(A)}else if(b.dataset.fa==='leave'){leaveFaction(A)}else if(b.dataset.fa==='invite'){const B=K(+b.dataset.o);if(B&&(!divine||pay(8)))inviteFaction(A,B)}else if(b.dataset.fa==='join'){const f=(W.factions||[]).find(x=>x.id===+(b.dataset.f||0))||factionOf(K(+b.dataset.o));if(f&&(!divine||pay(8))){if((A.rel[f.leader]||0)<15)toast('Quan hệ với phe này chưa đủ tốt');else joinFaction(A,f)}}ui();draw();return}if(b.dataset.citycfg){const d=cd(+b.dataset.ci);d.plan??={priority:'balanced',budget:'normal',layout:'organic'};const lists={priority:['balanced','commerce','industry','agriculture','military','culture'],budget:['low','normal','high'],layout:['organic','compact','spread']},key=b.dataset.citycfg,arr=lists[key],ix=arr.indexOf(d.plan[key]);d.plan[key]=arr[(ix+1)%arr.length];if(+b.dataset.k===W.playerId)toast('🏙️ Đã cập nhật kế hoạch phát triển thành phố.');ui();draw();return}if(b.dataset.eqf){eqOf(K(+b.dataset.k)).f=b.dataset.eqf;if(+b.dataset.k===W.playerId)toast('🛡️ Đã thay đổi học thuyết quân sự.');ui();return}if(b.dataset.eqb){const k=K(+b.dataset.k);if(pay(10)){eqOf(k).b=12;log('🏭 Thần lực thúc đẩy các xưởng vũ khí của '+title(k)+' làm việc hết công suất.');if(k.id===W.playerId)toast('🏭 Đã ra lệnh tăng tốc sản xuất vũ khí.')}ui();return}if(b.dataset.p){const target=K(+b.dataset.k),policy=POL.find(x=>x.id===b.dataset.p);enact(target,b.dataset.p,target.id!==W.playerId);if(target.id===W.playerId)toast('📜 Quyết định đã được áp dụng: '+(policy?.n||'chính sách điều hành')+'.');ui();return}const A=K(+b.dataset.k),B=K(+b.dataset.o),a=b.dataset.a;
   const divine=A.id!==W.playerId;if(a==='pact'){const type=b.dataset.t,spec=PACTS[type];if(spec){if(pactOf(A,B))toast('Hai nước đã có hiệp ước song phương.');else if((A.rel[B.id]||0)<spec.min)toast('Quan hệ chưa đủ tốt. Cần tối thiểu '+spec.min+' điểm.');else if(A.war[B.id])toast('Không thể ký hiệp ước khi đang chiến tranh.');else if(!divine||pay(8)){if(!signPact(A,B,type))toast('Đàm phán chưa thành công.')}}ui();draw();return}if(a==='breakpact'){if(pactOf(A,B)){if(!divine||pay(5))breakPact(A,B,'breach')}else toast('Không có hiệp ước để chấm dứt.');ui();draw();return}if((a==='diplomacy'||a==='negotiation')&&(!divine||pay(6))){const type=a==='diplomacy'?'diplomacy':'negotiation';setIntent(A,B,type,3);sr(A,B,3);log((type==='diplomacy'?'🕊️ ':'📜 ')+title(A)+' đang '+(type==='diplomacy'?'mở kênh ngoại giao với ':'chuẩn bị đề xuất đàm phán với ')+title(B)+'.');ui();draw();return}if(a==='peace'&&(!divine||pay(6))){delete A.war[B.id];delete B.war[A.id];sr(A,B,30);log((divine?'🕊 Điềm lành từ thần linh giúp ':'🕊 Chính phủ '+title(A)+' chủ động hòa giải với ')+title(B)+'.')}if(a==='ultimatum'&&(!divine||pay(8))){if(!issueUltimatum(A,B))toast('Tối hậu thư bị bác bỏ hoặc chưa đủ điều kiện.')}if(a==='reparations'){if(!A.war[B.id]&&!B.war[A.id])toast('Chỉ có thể yêu cầu bồi thường khi hai nước đang chiến tranh.');else if(!divine||pay(6)){if(!issueUltimatum(A,B))toast('Yêu cầu bồi thường bị từ chối.')}}if(a==='vassal'&&(!divine||pay(12))){if(!imposeVassal(A,B))toast('Không thể thiết lập quan hệ chư hầu lúc này.')}if(a==='territory'&&(!divine||pay(10))){if(!transferBorderland(B,A))toast('Không tìm thấy vùng biên giới phù hợp để chuyển giao.')}if(a==='conference'&&(!divine||pay(10))){if(!peaceConference(A))toast('Hội nghị cần ít nhất hai đối thủ đang giao chiến với quốc gia này.')}
   if(a==='ally'){if((A.rel[B.id]||0)<0)toast('Quan hệ quá căng thẳng, hãy hòa giải trước');else if(A.war[B.id])toast('Đang có chiến tranh');else if(!divine||pay(8))alliance(A,B)}
   if(a==='war'&&(!divine||pay(8))){war(A,B);if(!divine)toast('⚔️ Quyết định tuyên chiến với '+title(B)+' đã được ghi nhận.')}ui();draw();return}
