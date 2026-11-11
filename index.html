@@ -907,7 +907,7 @@ function issueUltimatum(A,B){
 }
 function maybeWorldEvent(month){
  const P=K(W.playerId);if(!P||!P.alive||W.diploEvent||month<(W.diploNextEvent||0)||Math.random()>.16)return;
- const c=civFor(P),over=Number(c?.overextension||0),stability=Number(c?.stability??100);
+ const c=civFor(P);if(!c)return;const over=Number(c.overextension||0),stability=Number(c.stability??100);
  let ev=null;
  if(over>=18&&Math.random()<.55)ev={category:'political',type:'autonomy',title:'Các địa phương đòi quyền tự trị',from:'Hội đồng các thống đốc',body:'Các quan chức vùng xa cho rằng triều đình can thiệp quá sâu trong khi bộ máy trung ương không đủ sức quản lý. Họ yêu cầu trao thêm quyền tự quyết cho địa phương.',terms:'Nếu chấp thuận, quyền lực trung ương giảm nhưng ổn định và khả năng kiểm soát vùng xa được cải thiện.'};
  else if(stability<62&&Math.random()<.7)ev={category:'political',type:'reform',title:'Sức ép cải cách trong triều đình',from:'Phe cải cách và các học giả',body:'Một nhóm quan lại và học giả kiến nghị cải tổ bộ máy, chuẩn hóa sổ sách và giảm tình trạng trì trệ. Phe bảo thủ cảnh báo cải cách sẽ gây xáo trộn.',terms:'Cải cách tiêu tốn ngân khố nhưng có thể củng cố nền hành chính và ổn định lâu dài.'};
