@@ -242,7 +242,7 @@ body.rp-mode #chips { display:none !important; }
 #build-version{position:fixed;right:10px;bottom:8px;z-index:2147483000;padding:4px 8px;border:1px solid rgba(255,255,255,.18);border-radius:7px;background:rgba(5,12,22,.82);color:#e5edf7;font:11px/1.2 system-ui,sans-serif;letter-spacing:.2px;pointer-events:none;user-select:none;box-shadow:0 1px 5px rgba(0,0,0,.35)}
 </style>
 
-</head><body><div id="build-version" aria-label="Phiên bản trò chơi">THẦN GIỚI · v1.15.0</div><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button><button class="mode" id="mode-guide"><span class="ico">📖</span><span><b>Cẩm nang cơ chế & chỉ số</b><small>Giải thích cách vận hành thế giới, ý nghĩa các chỉ số và mẹo quản lý quốc gia.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
+</head><body><div id="build-version" aria-label="Phiên bản trò chơi">THẦN GIỚI · v1.16.0</div><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button><button class="mode" id="mode-guide"><span class="ico">📖</span><span><b>Cẩm nang cơ chế & chỉ số</b><small>Giải thích cách vận hành thế giới, ý nghĩa các chỉ số và mẹo quản lý quốc gia.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
 <div id="game-guide" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="guide-title">
  <div class="pn guide-panel">
   <div class="ph"><b id="guide-title">📖 Cẩm nang Thần Giới</b><small>Giải thích cơ chế và chỉ số</small><button id="guide-close" aria-label="Đóng">✕</button></div>
@@ -436,9 +436,9 @@ function drawShips(sc){const now=Date.now(),fz=Math.min(30,Math.max(14,16/sc)),D
   for(let w=1;w<=4;w++){const bp=Math.max(0,pos-w*.5),bi=Math.min(n-1,bp|0),bf=bp-bi,a2=v.pts[bi],b2=v.pts[bi+1];cx.globalAlpha=.55-w*.12;cx.fillStyle='#fff';cx.beginPath();cx.arc((a2%N+(b2%N-a2%N)*bf+.5)*C,((a2/N|0)+((b2/N|0)-(a2/N|0))*bf+.5)*C,Math.max(1,C*.25)*(1+w*.15),0,7);cx.fill()}
   cx.globalAlpha=Math.min(1,e/200,(D-e)/300+.3);E(cx,'⛵',px,py+Math.sin(now/120)*fz*.06,fz);cx.globalAlpha=1}}
 // ---- Hoạt ảnh hành quân trên bản đồ ----
-function queueMarchPath(k,pts){
+function queueMarchPath(k,pts,kind){
  if(!pts||pts.length<2)return;
- AR.push({id:k.id,pts:pts.slice(),p:0,last:Date.now(),duration:Math.max(900,Math.min(3200,pts.length*115))});
+ AR.push({id:k.id,kind:kind||'army',pts:pts.slice(),p:0,last:Date.now(),duration:Math.max(900,Math.min(3200,pts.length*115))});
  if(AR.length>36)AR.splice(0,AR.length-36);
 }
 function queueMarch(k,target){
@@ -464,7 +464,14 @@ function drawArmies(sc){
   const dt=Math.max(0,Math.min(100,now-a.last));a.last=now;
   if(rate>0)a.p=Math.min(1,a.p+dt*rate/a.duration);
   const n=a.pts.length-1;if(n<1||!visible)continue;
-  const eq=k.eq?.s||{},unitSize=Math.max(15,Math.min(25,19/sc));
+  const unitSize=Math.max(15,Math.min(25,19/sc));
+  if(a.kind==='migration'){
+   const pos=Math.min(n-.001,a.p*n),ix=Math.min(n-1,Math.floor(pos)),u=pos-ix,A=a.pts[ix],B=a.pts[ix+1];
+   const x=(A%N+(B%N-A%N)*u+.5)*C,y=((A/N|0)+((B/N|0)-(A/N|0))*u+.5)*C;
+   cx.globalAlpha=.28;cx.fillStyle='#101820';cx.beginPath();cx.arc(x+1,y+1,Math.max(3,C*.38)+2,0,Math.PI*2);cx.fill();
+   cx.globalAlpha=1;E(cx,'🧳',x,y,unitSize*1.12);continue;
+  }
+  const eq=k.eq?.s||{};
   const at=(progress,icon,side=0,lift=0)=>{
    if(progress<=0)return;
    const pos=Math.min(n-.001,progress*n),ix=Math.min(n-1,Math.floor(pos)),u=pos-ix,A=a.pts[ix],B=a.pts[ix+1];
@@ -761,18 +768,40 @@ function share(A,B){for(const[p,q]of[[A,B],[B,A]]){const d=p.inv.filter(x=>!q.in
 const mil=k=>.12+.2*k.race.a;
 const str=k=>k.army*(1+Math.min(k.tech,8)*.35)*(1+ef(k,6)+eb(k,6))*(1+eqBonus(k))*k.race.s*(1+k.race.a*.15)*(k.bf.war>0?1.5:1)*(.5+k.loy/200)*(k.id===W.playerId?(k.playerArmyDoctrine==='offensive'?1.12:k.playerArmyDoctrine==='defensive'?.94:1):1);
 const bfs=k=>{const b=k.bf;return(b.food>0?' · 🌾'+b.food:'')+(b.war>0?' · 🔱'+b.war:'')+(b.peace>0?' · 🕯'+b.peace:'')+(k.fav>=1?' · ✨'+(k.fav|0):'')};
-function migrate(k){if(k.mcool>0||k.tech<.5||k.cities.length>=9||k.pop<8||Math.random()>(W.playerId&&W.rpPace==='slow'?.06:.12))return;
- const d=cd(k.cap);if(!(d.pop>=d.cap*.9))return;
- const cs=cts(k),rg=14+(Math.min(k.tech,6)*2|0),x0=k.cap%N,y0=k.cap/N|0,c=[];
- for(let y=Math.max(0,y0-rg);y<=Math.min(H-1,y0+rg);y++)for(let x=Math.max(0,x0-rg);x<=Math.min(N-1,x0+rg);x++){const i=y*N+x,t=T[i];if(O[i]||t<2||t>5)continue;const dc=Math.abs(x-x0)+Math.abs(y-y0);if(dc<5||dc>rg)continue;if(cs.some(a=>dist(a[0],i)<5))continue;c.push(i)}
- if(!c.length)return;let b=-1,bs=-1;
- for(let r=0;r<30;r++){const i=rnd(c),xi=i%N,yi=i/N|0;let f=0,n=0;
-  for(let y=Math.max(0,yi-2);y<=Math.min(H-1,yi+2);y++)for(let x=Math.max(0,xi-2);x<=Math.min(N-1,xi+2);x++){const j=y*N+x;if(O[j]||T[j]<2||T[j]>5)continue;n++;f+=fer(j)*(k.race.pt.includes(T[j])?1.4:1)}
-  if(n<9)continue;const sc=f+(coast(i)?(k.tech>=2?2:.8):0)+Math.random()*2;if(sc>bs){bs=sc;b=i}}
- if(b<0)return;const p=pathBfs(k.cap,b,i=>T[i]>=2&&T[i]<6&&(!O[i]||O[i]===k.id),1800);if(!p||p.length>rg*2+6){k.mcool=4;return}
- const xb=b%N,yb=b/N|0;for(let y=Math.max(0,yb-2);y<=Math.min(H-1,yb+2);y++)for(let x=Math.max(0,xb-2);x<=Math.min(N-1,xb+2);x++){const j=y*N+x;if(!O[j]&&T[j]>=2&&T[j]<=5&&Math.abs(x-xb)+Math.abs(y-yb)<=2)O[j]=k.id}
- const nc={i:b,n:rnd(SY)+rnd(SY).toLowerCase()};k.cities.push(nc);cd(b);k.mcool=18+(Math.random()*12|0);FX.push([b,6,'🧳']);SH.push({pts:p,l:6});
- log('🧳 Thủ đô '+k.cname+' của '+title(k)+' đã đông đúc, một đoàn dân di cư tới vùng đất mới và lập thành phố '+nc.n+'.')}
+function migrate(k){
+ if(k.mcool>0||k.cities.length>=9||k.pop<8)return;
+ const cs=cts(k),sources=cs.filter(([i])=>{const d=cd(i);return d.pop>=d.cap*.78||d.f<4||k.loy<22});
+ if(!sources.length)return;
+ const chance=W.playerId&&W.rpPace==='slow'?.065:.11;
+ if(Math.random()>chance)return;
+ const source=rnd(sources),start=source[0],rg=14+(Math.min(k.tech,6)*2|0)+(k.inv.includes('wheel')?3:0);
+ const x0=start%N,y0=start/N|0,c=[];
+ for(let y=Math.max(0,y0-rg);y<=Math.min(H-1,y0+rg);y++)for(let x=Math.max(0,x0-rg);x<=Math.min(N-1,x0+rg);x++){
+  const i=y*N+x,t=T[i],dc=Math.abs(x-x0)+Math.abs(y-y0);
+  if(O[i]||t<2||t>5||dc<5||dc>rg||cs.some(a=>dist(a[0],i)<5))continue;c.push(i);
+ }
+ if(!c.length)return;
+ let b=-1,bs=-1;
+ for(let r=0;r<Math.min(45,c.length);r++){
+  const i=rnd(c),xi=i%N,yi=i/N|0;let fertility=0,open=0,forest=0;
+  for(let y=Math.max(0,yi-2);y<=Math.min(H-1,yi+2);y++)for(let x=Math.max(0,xi-2);x<=Math.min(N-1,xi+2);x++){
+   const j=y*N+x;if(!O[j]&&T[j]>=2&&T[j]<=5){open++;fertility+=fer(j)*(k.race.pt.includes(T[j])?1.4:1);if(T[j]===4)forest++}
+  }
+  if(open<9)continue;
+  const score=fertility+Math.min(8,open)*.22+forest*.18+(coast(i)?(k.tech>=2?2.2:1):0)+Math.random()*1.5;
+  if(score>bs){bs=score;b=i}
+ }
+ if(b<0)return;
+ const p=pathBfs(start,b,i=>T[i]>=2&&T[i]<6&&(!O[i]||O[i]===k.id),2200);
+ if(!p||p.length>rg*2+8){k.mcool=3;return}
+ const xb=b%N,yb=b/N|0;
+ for(let y=Math.max(0,yb-2);y<=Math.min(H-1,yb+2);y++)for(let x=Math.max(0,xb-2);x<=Math.min(N-1,xb+2);x++){
+  const j=y*N+x;if(!O[j]&&T[j]>=2&&T[j]<=5&&Math.abs(x-xb)+Math.abs(y-yb)<=2)O[j]=k.id;
+ }
+ const nc={i:b,n:rnd(SY)+rnd(SY).toLowerCase()};k.cities.push(nc);cd(b);
+ k.mcool=14+(Math.random()*14|0);queueMarchPath(k,p,'migration');
+ log('🧳 Một đoàn dân di cư rời '+source[1]+' của '+title(k)+' và vượt đường dài tới lập thành phố '+nc.n+'.');
+}
 function upkeep(k){reign(k);build(k);found(k);migrate(k);const b=k.bf,ws=Object.keys(k.war).filter(i=>k.war[i]&&K(i).alive);
  const baseTg=75+k.fav*3-Math.min(ws.length*5,12)-Math.min(15,Math.max(0,k.n-60)*.15)-(k.army>k.pop*.4?5:0)+(b.food>0?10:0)+(b.peace>0?15:0)+ef(k,8)+eb(k,8)+3+Math.min(4,k.cities.length)+(k.pol?pol(k.pol.id).tg:0)+TR[k.king.t][1]+(ws.length?0:6)+ide(k).loy;const tg0=baseTg-(k.id===W.playerId?(k.playerTax||0)*45:0),tg=k.ideo==='dict'?Math.min(18,tg0-25):tg0;
  k.loy=Math.max(-100,Math.min(100,k.loy+(tg-k.loy)*.2+(Math.random()-.5)*4));
@@ -1057,10 +1086,51 @@ const dt=(l,t)=>{const ct=t===l.cap||l.cities.some(c=>c.i===t),doctrine=l.id===W
 function relocate(k,q){const i0=O.indexOf(k.id);if(i0<0)return;const c=k.cities.filter(c=>O[c.i]===k.id)[0];
  if(c){k.cap=c.i;k.cname=c.n;k.cities=k.cities.filter(x=>x!==c)}else{const o=[];for(const i of tilesOf(k))if(T[i]>=2&&T[i]!==6)o.push(i);k.cap=o.length?rnd(o):i0;k.cname=rnd(SY)+rnd(SY).toLowerCase()}
  if(!q)log('🚩 '+title(k)+' dời đô về '+k.cname+'.')}
-function take(w,l,t){O[t]=w.id;eqLoot(w,l,.012);l.n--;w.n++;FX.push([t,5]);l.loy=Math.max(-100,l.loy-warDamage());w.loy=Math.min(100,w.loy+.5);
- const bq=BL.find(b=>b.i===t);if(bq){bq.h-=15*warDamage();if(bq.h<=0)log('🏚 '+bd(bq.t)[2]+' của '+title(l)+' bị phá hủy trong chiến tranh.');else if(Math.random()<.15)log('🏗 '+title(w)+' chiếm '+bd(bq.t)[2]+' của '+title(l)+', công trình hư hại nặng.')}hurt(t,1,4*warDamage());
- const ci=l.cities.findIndex(c=>c.i===t);if(ci>=0){const c=l.cities.splice(ci,1)[0];l.loy=Math.max(-100,l.loy-6*warDamage());l.pop*=1-.01*warDamage();cd(t).lv=Math.max(0,cd(t).lv-1);if(w.cities.length<12){w.cities.push(c);log('🏙 '+title(w)+' chiếm thành phố '+c.n+' của '+title(l)+'!')}else log('🏙 Thành phố '+c.n+' của '+title(l)+' bị tàn phá trong chiến tranh.')}
- if(t===l.cap){cd(t).lv=Math.max(0,cd(t).lv-1);log('🏯 Kinh đô '+l.cname+' của '+title(l)+' thất thủ trước '+title(w)+'!');l.loy=Math.max(-100,l.loy-20*warDamage());l.army*=1-.08*warDamage();w.loy=Math.min(100,w.loy+5);if(w.cities.length<12)w.cities.push({i:t,n:l.cname});if(Math.random()<.3)mkKing(l,1);relocate(l)}}
+function cityCapitulation(w,l,state){
+ if(!state||state.triggered||state.captured/Math.max(1,state.total)<.6)return;
+ state.triggered=true;
+ const ratio=str(w)/(str(l)+.01),chance=Math.max(.12,Math.min(.58,.2+Math.max(0,45-l.loy)*.004+Math.max(0,ratio-1)*.1));
+ let surrendered=0;
+ for(const city of l.cities.slice()){
+  if(Math.random()>=chance||O[city.i]!==l.id)continue;
+  const ci=l.cities.findIndex(c=>c.i===city.i);if(ci<0)continue;
+  const c=l.cities.splice(ci,1)[0];O[c.i]=w.id;l.n=Math.max(0,l.n-1);w.n++;
+  if(w.cities.length<12)w.cities.push(c);
+  l.loy=Math.max(-100,l.loy-4);w.loy=Math.min(100,w.loy+1);surrendered++;FX.push([c.i,6,'🏳️']);
+  log('🏳️ Thành phố '+c.n+' của '+title(l)+' tự nguyện đầu hàng và sáp nhập vào '+title(w)+'.');
+ }
+ if(l.cities.length&&Math.random()<chance*.7&&O[l.cap]===l.id){
+  const capIndex=l.cap,capName=l.cname;O[capIndex]=w.id;l.n=Math.max(0,l.n-1);w.n++;
+  if(w.cities.length<12)w.cities.push({i:capIndex,n:capName});
+  surrendered++;FX.push([capIndex,6,'🏳️']);log('🏳️ Kinh đô '+capName+' của '+title(l)+' chấp nhận đầu hàng và sáp nhập vào '+title(w)+'.');relocate(l,1);
+ }
+ if(surrendered)log('📜 Sau khi mất ít nhất 60% số thành phố, '+title(l)+' chứng kiến '+surrendered+' đô thị đầu hàng mà không cần giao tranh.');
+}
+function take(w,l,t){
+ const isCity=t===l.cap||l.cities.some(c=>c.i===t);let state=null;
+ if(isCity){
+  l.cityWarState??={};
+  state=l.cityWarState[w.id]||(l.cityWarState[w.id]={total:Math.max(1,l.cities.length+1),captured:0,triggered:false});
+  state.captured++;
+ }
+ O[t]=w.id;eqLoot(w,l,.012);l.n--;w.n++;FX.push([t,5]);l.loy=Math.max(-100,l.loy-warDamage());w.loy=Math.min(100,w.loy+.5);
+ const bq=BL.find(b=>b.i===t);
+ if(bq){bq.h-=15*warDamage();if(bq.h<=0)log('🏚 '+bd(bq.t)[2]+' của '+title(l)+' bị phá hủy trong chiến tranh.');else if(Math.random()<.15)log('🏗 '+title(w)+' chiếm '+bd(bq.t)[2]+' của '+title(l)+', công trình hư hại nặng.')}
+ hurt(t,1,4*warDamage());
+ const ci=l.cities.findIndex(c=>c.i===t);
+ if(ci>=0){
+  const c=l.cities.splice(ci,1)[0];l.loy=Math.max(-100,l.loy-6*warDamage());l.pop*=1-.01*warDamage();cd(t).lv=Math.max(0,cd(t).lv-1);
+  if(w.cities.length<12){w.cities.push(c);log('🏙 '+title(w)+' chiếm thành phố '+c.n+' của '+title(l)+'!')}
+  else log('🏙 Thành phố '+c.n+' của '+title(l)+' bị tàn phá trong chiến tranh.');
+ }
+ if(t===l.cap){
+  const oldName=l.cname;cd(t).lv=Math.max(0,cd(t).lv-1);log('🏯 Kinh đô '+oldName+' của '+title(l)+' thất thủ trước '+title(w)+'!');
+  l.loy=Math.max(-100,l.loy-20*warDamage());l.army*=1-.08*warDamage();w.loy=Math.min(100,w.loy+5);
+  if(w.cities.length<12)w.cities.push({i:t,n:oldName});
+  if(Math.random()<.3)mkKing(l,1);relocate(l);
+ }
+ if(isCity)cityCapitulation(w,l,state);
+}
 const TM=()=>W.year*12+(W.month|0),tilesOf=k=>{const a=TLS[k.id];if(a)return a.filter(i=>O[i]===k.id);const r=[];for(let i=0;i<N*H;i++)if(O[i]===k.id)r.push(i);return r},sam=(a,m)=>{if(a.length<=m)return a;const r=[];for(let q=0;q<m;q++)r.push(a[Math.random()*a.length|0]);return r};
 function peace(A,B,m){delete A.war[B.id];delete B.war[A.id];if(A.ws)delete A.ws[B.id];if(B.ws)delete B.ws[A.id];A.rel[B.id]=B.rel[A.id]=-5;const t=TM()+36+(Math.random()*36|0);(A.tr=A.tr||{})[B.id]=t;(B.tr=B.tr||{})[A.id]=t;if(m)log(m)}
 /* Kiệt quệ = thương vong tích lũy + đất mất + lòng dân sụt + thời gian chinh chiến; vượt ngưỡng của nước nào thì hai bên mới đình chiến */
