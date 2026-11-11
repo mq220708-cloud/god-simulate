@@ -950,7 +950,7 @@ function maybeWorldEvent(month){
  add('epidemic','Dịch bệnh lan rộng','Các thầy thuốc và quan y tế','Một căn bệnh truyền nhiễm xuất hiện tại vài khu dân cư đông đúc. Giới y tế đề nghị lập khu cách ly và hỗ trợ thuốc men.','Chi ngân sách cứu trợ giúp hạn chế thiệt hại; bỏ mặc dịch bệnh sẽ gây tổn thất dân số và ổn định.',.65);
  add('guild','Thương hội xin đặc quyền','Đại diện các thương hội','Các thương nhân đề nghị được giảm một số khoản phí và độc quyền khai thác tuyến buôn bán mới, đổi lại họ hứa đóng góp cho ngân khố.','Ưu đãi có thể kích thích kinh tế nhưng làm giảm nguồn thu ngắn hạn.',.8);
  add('festival','Lễ hội thống nhất quốc gia','Các chức sắc và trưởng lão','Các cộng đồng đề nghị tổ chức lễ hội chung nhằm tôn vinh lịch sử và củng cố sự đoàn kết trong vương quốc.','Chi phí tổ chức không lớn, đổi lại tinh thần và lòng trung thành có thể được cải thiện.',.7);
- if(candidates.length){let total=candidates.reduce((n,x)=>n+x.weight,0),roll=Math.random()*total;for(const x of candidates){roll-=x.weight;if(roll<=0){ev=x;break}}}
+ if(candidates.length&&Math.random()<.68){let total=candidates.reduce((n,x)=>n+x.weight,0),roll=Math.random()*total;for(const x of candidates){roll-=x.weight;if(roll<=0){ev=x;break}}}
  if(!ev){
   const friendly=W.ks.filter(A=>A.alive&&A.id!==P.id&&!A.war[P.id]&&!P.war[A.id]&&!pactOf(A,P)&&(A.rel[P.id]||0)>=24);
   const hostile=W.ks.filter(A=>A.alive&&A.id!==P.id&&!A.war[P.id]&&!P.war[A.id]&&!pactOf(A,P,'nonaggression')&&(A.rel[P.id]||0)<=-14);
@@ -981,7 +981,7 @@ function resolveWorldEvent(choice){
  const ev=W?.diploEvent;if(!ev)return;const P=K(W.playerId),A=ev.fromId?K(ev.fromId):null,c=civFor(P),e=econOf(P);
  if(!P||!P.alive){W.diploEvent=null;$('#diplomacy-event').hidden=true;return}
  if(ev.category==='political'){
-  const pay=n=>{if(e.cash<n){toast('Ngân khố không đủ để thực hiện lựa chọn này.');return false}e.cash-=n;return true};
+  let insufficientFunds=false;const pay=n=>{if(e.cash<n){toast('Ngân khố không đủ để thực hiện lựa chọn này.');insufficientFunds=true;return false}e.cash-=n;return true};
   const effects={
    autonomy:()=>{if(choice==='accept'){c.centralization=Math.max(0,(c.centralization||0)-7);c.stability=Math.min(100,c.stability+5);c.overextension=Math.max(0,c.overextension-4)}else if(choice==='counter'){if(!pay(4))return;c.centralization=Math.max(0,(c.centralization||0)-3);c.stability=Math.min(100,c.stability+3);c.overextension=Math.max(0,c.overextension-2)}else{c.stability=Math.max(8,c.stability-5);P.loy=Math.max(-100,P.loy-3)}},
    separatism:()=>{if(choice==='accept'){c.centralization=Math.max(0,(c.centralization||0)-10);c.overextension=Math.max(0,c.overextension-7);c.stability=Math.min(100,c.stability+2)}else if(choice==='counter'){if(!pay(6))return;c.centralization=Math.max(0,c.centralization-4);c.overextension=Math.max(0,c.overextension-3);c.stability=Math.max(8,c.stability-2)}else{c.stability=Math.max(5,c.stability-12);P.loy=Math.max(-100,P.loy-8)}},
@@ -996,7 +996,7 @@ function resolveWorldEvent(choice){
    guild:()=>{if(choice==='accept'){e.cash=Math.max(0,e.cash-3);e.industry=Math.min(100,(e.industry||0)+.15)}else if(choice==='counter'){if(!pay(1))return;e.industry=Math.min(100,(e.industry||0)+.08)}else{c.stability=Math.max(8,c.stability-2)}},
    festival:()=>{if(choice==='accept'){if(!pay(3))return;c.stability=Math.min(100,c.stability+6);P.loy=Math.min(100,P.loy+3)}else if(choice==='counter'){if(!pay(1))return;c.stability=Math.min(100,c.stability+3)}else{c.stability=Math.max(8,c.stability-1)}}
   };
-  if(effects[ev.type]){effects[ev.type]();log((choice==='accept'?'✅ Chính phủ ':choice==='counter'?'📜 Chính phủ ':'⚠️ Chính phủ ')+title(P)+(choice==='accept'?' chấp thuận xử lý sự kiện: ':choice==='counter'?' đạt thỏa hiệp về sự kiện: ':' bác bỏ đề xuất trong sự kiện: ')+ev.title+'.')}
+  if(effects[ev.type]){effects[ev.type]();if(insufficientFunds)return;log((choice==='accept'?'✅ Chính phủ ':choice==='counter'?'📜 Chính phủ ':'⚠️ Chính phủ ')+title(P)+(choice==='accept'?' chấp thuận xử lý sự kiện: ':choice==='counter'?' đạt thỏa hiệp về sự kiện: ':' bác bỏ đề xuất trong sự kiện: ')+ev.title+'.')}
  }else if(A&&A.alive){
   if(ev.type==='treaty'){
    if(choice==='accept'){if(!signPact(A,P,ev.pactType))toast('Hiệp ước không còn đủ điều kiện để ký kết.')}
