@@ -2059,5 +2059,5 @@ document.addEventListener('fullscreenchange',()=>{
 });
 $('#goretry').onclick=()=>showRoleplaySetup();
 $('#gowatch').onclick=()=>{if(!W)return;W.spectator=true;$('#gameover').hidden=true;W.sp=Math.max(1,Math.min(5,W.defeatResumeSpeed||1));document.querySelectorAll('[data-s]').forEach(b=>b.classList.toggle('on',+b.dataset.s===W.sp));toast('🌍 Bạn đang ở chế độ quan sát. Thế giới sẽ tiếp tục phát triển.');run();};
-wpUI();gen(undefined,true);draw();ui();setInterval(()=>{if(W&&(W.sel||FX.length||SH.length||AR.length||warSet().size||seaOn()||(W.ks.some(k=>k.alive&&k.cities&&k.cities.length)&&((cv.clientWidth/cv.width)||.5)>.72)))draw()},N*H>90000?130:N*H>40000?105:80);
+wpUI();gen(undefined,true);draw();ui();setInterval(()=>{if(W&&(W.sel||FX.length||SH.length||AR.length||warSet().size||seaOn()||(W.ks.some(k=>k.alive&&Array.isArray(k.cities))&&((cv.clientWidth/cv.width)||.5)>.72)))draw()},N*H>90000?130:N*H>40000?105:80);
 </script></body></html>
