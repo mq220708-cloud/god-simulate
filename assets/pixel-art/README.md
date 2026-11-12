@@ -6,11 +6,13 @@
 - Mỗi đối tượng là một nhóm SVG có ID riêng để có thể trích xuất hoặc chuyển sang sprite sheet PNG sau này.
 - Không thay đổi logic mô phỏng trong giai đoạn tạo bộ tài sản.
 
-## Atlas
-File: `atlas-v1.svg`
-- 16×16 pixel logic cho mỗi sprite, 2× scale trong atlas.
-- Các nhóm: cây sồi, cây thông, cây bạch dương, cây lá vàng, cây cọ, bụi cây, bụi hoa, đá, nhà gỗ, nhà mái ngói, trang trại, tháp canh, lâu đài.
-- Sprite IDs: oak, pine, birch, autumn, palm, bush, flower, rock, hut, cottage, farm, watchtower, castle.
+## Atlas đang sử dụng
+File: `atlas-v2.svg`
+- 16×16 pixel cho mỗi sprite, không phóng chi tiết bằng các ô pixel phụ.
+- 13 sprite: sồi, thông, bạch dương, lá vàng, cọ, bụi cây, hoa, đá, nhà gỗ, nhà mái ngói, trang trại, tháp canh, lâu đài.
+- Mỗi màu dùng một path SVG gộp để giảm kích thước tệp.
+- Atlas v2 được nén từ khoảng 78 KB xuống khoảng 19 KB (giảm 76%) so với bản SVG rect ban đầu.
+- `atlas-v1.svg` là bản thử nghiệm cũ, không còn được renderer tải.
 
 ## Bảng màu
 - Lá xanh đậm / sáng: `#397b32`, `#63a94b`
@@ -19,7 +21,7 @@ File: `atlas-v1.svg`
 - Mái và điểm nhấn: đỏ, vàng, tím.
 
 ## Tình trạng tích hợp
-- Atlas đã được nạp trong renderer bằng `Image` và crop từng sprite theo tọa độ nguồn.
+- Renderer tải atlas v2 bằng `Image` và crop từng sprite 16×16 theo tọa độ nguồn.
 - Cây sồi, thông, bạch dương và cây lá vàng được dùng cho các ô rừng.
 - Nhà gỗ, nhà mái ngói, tháp canh và lâu đài được dùng theo cấp thành phố.
 - Có fallback pixel primitives nếu atlas chưa tải xong.
