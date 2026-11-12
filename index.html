@@ -512,7 +512,7 @@ function roles(k){const atk=[],def=[],unk=[];for(const o of W.ks){if(!o.alive||o
 const roleIc=k=>{const r=roles(k);return(r.atk.length?'🗡️':'')+(r.def.length?'🛡️':'')+(r.unk.length?'⚔️':'')};
 // ---- Cư dân pixel art: đi lại quanh khu định cư và làm việc theo nghề ----
 function drawPixelResident(g,race,role,x,y,size,step){
- const u=Math.max(1,Math.round(size/14)),ox=Math.round(x-7*u),oy=Math.round(y-7*u);
+ const u=Math.max(.8,size/14),ox=Math.round(x-7*u),oy=Math.round(y-7*u);
  const rect=(a,b,w,h,col)=>{g.fillStyle=col;g.fillRect(ox+a*u,oy+b*u,w*u,h*u)};
  const palettes={
   human:{skin:'#e5b58b',hair:'#49352d',cloth:'#477b91',leg:'#3e4851'},
@@ -541,8 +541,9 @@ function drawPixelResident(g,race,role,x,y,size,step){
  g.restore();
 }
 function drawResidents(sc){
- if(!W||sc<.72||C<6)return;
- const now=Date.now(),frame=(Math.floor(now/230)&1),maxResidents=64;
+ // Dùng kích thước pixel trên canvas, không khóa cư dân ở mức zoom quá sâu.
+ if(!W||sc<.42||C*sc<4.5)return;
+ const now=Date.now(),frame=(Math.floor(now/230)&1),maxResidents=112;
  let budget=maxResidents;
  for(const k of W.ks){
   if(!k.alive||!Array.isArray(k.cities))continue;
@@ -560,7 +561,7 @@ function drawResidents(sc){
     else if(['house','granary','temple','library','hospital','palace'].includes(b.t))jobs.push({role:'builder',target:b.i});
    }
    const popShare=Math.max(1,k.pop/Math.max(1,settlements.length));
-   const count=Math.min(3,Math.max(1,1+Math.floor(Math.log2(popShare))));
+   const count=Math.min(7,Math.max(2,2+Math.floor(Math.log10(popShare))));
    for(let j=0;j<count&&budget>0;j++,budget--){
     const seed=(Math.imul(k.id*97+ci*31+j*13,2654435761)>>>0);
     const job=jobs.length?jobs[(j+seed%jobs.length)%jobs.length]:{role:'civilian',target:tile};
@@ -572,7 +573,7 @@ function drawResidents(sc){
     const ox=jobs.length?dx*wave-dy/len*side:Math.cos(phase*Math.PI*2)*(1.0+(seed%70)/100);
     const oy=jobs.length?dy*wave+dx/len*side:Math.sin(phase*Math.PI*2)*(.8+((seed>>>8)%70)/100);
     const x=(sx+.5+ox)*C,y=(sy+.5+oy)*C;
-    const size=Math.max(10,Math.min(17,C*.68));
+    const size=Math.max(13,Math.min(20,C*1.65));
     cx.save();cx.fillStyle='rgba(15,24,18,.28)';
     cx.fillRect(Math.round(x-size*.22),Math.round(y+size*.34),Math.max(2,Math.round(size*.44)),Math.max(1,Math.round(size*.12)));
     drawPixelResident(cx,k.rid,job.role,x,y,size,frame^(j&1));
@@ -871,7 +872,7 @@ function drawBL(sc){
  for(const b of BL){
   const v=bd(b.t),x=(b.i%N+.5)*C,y=((b.i/N|0)+.5)*C+1,done=b.p>=b.n;
   cx.globalAlpha=.16;cx.fillStyle=ZC[v[10]];cx.fillRect(x-C/2,y-C/2-1,C,C);
-  if(sc>.48)drawPixelBuilding(cx,b.t,x,y,Math.min(C*.94,sc<.7?C*.78:C*.94),done);
+  if(sc>.38)drawPixelBuilding(cx,b.t,x,y,Math.min(C*1.28,20),done);
   if(b.h<70){cx.globalAlpha=1;cx.fillStyle='#6b2925';cx.fillRect(x-C/2,y+C/2-3,C,2);cx.fillStyle='#e45a43';cx.fillRect(x-C/2,y+C/2-3,C*Math.max(0,b.h)/100,2)}
  }
  cx.globalAlpha=1;
