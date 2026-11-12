@@ -380,7 +380,7 @@ function gen(seed,silentRender=false){seed=(seed||'').trim()||Math.random().toSt
  W={year:0,month:0,mana:80,ks:[],factions:[],log:[],sel:0,sp:2,seed,oil:Array.from({length:N*H},(_,i)=>{const h=Math.imul(i+1,2654435761)>>>0;return T[i]>=2&&T[i]<=5&&((h^(h>>>13))%97===0)?80+((h>>>8)%120):0})};log('Hư vô tan biến, thế giới ra đời (seed: '+seed+'). Hãy gieo mầm sự sống!');renderResumeSpeed=silentRender?0:(W.sp||2);W.sp=0;const job=renderJob;requestAnimationFrame(()=>renderChunk(job))}
 // ---- pixel art: vẽ địa hình vào canvas ẩn ----
 const S=v=>Math.round(v*C/10),TL=document.createElement('canvas'),tx=TL.getContext('2d');let TD=0,DQ=[],renderRequested=false;
-const SPRITE_CELLS={oak:[1,1],pine:[19,1],birch:[37,1],autumn:[55,1],palm:[1,19],bush:[19,19],flower:[37,19],rock:[55,19],hut:[1,37],cottage:[19,37],farm:[37,37],watchtower:[55,37],castle:[1,55]};
+const SPRITE_CELLS={oak:[1,1],pine:[19,1],birch:[37,1],autumn:[55,1],palm:[1,19],bush:[19,19],flower:[37,19],rock:[55,19],hut:[1,37],cottage:[19,37],farm:[37,37],watchtower:[55,37],castle:[1,55],windmill:[1,73],sawmill:[19,73],quarry:[37,73],granary:[55,73],temple:[73,73],market:[91,73],barracks:[1,91],wall:[19,91],library:[37,91],forge:[55,91],harbor:[73,91],hospital:[91,91],factory:[1,109]};
 const spriteAtlas=new Image();let spriteAtlasReady=false;
 spriteAtlas.onload=()=>{spriteAtlasReady=true;if(typeof T!=='undefined'&&T.length){for(let i=0;i<N*H;i++)if(T[i]===3||T[i]===4||T[i]===5)tileMicroDetail(i)}if(typeof W!=='undefined'&&W)draw()};
 spriteAtlas.src='assets/pixel-art/atlas-v2.svg';
@@ -731,7 +731,29 @@ function site(k,ci,v){const r=2+cd(ci).lv*1.5|0,z=v[10],plan=cd(ci).plan||{prior
   else if(plan.layout==='spread')s+=d*.22;
   if(s>bs){bs=s;b=i}}return b}
 function drawRoads(){for(const r of RD){cx.strokeStyle=r.s?'rgba(255,255,255,.85)':'#6d4c1d';cx.lineWidth=r.s?1.6:2.4;cx.globalAlpha=r.cut?.3:r.p<r.n?.55:1;cx.setLineDash(r.s?[4,3]:r.p<r.n?[3,3]:[]);cx.beginPath();r.pts.forEach((p,j)=>cx[j?'lineTo':'moveTo']((p%N+.5)*C,((p/N|0)+.5)*C));cx.stroke()}for(const v of SH){cx.strokeStyle='rgba(255,255,255,.95)';cx.lineWidth=2.2;cx.globalAlpha=Math.min(1,v.l/3);cx.setLineDash([5,4]);cx.beginPath();v.pts.forEach((p,j)=>cx[j?'lineTo':'moveTo']((p%N+.5)*C,((p/N|0)+.5)*C));cx.stroke()}cx.setLineDash([]);cx.globalAlpha=1}
-function drawBL(sc){cx.font='13px serif';for(const b of BL){const v=bd(b.t),x=(b.i%N+.5)*C,y=((b.i/N|0)+.5)*C+1,d=b.p>=b.n;cx.globalAlpha=.5;cx.fillStyle=ZC[v[10]];cx.fillRect(x-C/2,y-C/2-1,C,C);if(sc>.6){cx.globalAlpha=d?1:.6;E(cx,d?v[1]:'🚧',x,y,13)}if(b.h<70){cx.globalAlpha=1;cx.fillStyle='#e53935';cx.fillRect(x-C/2,y+C/2-3,C*Math.max(0,b.h)/100,2)}}cx.globalAlpha=1}
+function drawBL(sc){
+ const BUILDING_SPRITE={house:'hut',farm:'farm',sawmill:'sawmill',quarry:'quarry',granary:'granary',temple:'temple',market:'market',barracks:'barracks',wall:'wall',library:'library',forge:'forge',harbor:'harbor',palace:'castle',hospital:'hospital',factory:'factory'};
+ for(const b of BL){
+  const v=bd(b.t),x=(b.i%N+.5)*C,y=((b.i/N|0)+.5)*C+1,done=b.p>=b.n;
+  cx.globalAlpha=.18;cx.fillStyle=ZC[v[10]];cx.fillRect(x-C/2,y-C/2-1,C,C);
+  if(sc>.35&&spriteAtlasReady){
+   const key=BUILDING_SPRITE[b.t]||'hut',[sx,sy]=SPRITE_CELLS[key];
+   cx.save();cx.globalAlpha=done?1:.58;cx.imageSmoothingEnabled=false;
+   cx.drawImage(spriteAtlas,sx,sy,16,16,x-C*.48,y-C*.48,C*.96,C*.96);cx.restore();
+  }else if(sc>.35){
+   // Pixel scaffold fallback while atlas loads; no emoji or icon font.
+   cx.fillStyle='#80512f';cx.fillRect(x-C*.28,y-C*.3,C*.56,C*.58);
+   cx.fillStyle='#d9c28f';cx.fillRect(x-C*.22,y-C*.24,C*.44,C*.42);
+   cx.fillStyle='#9c493b';cx.fillRect(x-C*.3,y-C*.34,C*.6,C*.16);
+  }
+  if(!done&&sc>.45){
+   cx.save();cx.globalAlpha=.9;cx.fillStyle='#e6c15c';cx.fillRect(x-C*.36,y-C*.4,C*.72,Math.max(2,C*.06));
+   cx.fillStyle='#67462d';cx.fillRect(x-C*.3,y-C*.34,C*.05,C*.48);cx.fillRect(x+C*.25,y-C*.34,C*.05,C*.48);cx.restore();
+  }
+  if(b.h<70){cx.globalAlpha=1;cx.fillStyle='#4b2525';cx.fillRect(x-C/2,y+C/2-3,C,2);cx.fillStyle='#e53935';cx.fillRect(x-C/2,y+C/2-3,C*Math.max(0,b.h)/100,2)}
+ }
+ cx.globalAlpha=1;
+}
 
 /* ---- Tài nguyên: ban phát tài nguyên và mỏ dầu cho các nước (chạm vào lãnh thổ của nước muốn ban) ---- */
 const GF={g_w:['🪵 Gỗ',6,'Ban 40 🪵 gỗ cho nước được chạm (kho có giới hạn theo số thành phố).'],g_s:['🪨 Đá',6,'Ban 40 🪨 đá cho nước được chạm (kho có giới hạn theo số thành phố).'],g_g:['💰 Vàng',8,'Ban 40 💰 vàng dùng để xây dựng, sửa chữa công trình.'],g_c:['🏦 Ngân khố',10,'Ban 25 💰 vào ngân khố quốc gia: chi cho quân đội, khí tài và bù thâm hụt.'],g_f:['🌾 Lương thực',8,'Ban 12 lương thực vào kho của mọi thành phố trong nước được chạm, giúp chống đói.'],g_oil:['🛢️ Dầu',8,'Ban 12 🛢️ dầu vào kho dự trữ của nước được chạm (cho công nghiệp và khí tài cơ giới).'],g_mine:['⛽ Mỏ dầu',12,'Tạo mỏ dầu (+150) ngay trên ô đất được chạm trong lãnh thổ. Có thể chồng thêm, tối đa 400 mỗi ô.']};
