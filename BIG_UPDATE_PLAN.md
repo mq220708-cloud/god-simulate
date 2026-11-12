@@ -40,6 +40,7 @@
 - Upgraded world-map rendering density by increasing per-tile pixel resolution while keeping map dimensions bounded across world sizes; zoom uses crisp nearest-neighbor pixel scaling.
 - Expanded deterministic terrain micro-detail: richer grassland and biome textures, varied forest tree silhouettes and undergrowth, layered hill/mountain rock and snow detail, beach grain, shallow-water highlights, wave streaks, and river shimmer.
 - Kept terrain details seed-deterministic and rendered in the existing chunked generation pipeline to avoid changing simulation rules.
+- Naturalized procedural world generation: warped landmass silhouettes and multi-scale coast noise create more irregular peninsulas, bays and island edges; broad moisture/vegetation fields form larger biome clusters instead of scattered speckles; mountain-range fields create more connected ridge systems.
 - Removed emoji city markers; city appearance now changes with city level.
 - Main branch remains untouched; work is isolated on `big-update/pixel-art-worldbox-ui`.
 
