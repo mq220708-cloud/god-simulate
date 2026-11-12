@@ -241,6 +241,91 @@ h3{font-family:Georgia,serif;margin:14px 0 6px;font-size:17px}
 body.rp-mode #tabs,
 body.rp-mode #chips { display:none !important; }
 #build-version{position:fixed;right:10px;bottom:8px;z-index:2147483000;padding:4px 8px;border:1px solid rgba(255,255,255,.18);border-radius:7px;background:rgba(5,12,22,.82);color:#e5edf7;font:11px/1.2 system-ui,sans-serif;letter-spacing:.2px;pointer-events:none;user-select:none;box-shadow:0 1px 5px rgba(0,0,0,.35)}
+
+/* Full-screen map with floating overlay toolbar */
+#app{
+ position:fixed!important;inset:0!important;top:0!important;right:0!important;bottom:0!important;left:0!important;
+ width:100vw!important;height:100vh!important;height:100dvh!important;
+ padding:0!important;margin:0!important;display:block!important;z-index:1!important;
+}
+#mapw{
+ position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+ min-width:0!important;min-height:0!important;margin:0!important;padding:0!important;
+ border:0!important;border-radius:0!important;overflow:auto!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ box-sizing:border-box!important;background:#101d26;
+}
+#mapw #cv{flex:none!important;margin:0!important;max-width:none!important;image-rendering:pixelated}
+#tb{
+ position:fixed!important;left:50%!important;right:auto!important;bottom:calc(7px + env(safe-area-inset-bottom,0px))!important;
+ transform:translateX(-50%)!important;width:min(calc(100vw - 14px),780px)!important;
+ height:min(34dvh,360px)!important;min-height:150px!important;max-height:390px!important;
+ box-sizing:border-box!important;padding:8px 10px calc(7px + env(safe-area-inset-bottom,0px))!important;
+ overflow:hidden!important;z-index:45!important;display:block!important;
+ border:1px solid rgba(173,202,225,.22)!important;border-radius:16px!important;
+ background:rgba(10,25,40,.88)!important;color:var(--tx);
+ -webkit-backdrop-filter:blur(13px) saturate(1.2)!important;backdrop-filter:blur(13px) saturate(1.2)!important;
+ box-shadow:0 8px 30px rgba(0,0,0,.34)!important;touch-action:pan-y;
+}
+#tbi{display:flex!important;flex-direction:column!important;width:100%!important;max-width:none!important;height:100%!important;min-height:0!important;overflow:hidden!important;margin:0!important}
+#tx{display:block!important;flex:0 0 auto!important;min-height:0!important}
+#tb .row,#r1,#tr,#chips,#sys{
+ display:flex!important;flex-wrap:nowrap!important;align-items:center!important;
+ gap:5px!important;overflow-x:auto!important;overflow-y:hidden!important;
+ white-space:nowrap!important;scrollbar-width:none!important;max-width:100%!important;
+}
+#tb .row::-webkit-scrollbar,#tabs::-webkit-scrollbar{display:none!important}
+#r1{padding:0 0 5px!important}
+#st{flex:0 0 auto!important;max-width:34%!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+#r1 .sp{display:flex!important;flex:0 0 auto!important;flex-wrap:nowrap!important;gap:3px!important;max-width:none!important}
+#tabs{display:flex!important;flex:1 1 auto!important;min-width:0!important;overflow-x:auto!important;overflow-y:hidden!important;gap:4px!important}
+#tabs button,#chips button,#sys button,#tr>button,#r1>button,#r1 .sp button{
+ flex:0 0 auto!important;white-space:nowrap!important;max-width:none!important;
+}
+#tb button{padding:6px 9px!important;font-size:12px!important;border-radius:10px!important}
+#tg{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-width:30px!important}
+#tbs{
+ display:block!important;flex:1 1 0!important;min-height:0!important;height:auto!important;max-height:none!important;
+ overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;
+ overscroll-behavior-y:contain!important;touch-action:pan-y!important;padding:4px 1px 10px!important;
+}
+#ri{max-height:2.7em!important;overflow:hidden!important}
+#tb.min{
+ height:auto!important;min-height:0!important;max-height:none!important;padding-bottom:8px!important;
+}
+#tb.min #tx,#tb.min #tbs{display:none!important}
+#tb.min #r1{padding-bottom:0!important}
+#toast{z-index:75!important}
+@media(max-width:700px){
+ #tb{
+  width:calc(100vw - 12px)!important;bottom:calc(6px + env(safe-area-inset-bottom,0px))!important;
+  height:min(35dvh,330px)!important;min-height:146px!important;max-height:350px!important;
+  padding:7px 8px calc(6px + env(safe-area-inset-bottom,0px))!important;border-radius:14px!important;
+ }
+ #st{max-width:27%!important;font-size:11px!important}
+ #yr{font-size:13px!important;margin-right:3px!important}
+ #tb button{padding:5px 7px!important;font-size:11.5px!important}
+ #r1 .sp{gap:2px!important}
+ #r1 .sp button{min-width:25px!important;padding:4px 5px!important}
+ #tg{display:inline-flex!important}
+ body.rp-mode #tb{
+  height:min(38dvh,350px)!important;min-height:154px!important;max-height:370px!important;
+  overflow:hidden!important;
+ }
+ body.rp-mode #tbi{height:100%!important;min-height:0!important;overflow:hidden!important}
+ body.rp-mode #tx{flex:0 0 auto!important}
+ body.rp-mode #tbs{
+  display:block!important;flex:1 1 0!important;height:0!important;min-height:0!important;
+  overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;
+  overscroll-behavior-y:contain!important;touch-action:pan-y!important;padding-bottom:18px!important;
+ }
+ body.rp-mode #rpview{display:block!important;min-height:max-content!important;padding-bottom:18px!important}
+}
+@media(min-width:701px){
+ #tb{height:min(34dvh,390px)!important}
+ body.rp-mode #tb{height:min(38dvh,430px)!important}
+}
+
 </style>
 
 </head><body><div id="build-version" aria-label="Phiên bản trò chơi">THẦN GIỚI · v1.19.0</div><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button><button class="mode" id="mode-guide"><span class="ico">📖</span><span><b>Cẩm nang cơ chế & chỉ số</b><small>Giải thích cách vận hành thế giới, ý nghĩa các chỉ số và mẹo quản lý quốc gia.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
