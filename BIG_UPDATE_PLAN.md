@@ -44,3 +44,5 @@
 A tree must look like a tree because its pixels were drawn for this game. A house must look like a house because its sprite was drawn for this game. Never substitute a pre-made icon or emoji.
 
 - Military visualization milestone: marching armies now use a staggered three-row formation with hand-authored atlas sprites for infantry, archers, cavalry and researched equipment. Active war borders show lightweight animated pixel clashes between opposing infantry. Occupation, landing and surrender map effects use hand-drawn pixel primitives rather than emoji glyphs.
+
+- Siege visualization milestone: wars with researched siege equipment now show a hand-drawn cannon sprite firing a pixel projectile toward an enemy wall building. A compact bar reflects the wall's existing durability. This is a read-only visual layer and does not yet alter combat resolution or wall HP.
