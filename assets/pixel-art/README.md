@@ -44,3 +44,5 @@ File: `atlas-v2.svg`
 4. Thay dần các glyph/emoji còn lại trong công cụ bản đồ bằng artwork tự vẽ.
 
 - Nâng cấp hiển thị quân đội: đội hình hành quân 3 hàng dùng sprite bộ binh/cung thủ/kỵ binh/khí tài pixel tự vẽ; các điểm giao tranh ở đường biên lãnh thổ có hai nhóm bộ binh đối đầu và tia va chạm pixel động. Hiệu ứng chiếm đất/đổ bộ/đầu hàng được vẽ bằng primitive pixel thay cho ký tự emoji trên bản đồ.
+
+- Bổ sung lớp hiển thị công thành pixel: chỉ xuất hiện tại tiền tuyến của cuộc chiến đang diễn ra khi bên tấn công có catapult/cannon/missile và phía phòng thủ có công trình tường thành còn HP. Sprite đại bác tự vẽ bắn đạn pixel theo quỹ đạo tới tường; thanh nhỏ thể hiện độ bền hiện tại. Lớp này chỉ đọc dữ liệu, không tự trừ HP hay thay đổi công thức chiến đấu.
