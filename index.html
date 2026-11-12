@@ -582,6 +582,71 @@ function drawResidents(sc){
   }
  }
 }
+// ---- Chi tiết sinh hoạt định cư: mùa màng, quầy chợ và khói xưởng ----
+function drawSettlementLife(sc){
+ if(!W||sc<.48||C*sc<5)return;
+ const now=Date.now();
+ for(const b of BL){
+  if(b.p<b.n||b.h<=0||!O[b.i])continue;
+  const x=(b.i%N+.5)*C,y=((b.i/N|0)+.5)*C;
+  const u=Math.max(.8,Math.min(2.2,C/18));
+  const px=(a)=>Math.round(x+a*u),py=(a)=>Math.round(y+a*u);
+  const block=(a,d,w,h,col)=>{cx.fillStyle=col;cx.fillRect(px(a),py(d),Math.max(1,Math.round(w*u)),Math.max(1,Math.round(h*u)))};
+  cx.save();
+  if(b.t==='farm'){
+   // Luống cây trồng với sắc xanh thay đổi nhẹ theo mùa hoạt ảnh.
+   const sway=Math.sin(now/650+b.i)*.7;
+   for(let r=0;r<3;r++)for(let q=0;q<4;q++){
+    const xx=-6+q*3,yy=-1+r*3;
+    block(xx,yy,1,2,(q+r)%2?'#4f8738':'#79a84a');
+    block(xx+sway*.35,yy,1,1,'#b2c96a');
+   }
+   block(-7,7,14,1,'#b08a50');
+  }else if(b.t==='market'){
+   // Hai sạp nhỏ nằm hai bên nhà chợ, mái bạt có sọc pixel.
+   for(const side of [-1,1]){
+    const sx=side*7;
+    block(sx-2,3,5,3,'#805338');block(sx-2,2,5,2,'#d6b36f');
+    block(sx-1,2,1,2,'#b94d3e');block(sx+1,2,1,2,'#b94d3e');
+    block(sx-1,6,1,2,'#b58b53');block(sx+2,6,1,2,'#b58b53');
+   }
+   block(-2,9,4,2,'#c18c4f');
+  }else if(['house','granary','barracks','library','hospital'].includes(b.t)){
+   // Ánh đèn cửa sổ và khói bếp mảnh tạo cảm giác có người sinh sống.
+   block(-4,1,2,2,'#f1d58a');block(3,1,2,2,'#f1d58a');
+   if(b.t==='granary'){block(-7,7,3,3,'#b58a4d');block(5,7,3,3,'#c49a5b')}
+   if(b.t==='hospital'){block(-1,-2,2,5,'#eee7d8');block(-3,0,6,2,'#bd514b')}
+   if(b.t==='barracks'){block(-5,-2,10,2,'#9d4d40')}
+  }else if(['sawmill','forge','factory'].includes(b.t)){
+   // Khói ống khói chuyển động chậm; ánh lửa riêng cho lò rèn.
+   const phase=(now/720+b.i*.137)%1;
+   for(let n=0;n<3;n++){
+    const rise=phase*5+n*2.2;
+    const alpha=Math.max(.08,.42-rise/15);
+    cx.globalAlpha=alpha;
+    block(4+Math.sin(now/470+n+b.i)*1.4,-7-rise,2,2,'#d9d9c7');
+   }
+   cx.globalAlpha=1;
+   if(b.t==='forge'){block(4,2,2,3,'#e66e35');block(5,1,1,2,'#ffd06a')}
+   if(b.t==='sawmill'){block(-7,7,5,2,'#b98a51');block(3,7,5,2,'#c49a60')}
+   if(b.t==='factory'){block(-5,-7,2,4,'#58666a');block(3,-8,2,5,'#58666a')}
+  }else if(b.t==='harbor'){
+   const wave=Math.sin(now/380+b.i)*1.5;
+   block(-7,8,14,2,'#477f9c');block(-5,8+wave,4,1,'#a8d8df');
+   block(2,8-wave,4,1,'#a8d8df');block(-2,4,4,1,'#e0c38a');
+  }else if(b.t==='quarry'){
+   block(-6,8,4,2,'#aeb8b2');block(2,8,5,2,'#c4cbc4');
+   block(-4,6,2,2,'#737f7d');block(4,5,2,3,'#737f7d');
+  }else if(b.t==='temple'){
+   const glow=.55+.35*(.5+.5*Math.sin(now/700+b.i));
+   cx.globalAlpha=glow;block(-1,-5,2,3,'#f2ce73');cx.globalAlpha=1;
+   block(-5,9,10,1,'#b6a47f');
+  }else if(b.t==='wall'){
+   block(-7,6,14,1,'#d0d4c9');
+  }
+  cx.restore();
+ }
+}
 function drawMechanized(sc){if(!W||sc<.72)return;const fz=Math.max(14,Math.min(25,18/sc));for(const k of W.ks){if(!k.alive||!k.eq)continue;const tanks=k.eq.s?.tank||0;if(tanks<.12)continue;const x=(k.cap%N+.5)*C,y=(Math.floor(k.cap/N)+.5)*C-C*.85;cx.globalAlpha=Math.min(.98,.55+tanks*.25);E(cx,tanks>=.65?'🚜':'🚙',x,y,fz);cx.globalAlpha=1;}}
 function drawShips(sc){const now=Date.now(),fz=Math.min(30,Math.max(14,16/sc)),D=1800;
  for(const v of SH){if(!v.ship)continue;const e=now-v.t0;if(e<0||e>D)continue;const f=e/D,n=v.pts.length-1;if(n<1)continue;const pos=f*n,ix=Math.min(n-1,pos|0),u=pos-ix,A=v.pts[ix],B=v.pts[ix+1],px=(A%N+(B%N-A%N)*u+.5)*C,py=((A/N|0)+((B/N|0)-(A/N|0))*u+.5)*C;
@@ -731,7 +796,7 @@ function paint(){renderT();if(OLVER!==VER){if(updOL())VER++;OLVER=VER}const sc=(
  for(let q=Math.max(0,FX.length-150);q<FX.length;q++){const f=FX[q];cx.globalAlpha=Math.min(1,f[1]/2);E(cx,f[2]||'💥',(f[0]%N+.5)*C,((f[0]/N|0)+.5)*C,16)}cx.globalAlpha=1;
  const sid=W.sel,sk=sid&&K(sid);if(!W.playerId&&sk&&sk.alive){const SV=sid+'|'+V,yl=lyr('sy',SV,()=>{const fz=sk.n>=30?new Set(farInfo(sk).far.map(f=>f[0])):null;for(const i of tilesOf(sk)){const xi=i%N,yi=i/N|0,x=xi*C,y=yi*C;if(fz&&fz.has(i)){cx.fillStyle='rgba(120,0,0,.4)';cx.fillRect(x,y,C,C)}cx.fillStyle='#ffe066';if(xi===0||O[i-1]!==sid)cx.fillRect(x,y,2.5,C);if(xi===N-1||O[i+1]!==sid)cx.fillRect(x+C-2.5,y,2.5,C);if(yi===0||O[i-N]!==sid)cx.fillRect(x,y,C,2.5);if(yi===H-1||O[i+N]!==sid)cx.fillRect(x,y+C-2.5,C,2.5)}},120),
    wh=lyr('sw',SV,()=>{cx.fillStyle='#fff';for(const i of tilesOf(sk))cx.fillRect(i%N*C,(i/N|0)*C,C,C)},120);cx.globalAlpha=territoryAlpha*(.14+.12*Math.sin(Date.now()/230));cx.drawImage(wh,0,0);cx.globalAlpha=territoryAlpha;cx.drawImage(yl,0,0);cx.globalAlpha=1}
- cx.drawImage(lyr('top',V+'|'+sc.toFixed(2),()=>{for(const k of W.ks)if(k.alive)E(cx,R[k.rid].e,k.cap%N*C+C/2,(k.cap/N|0)*C+C/2+1,18);drawNames()},220),0,0);drawResidents(sc);drawMechanized(sc);drawShips(sc)}
+ cx.drawImage(lyr('top',V+'|'+sc.toFixed(2),()=>{for(const k of W.ks)if(k.alive)E(cx,R[k.rid].e,k.cap%N*C+C/2,(k.cap/N|0)*C+C/2+1,18);drawNames()},220),0,0);drawSettlementLife(sc);drawResidents(sc);drawMechanized(sc);drawShips(sc)}
 function livingKingdomCount(){return W.ks.filter(k=>k.alive).length}
 function spawn(id,x,y,suppressIdeology,initialPopulation){if(livingKingdomCount()>=8)return toast('🌍 Thế giới đã đạt giới hạn 8 vương quốc!');const foundingPop=Number.isFinite(initialPopulation)?initialPopulation:3;const k={id:W.ks.length+1,rid:id,race:R[id],name:rnd(SY)+rnd(SY).toLowerCase()+(Math.random()<.5?rnd(SY).toLowerCase():''),col:colFor(W.ks.length),pop:foundingPop,tech:0,era:0,rel:{},ally:{},war:{},alive:1,cap:y*N+x,n:0,army:Number.isFinite(initialPopulation)?0:.6,loy:70,fav:0,inv:[],bld:[],cname:rnd(SY)+rnd(SY).toLowerCase(),cities:[],foundingGrace:Number.isFinite(initialPopulation)?6:0,bf:{food:0,war:0,peace:0}};
  W.ks.push(k);if(!suppressIdeology)foundIdeology(k,null);for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const u=x+dx,v=y+dy;if(u<0||v<0||u>=N||v>=H)continue;const j=v*N+u;if(T[j]>=2&&T[j]!==6&&!O[j])O[j]=k.id}
