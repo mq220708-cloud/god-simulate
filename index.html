@@ -326,6 +326,66 @@ body.rp-mode #chips { display:none !important; }
  body.rp-mode #tb{height:min(38dvh,430px)!important}
 }
 
+
+/* Compact overlay toolbar: never covers more than 20% of the viewport. */
+#app{
+ position:fixed!important;inset:0!important;top:0!important;right:0!important;bottom:0!important;left:0!important;
+ width:100vw!important;height:100vh!important;height:100dvh!important;padding:0!important;margin:0!important;
+ display:block!important;z-index:1!important;
+}
+#tb{
+ position:fixed!important;left:50%!important;right:auto!important;bottom:calc(6px + env(safe-area-inset-bottom,0px))!important;
+ transform:translateX(-50%)!important;width:min(calc(100vw - 14px),780px)!important;
+ height:20vh!important;height:20dvh!important;min-height:0!important;max-height:20vh!important;max-height:20dvh!important;
+ box-sizing:border-box!important;padding:6px 8px calc(5px + env(safe-area-inset-bottom,0px))!important;
+ overflow:hidden!important;z-index:45!important;display:block!important;
+ border:1px solid rgba(173,202,225,.24)!important;border-radius:14px!important;
+ background:rgba(10,25,40,.86)!important;color:var(--tx);
+ -webkit-backdrop-filter:blur(12px) saturate(1.15)!important;backdrop-filter:blur(12px) saturate(1.15)!important;
+ box-shadow:0 7px 26px rgba(0,0,0,.3)!important;touch-action:pan-y;
+}
+#tbi{height:100%!important;min-height:0!important;overflow:hidden!important}
+#tx{flex:0 0 auto!important;min-height:0!important}
+#tbs{flex:1 1 0!important;min-height:0!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important}
+#r1{display:flex!important;align-items:center!important;gap:4px!important;min-height:32px!important;padding:0 0 3px!important;overflow-x:auto!important;overflow-y:hidden!important;flex-wrap:nowrap!important}
+#tb .row,#tr,#chips,#sys{display:flex!important;align-items:center!important;flex-wrap:nowrap!important;gap:4px!important;overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;scrollbar-width:none!important;max-width:100%!important}
+#tb .row::-webkit-scrollbar,#tabs::-webkit-scrollbar{display:none!important}
+#st{flex:1 1 auto!important;max-width:30%!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+#r1 .sp{display:flex!important;flex:0 0 auto!important;gap:2px!important;flex-wrap:nowrap!important}
+#tabs{display:flex!important;flex:1 1 auto!important;min-width:0!important;overflow-x:auto!important;overflow-y:hidden!important;gap:3px!important}
+#tb button{padding:4px 7px!important;font-size:11px!important;border-radius:9px!important;flex:0 0 auto!important}
+#r1 .sp button{min-width:23px!important;padding:3px 4px!important;font-size:10px!important}
+#tg,#tbeye{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-width:27px!important;padding:4px 6px!important}
+#tbs{padding:3px 1px 8px!important}
+#tb.min{height:39px!important;min-height:39px!important;max-height:39px!important;padding:4px 7px!important}
+#tb.min #tx,#tb.min #tbs{display:none!important}
+#tb.min #r1{padding:0!important;min-height:28px!important}
+#tbshow{
+ display:none;position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:46;
+ width:44px;height:44px;padding:0!important;align-items:center;justify-content:center;
+ border:1px solid rgba(173,202,225,.42);border-radius:50%;
+ color:#f1f7ff;background:rgba(10,25,40,.9);font-size:19px!important;
+ box-shadow:0 5px 18px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+}
+body.toolbar-hidden #tb{display:none!important}
+body.toolbar-hidden #tbshow{display:flex!important}
+body.toolbar-hidden{--tbh:0px}
+body.rp-mode #tb{height:20vh!important;height:20dvh!important;min-height:0!important;max-height:20vh!important;max-height:20dvh!important}
+body.rp-mode #tbi{height:100%!important;min-height:0!important;overflow:hidden!important}
+body.rp-mode #tx{flex:0 0 auto!important}
+body.rp-mode #tbs{display:block!important;flex:1 1 0!important;height:0!important;min-height:0!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior-y:contain!important;touch-action:pan-y!important;padding-bottom:10px!important}
+body.rp-mode #rpview{display:block!important;min-height:max-content!important;padding-bottom:10px!important}
+@media(max-width:700px){
+ #tb{width:calc(100vw - 12px)!important;height:20vh!important;height:20dvh!important;min-height:0!important;max-height:20vh!important;max-height:20dvh!important;bottom:calc(5px + env(safe-area-inset-bottom,0px))!important;padding:5px 6px calc(4px + env(safe-area-inset-bottom,0px))!important}
+ #st{max-width:22%!important;font-size:10.5px!important}
+ #yr{font-size:12px!important;margin-right:2px!important}
+ #tb button{padding:4px 5px!important;font-size:10.5px!important}
+ #r1 .sp{gap:1px!important}
+ #r1 .sp button{min-width:21px!important;padding:3px 3px!important;font-size:9.5px!important}
+ #tg,#tbeye{min-width:25px!important;padding:3px 4px!important}
+ body.rp-mode #tb{height:20vh!important;height:20dvh!important;min-height:0!important;max-height:20vh!important;max-height:20dvh!important}
+}
+
 </style>
 
 </head><body><div id="build-version" aria-label="Phiên bản trò chơi">THẦN GIỚI · v1.19.0</div><div id="lobby"><div class="lbox"><div class="brand"><div class="sig">🌌</div><h1>THẦN GIỚI</h1><div class="sub">Chọn cách bạn muốn kiến tạo thế giới</div></div><div class="modes"><button class="mode" id="mode-free"><span class="ico">✨</span><span><b>Chế độ tự do</b><small>Thế giới hoang sơ. Tự tay gieo mầm sự sống và quan sát các nền văn minh phát triển.</small></span><span class="go">›</span></button><button class="mode" id="mode-roleplay"><span class="ico">👑</span><span><b>Chế độ nhập vai</b><small>Chọn một quốc gia và trực tiếp lãnh đạo: điều hành đất nước, phát triển kinh tế, chỉ huy quân đội và quyết định ngoại giao.</small></span><span class="go">›</span></button><button class="mode" id="mode-guide"><span class="ico">📖</span><span><b>Cẩm nang cơ chế & chỉ số</b><small>Giải thích cách vận hành thế giới, ý nghĩa các chỉ số và mẹo quản lý quốc gia.</small></span><span class="go">›</span></button></div><div class="note">Bạn có thể tạo thế giới mới trong phần ⚙ Hệ thống khi đang chơi.</div></div></div>
@@ -392,12 +452,13 @@ body.rp-mode #chips { display:none !important; }
 </div><div id="app">
 <div id="mapw"><canvas id="cv"></canvas><div id="map-render-status" hidden role="status" aria-live="polite"><div class="render-card"><div class="render-spinner"></div><b>🌍 Đang kiến tạo thế giới</b><div id="map-render-label" style="font-size:12px;opacity:.78;margin-top:6px">Đang dựng địa hình...</div><div class="render-track"><div id="map-render-fill" class="render-fill"></div></div></div></div></div>
 </div><div id="tb"><div id="tbi">
-<div class="row" id="r1"><div id="st"><b id="yr"></b><span id="mn"></span></div><span class="sp"><button data-s="0" aria-label="Dừng" title="Dừng">⏸</button><button data-s="1" title="Tốc độ 0.5">½×</button><button data-s="2" title="Tốc độ 1">1×</button><button data-s="3" title="Tốc độ 2">2×</button><button data-s="4" title="Tốc độ 3">3×</button><button data-s="5" title="Tốc độ 5">5×</button></span><button id="gamelobby" type="button" title="Quay lại sảnh" aria-label="Quay lại sảnh">⌂</button><button id="fullscreen" type="button" title="Toàn màn hình" aria-label="Bật toàn màn hình">⛶</button><button id="tg" aria-label="Thu gọn thanh công cụ" aria-expanded="true">▾</button></div>
+<div class="row" id="r1"><div id="st"><b id="yr"></b><span id="mn"></span></div><span class="sp"><button data-s="0" aria-label="Dừng" title="Dừng">⏸</button><button data-s="1" title="Tốc độ 0.5">½×</button><button data-s="2" title="Tốc độ 1">1×</button><button data-s="3" title="Tốc độ 2">2×</button><button data-s="4" title="Tốc độ 3">3×</button><button data-s="5" title="Tốc độ 5">5×</button></span><button id="gamelobby" type="button" title="Quay lại sảnh" aria-label="Quay lại sảnh">⌂</button><button id="fullscreen" type="button" title="Toàn màn hình" aria-label="Bật toàn màn hình">⛶</button><button id="tg" aria-label="Thu gọn thanh công cụ" aria-expanded="true">▾</button><button id="tbeye" type="button" title="Ẩn thanh công cụ" aria-label="Ẩn toàn bộ thanh công cụ">👁</button></div>
 <div id="tx"><div class="row" id="tr"><div id="tabs"></div><button id="kb" aria-label="Vương quốc" title="Vương quốc">👑</button><button id="cb" aria-label="Biên niên sử" title="Biên niên sử">📜</button><button id="sy" aria-label="Hệ thống: thế giới, bản đồ, lưu/tải" title="Hệ thống">⚙</button></div>
 <div class="row" id="chips"></div>
 <div class="row" id="sys" hidden><button id="nw">🌍 Thế giới mới</button><button id="zm">🔎 Phóng to</button><button id="pn">✋ Kéo bản đồ</button><button id="cbt" class="on">🏙 Biên giới TP</button><button id="sv">💾 Lưu</button><button id="ld">📂 Tải</button><small id="sdl" class="mu"></small></div></div>
 <div id="tbs"><small id="ri"></small><div id="rpview" hidden></div></div>
 </div></div>
+<button id="tbshow" type="button" title="Hiện thanh công cụ" aria-label="Hiện thanh công cụ" hidden>👁</button>
 <div id="kg" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="kgt"><div class="pn"><div class="ph"><button id="kback" hidden aria-label="Quay lại">←</button><b id="kgt">👑 Vương quốc</b><small></small><button id="kgx" aria-label="Đóng">✕</button></div><div class="ob"><div id="kl"></div><div id="kd" hidden></div><small id="khint" class="mu">Chạm hoặc kéo trên bản đồ để dùng quyền năng. Bấm 🔎 để phóng to, ✋ để cuộn bản đồ. Thần lực hồi theo số tín đồ. Khu trong thành: ⭐ trung tâm · 🏠 dân cư · ⚒ sản xuất · 🛡 phòng thủ.</small></div></div></div>
 <div id="wm" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="wmt"><div class="pn"><div class="ph"><b id="wmt">🌍 Thế giới mới</b><small></small><button id="wx" aria-label="Đóng">✕</button></div><div class="ob"><div id="wp"></div></div></div></div>
 <div id="rp-ideology-event" class="rpideology" hidden role="dialog" aria-modal="true" aria-labelledby="rp-ideology-title"><div class="ripanel"><div class="ritop"><div class="riicon">🏛️</div><h2 id="rp-ideology-title">BƯỚC NGOẶT CỦA NỀN VĂN MINH</h2><div class="ridesc">Xã hội đã phát triển đến một bước ngoặt. Những tư tưởng và lực lượng chính trị mới đang định hình tương lai quốc gia. Hãy lựa chọn con đường phù hợp với hoàn cảnh hiện tại.</div></div><div id="rp-ideology-options" class="rioptions"></div><button type="button" class="rioption" data-rp-ideology-defer style="width:100%;margin-top:10px;border:1px dashed var(--ac);background:transparent;color:var(--tx)">⏳ Chưa chọn – chờ mô hình khác đủ điều kiện</button><div id="rp-ideology-reason" class="rireason">Thời gian mô phỏng sẽ tạm dừng trong lúc bạn đưa ra quyết định.</div></div></div><div id="gameover" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="got"><div class="pn"><div class="goicon">💀</div><h2 id="got">GAME OVER</h2><p id="goresult">Vương quốc của bạn đã bị hủy diệt hoàn toàn.</p><div class="gobtns"><button id="gohome">🏠 Về màn hình chính</button><button id="goretry" class="on">🔄 Chơi lại</button><button id="gowatch">🌍 Tiếp tục xem thế giới</button></div></div></div><div id="diplomacy-event" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="diplo-title"><div class="pn"><div class="ph"><b id="diplo-title">📨 Công văn khẩn</b><small id="diplo-date"></small></div><div id="diplo-content" class="diplo-card"></div><div id="diplo-choices" class="diplo-choices"></div></div></div><div id="nf" role="status" aria-live="polite"></div><div id="ch" class="ov" hidden role="dialog" aria-modal="true" aria-labelledby="cht"><div class="pn"><div class="ph"><b id="cht">📜 Biên niên sử</b><small id="cc"></small><button id="chx" aria-label="Đóng">✕</button></div><div id="chtabs"><button type="button" data-ch-filter="all" class="on">📰 Tất cả</button><button type="button" data-ch-filter="war">⚔️ Tin chiến sự</button></div><div id="chb"><div id="lg"></div></div></div></div><div id="toast"></div>
@@ -2130,7 +2191,10 @@ const openCh=()=>{$('#ch').hidden=false;renderCh(1);$('#chb').scrollTop=0;$('#ch
  $('#chtabs').onclick=e=>{const b=e.target.closest('[data-ch-filter]');if(!b)return;chronicleFilter=b.dataset.chFilter;$('#chb').scrollTop=0;renderCh(1)};
 const openK=()=>{if(!$('#kg').hidden)return;W.manageResumeSpeed=W.sp||0;W.sp=0;clearTimeout(tm);clearInterval(tm);$('#kg').hidden=false;kv=W.playerId||0;W.sel=W.playerId||0;ui();$('#kgx').focus()},closeK=()=>{if($('#kg').hidden)return;$('#kg').hidden=true;const speed=W.manageResumeSpeed??0;delete W.manageResumeSpeed;W.sp=speed;ui();$('#kb').focus();if(speed>0)run()};$('#kb').onclick=openK;$('#kgx').onclick=closeK;$('#kg').onclick=e=>{if(e.target.id==='kg')closeK()};$('#cb').onclick=openCh;$('#chx').onclick=closeCh;$('#ch').onclick=e=>{if(e.target.id==='ch')closeCh()};addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(!$('#kg').hidden)closeK();else if(!$('#ch').hidden)closeCh();else if(!$('#wm').hidden)closeW()});
 let sys=0,kv=0,techTreeOpen=0,kO={gov:1,govArmy:1};const setH=(el,h)=>{if(el._h!==h){el._h=h;el.innerHTML=h}};
-$('#sy').onclick=()=>{sys=!sys;ui()};const tb=$('#tb'),fitTb=()=>document.documentElement.style.setProperty('--tbh',tb.offsetHeight+'px');$('#tg').onclick=()=>{const m=tb.classList.toggle('min');$('#tg').textContent=m?'▴':'▾';$('#tg').setAttribute('aria-expanded',!m);fitTb()};if(window.ResizeObserver)new ResizeObserver(fitTb).observe(tb);fitTb();
+$('#sy').onclick=()=>{sys=!sys;ui()};const tb=$('#tb'),fitTb=()=>document.documentElement.style.setProperty('--tbh',tb.offsetHeight+'px');$('#tg').onclick=()=>{const m=tb.classList.toggle('min');$('#tg').textContent=m?'▴':'▾';$('#tg').setAttribute('aria-expanded',!m);fitTb()};
+const setToolbarHidden=hidden=>{document.body.classList.toggle('toolbar-hidden',!!hidden);$('#tbshow').hidden=!hidden;fitTb()};
+$('#tbeye').onclick=()=>setToolbarHidden(true);
+$('#tbshow').onclick=()=>setToolbarHidden(false);if(window.ResizeObserver)new ResizeObserver(fitTb).observe(tb);fitTb();
 const SK='than-gioi-save',AK='than-gioi-autosave';
 const makeSaveData=()=>({T:Array.from(T),O:Array.from(O),X:Array.from(X),RV:Array.from(RV),n:N,c:C,mapRes:2,cfg:CFG,W,CD,BL,RD});
 const persistLocal=(key)=>localStorage.setItem(key,JSON.stringify(makeSaveData()));
