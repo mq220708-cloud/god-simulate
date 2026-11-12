@@ -22,8 +22,9 @@
 6. **Optimization and QA:** sprite atlas batching, mobile performance, save/load regression tests, and visual checks.
 
 ## Current branch work
-- Added custom pixel-block tree rendering for temperate, evergreen, and autumn forest tiles.
-- Replaced city-level emoji markers with hand-drawn pixel building silhouettes whose forms change by city level.
+- Added a hand-authored SVG sprite atlas with 13 isolated sprites, including oak, pine, birch, autumn trees, houses, farm, watchtower, and castle.
+- Integrated atlas cropping into the map renderer for forest tiles and city-level buildings, with hand-drawn pixel primitives as a loading fallback.
+- Removed emoji city markers; city appearance now changes with city level.
 - Main branch remains untouched; work is isolated on `big-update/pixel-art-worldbox-ui`.
 
 ## Non-negotiable art rule
