@@ -826,6 +826,40 @@ function drawFrontlineClashes(sc){
   cx.restore();shown++;
  }
 }
+function drawSiegeVisuals(sc){
+ if(!W||sc<.7)return;
+ const now=Date.now(),active=warSet();if(!active.size)return;
+ let shown=0;
+ for(let i=0;i<N*H&&shown<18;i++){
+  const owner=O[i];if(!owner||!active.has(owner))continue;
+  const attacker=K(owner);if(!attacker)continue;
+  const eq=eqOf(attacker),siege=(eq.s.catapult||0)+(eq.s.cannon||0)+(eq.s.missile||0);
+  if(siege<.12)continue;
+  const x=i%N,y=i/N|0,near=[];
+  for(const j of [x<N-1?i+1:-1,y<H-1?i+N:-1,x>0?i-1:-1,y>0?i-N:-1]){
+   if(j<0||!O[j]||O[j]===owner||!attacker.war[O[j]])continue;
+   const defender=K(O[j]);if(!defender)continue;
+   const wall=BL.find(b=>b.i===j&&b.t==='wall'&&b.h>0);
+   if(wall)near.push({j,wall,defender});
+  }
+  if(!near.length)continue;
+  const target=near[0],tx=(target.j%N+.5)*C,ty=((target.j/N|0)+.5)*C;
+  const ox=(x-(target.j%N)),oy=(y-(target.j/N|0)),len=Math.max(1,Math.hypot(ox,oy));
+  const sx=tx+ox/len*C*1.7,sy=ty+oy/len*C*1.7;
+  const size=Math.max(13,Math.min(19,C*.8));
+  cx.save();cx.globalAlpha=.95;drawUnit(cx,'cannon',sx,sy,size);cx.restore();
+  const phase=(now/1250+i*.37)%1,arc=Math.sin(phase*Math.PI);
+  const px=sx+(tx-sx)*phase,py=sy+(ty-sy)*phase-arc*C*1.8;
+  cx.save();cx.fillStyle='#25201b';cx.fillRect(Math.round(px-2),Math.round(py-2),4,4);
+  cx.fillStyle='#e7b45b';cx.fillRect(Math.round(px-1),Math.round(py-1),2,2);
+  if(phase>.92){const pulse=(phase-.92)/.08;cx.globalAlpha=pulse;cx.fillStyle='#ffe39a';cx.fillRect(Math.round(tx-2),Math.round(ty-2),4,4);cx.fillStyle='#bd5135';cx.fillRect(Math.round(tx-4),Math.round(ty+2),8,2)}
+  cx.restore();
+  // Tường thành vẫn giữ nguyên dữ liệu độ bền; thanh nhỏ chỉ phản ánh HP hiện tại.
+  cx.save();cx.fillStyle='#352b25';cx.fillRect(tx-C*.35,ty+C*.42,C*.7,Math.max(2,C*.07));
+  cx.fillStyle='#d45a42';cx.fillRect(tx-C*.35,ty+C*.42,C*.7*Math.max(0,target.wall.h)/100,Math.max(2,C*.07));cx.restore();
+  shown++;
+ }
+}
 function draw(){if(RQ)return;RQ=1;requestAnimationFrame(()=>{RQ=0;paint()})}
 function paint(){renderT();if(OLVER!==VER){if(updOL())VER++;OLVER=VER}const sc=(cv.clientWidth/cv.width)||.5,V=VER+'|'+N+'|'+C;
  cx.drawImage(TL,0,0);cx.drawImage(layer('ol'),0,0);if(W.oil){const oil=lyr('oil',W.seed+'|'+N+'|'+H,()=>{for(let i=0;i<W.oil.length;i++)if(W.oil[i]>0){const x=(i%N+.5)*C,y=((i/N|0)+.5)*C;cx.fillStyle='#252525';cx.beginPath();cx.arc(x,y,Math.max(1.2,C*.16),0,Math.PI*2);cx.fill();cx.fillStyle='#f5c542';cx.fillRect(x-1,y-1,2,2)}},1000);cx.globalAlpha=.9;cx.drawImage(oil,0,0);cx.globalAlpha=1}
@@ -833,7 +867,7 @@ function paint(){renderT();if(OLVER!==VER){if(updOL())VER++;OLVER=VER}const sc=(
  cx.drawImage(lyr('rd',V,drawRoads,150),0,0);drawWildlife(sc);drawTrade();drawArmies(sc);
  const at=warSet();if(at.size){const wl=lyr('wl',V,()=>{cx.fillStyle='#ff1e1e';for(let i=0;i<N*H;i++){const o=O[i];if(!o||!at.has(o))continue;const kw=K(o).war,xi=i%N,yi=i/N|0,x=xi*C,y=yi*C,E2=j=>O[j]&&O[j]!==o&&kw[O[j]];
    if(xi<N-1&&E2(i+1))cx.fillRect(x+C-3,y,3,C);if(xi>0&&E2(i-1))cx.fillRect(x,y,3,C);if(yi<H-1&&E2(i+N))cx.fillRect(x,y+C-3,C,3);if(yi>0&&E2(i-N))cx.fillRect(x,y,C,3)}},120);
-  cx.globalAlpha=.55+.45*(.5+.5*Math.sin(Date.now()/150));cx.drawImage(wl,0,0);cx.globalAlpha=1}drawFrontlineClashes(sc);
+  cx.globalAlpha=.55+.45*(.5+.5*Math.sin(Date.now()/150));cx.drawImage(wl,0,0);cx.globalAlpha=1}drawFrontlineClashes(sc);drawSiegeVisuals(sc);
  for(let q=Math.max(0,FX.length-150);q<FX.length;q++){const f=FX[q];drawPixelImpact(cx,f[0],f[1],f[2])}cx.globalAlpha=1;
  const sid=W.sel,sk=sid&&K(sid);if(!W.playerId&&sk&&sk.alive){const SV=sid+'|'+V,yl=lyr('sy',SV,()=>{const fz=sk.n>=30?new Set(farInfo(sk).far.map(f=>f[0])):null;for(const i of tilesOf(sk)){const xi=i%N,yi=i/N|0,x=xi*C,y=yi*C;if(fz&&fz.has(i)){cx.fillStyle='rgba(120,0,0,.4)';cx.fillRect(x,y,C,C)}cx.fillStyle='#ffe066';if(xi===0||O[i-1]!==sid)cx.fillRect(x,y,2.5,C);if(xi===N-1||O[i+1]!==sid)cx.fillRect(x+C-2.5,y,2.5,C);if(yi===0||O[i-N]!==sid)cx.fillRect(x,y,C,2.5);if(yi===H-1||O[i+N]!==sid)cx.fillRect(x,y+C-2.5,C,2.5)}},120),
    wh=lyr('sw',SV,()=>{cx.fillStyle='#fff';for(const i of tilesOf(sk))cx.fillRect(i%N*C,(i/N|0)*C,C,C)},120);cx.globalAlpha=.14+.12*Math.sin(Date.now()/230);cx.drawImage(wh,0,0);cx.globalAlpha=1;cx.drawImage(yl,0,0)}
