@@ -31,7 +31,8 @@ File: `atlas-v2.svg`
 - Thanh công cụ tạo canvas preview theo từng mã công cụ, lấy sprite từ atlas hoặc tự vẽ ô địa hình/phép thuật bằng pixel primitives; nhãn nút đã bỏ emoji mở đầu.
 - 10 sprite động vật hoang dã được vẽ thủ công: deer, wolf, bear, rabbit, cow, sheep, boar, fox, chicken và bird.
 - 4 sprite chủng tộc được vẽ thủ công: race_human, race_elf, race_dwarf và race_orc. Chúng được dùng làm dấu hiệu đại diện của từng vương quốc tại thủ đô và hình xem trước trong thanh công cụ Sinh vật.
-- 8 sprite hoạt ảnh đi bộ được vẽ thủ công (2 khung hình cho mỗi chủng tộc). Lớp dân cư hiển thị tối đa 96 người quanh các thành phố khi phóng to, di chuyển theo quỹ đạo ngắn và đổi khung hình để tạo cảm giác bước đi; hoạt ảnh vẫn chạy khi thế giới tạm dừng. Lớp wildlife phân bố ổn định theo loại địa hình, chỉ hiển thị ở mức zoom phù hợp và cache vị trí để tránh quét toàn bộ bản đồ mỗi frame.
+- 8 sprite hoạt ảnh đi bộ được vẽ thủ công (2 khung hình cho mỗi chủng tộc). Lớp dân cư hiển thị tối đa 96 người quanh thủ đô và các thành phố khi phóng to, đổi khung hình để tạo cảm giác bước đi.
+- Dân cư được phân vai trực quan dựa trên công trình đã hoàn thành tại đúng thành phố: nông dân (farm), lính gác (barracks), thương nhân (market), thợ thủ công (sawmill/quarry/forge), người xây dựng và dân thường. Phụ kiện nghề nghiệp được vẽ bằng pixel primitives; nhân vật đi qua lại giữa trung tâm thành phố và công trình làm việc. Hoạt ảnh tiếp tục chạy khi mô phỏng tạm dừng. Lớp wildlife phân bố ổn định theo loại địa hình, chỉ hiển thị ở mức zoom phù hợp và cache vị trí để tránh quét toàn bộ bản đồ mỗi frame.
 - Khi atlas tải xong, renderer dựng lại chi tiết cho đồng cỏ, rừng và đồi để tránh thiếu sprite do tải bất đồng bộ.
 - Có fallback pixel primitives nếu atlas chưa tải xong.
 
