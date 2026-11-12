@@ -9,7 +9,7 @@
 ## Atlas đang sử dụng
 File: `atlas-v2.svg`
 - 16×16 pixel cho mỗi sprite, không phóng chi tiết bằng các ô pixel phụ.
-- 46 sprite: 13 sprite môi trường/công trình cơ bản và 13 sprite công trình mở rộng (cối xay gió, xưởng gỗ, mỏ đá, kho lương, đền thờ, chợ, doanh trại, tường thành, thư viện, lò rèn, hải cảng, y quán, công xưởng, bộ binh, cung thủ, kỵ binh, pháo, xe tăng, máy bay, tàu chiến, thuyền buồm, đoàn di cư và tên lửa).
+- 50 sprite: 13 sprite môi trường/công trình cơ bản và 13 sprite công trình mở rộng (cối xay gió, xưởng gỗ, mỏ đá, kho lương, đền thờ, chợ, doanh trại, tường thành, thư viện, lò rèn, hải cảng, y quán, công xưởng, bộ binh, cung thủ, kỵ binh, pháo, xe tăng, máy bay, tàu chiến, thuyền buồm, đoàn di cư và tên lửa).
 - Mỗi màu dùng một path SVG gộp để giảm kích thước tệp.
 - Atlas v2 được nén từ khoảng 78 KB xuống khoảng 19 KB (giảm 76%) so với bản SVG rect ban đầu.
 - `atlas-v1.svg` là bản thử nghiệm cũ, không còn được renderer tải.
@@ -29,7 +29,8 @@ File: `atlas-v2.svg`
 - 10 sprite quân sự/di chuyển mới được vẽ thủ công trong atlas: infantry, archer, cavalry, cannon, tank, plane, ship, sailboat, migration và missile.
 - Renderer hành quân, cơ giới, vận tải biển và giao thương biển dùng sprite riêng; không còn emoji làm hình đơn vị ở các luồng này.
 - Thanh công cụ tạo canvas preview theo từng mã công cụ, lấy sprite từ atlas hoặc tự vẽ ô địa hình/phép thuật bằng pixel primitives; nhãn nút đã bỏ emoji mở đầu.
-- 10 sprite động vật hoang dã được vẽ thủ công: deer, wolf, bear, rabbit, cow, sheep, boar, fox, chicken và bird. Lớp wildlife phân bố ổn định theo loại địa hình, chỉ hiển thị ở mức zoom phù hợp và cache vị trí để tránh quét toàn bộ bản đồ mỗi frame.
+- 10 sprite động vật hoang dã được vẽ thủ công: deer, wolf, bear, rabbit, cow, sheep, boar, fox, chicken và bird.
+- 4 sprite chủng tộc được vẽ thủ công: race_human, race_elf, race_dwarf và race_orc. Chúng được dùng làm dấu hiệu đại diện của từng vương quốc tại thủ đô và hình xem trước trong thanh công cụ Sinh vật. Lớp wildlife phân bố ổn định theo loại địa hình, chỉ hiển thị ở mức zoom phù hợp và cache vị trí để tránh quét toàn bộ bản đồ mỗi frame.
 - Khi atlas tải xong, renderer dựng lại chi tiết cho đồng cỏ, rừng và đồi để tránh thiếu sprite do tải bất đồng bộ.
 - Có fallback pixel primitives nếu atlas chưa tải xong.
 
