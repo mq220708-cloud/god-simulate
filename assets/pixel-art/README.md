@@ -28,6 +28,7 @@ File: `atlas-v2.svg`
 - Toàn bộ 15 loại công trình xây dựng hiện có được ánh xạ sang sprite Pixel Art riêng khi hiển thị trên bản đồ; công trình đang xây có hiệu ứng giàn giáo tự vẽ và thanh độ bền.
 - 10 sprite quân sự/di chuyển mới được vẽ thủ công trong atlas: infantry, archer, cavalry, cannon, tank, plane, ship, sailboat, migration và missile.
 - Renderer hành quân, cơ giới, vận tải biển và giao thương biển dùng sprite riêng; không còn emoji làm hình đơn vị ở các luồng này.
+- Thanh công cụ tạo canvas preview theo từng mã công cụ, lấy sprite từ atlas hoặc tự vẽ ô địa hình/phép thuật bằng pixel primitives; nhãn nút đã bỏ emoji mở đầu.
 - Khi atlas tải xong, renderer dựng lại chi tiết cho đồng cỏ, rừng và đồi để tránh thiếu sprite do tải bất đồng bộ.
 - Có fallback pixel primitives nếu atlas chưa tải xong.
 
