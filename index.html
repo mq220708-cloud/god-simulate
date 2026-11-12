@@ -380,7 +380,7 @@ function gen(seed,silentRender=false){seed=(seed||'').trim()||Math.random().toSt
  W={year:0,month:0,mana:80,ks:[],factions:[],log:[],sel:0,sp:2,seed,oil:Array.from({length:N*H},(_,i)=>{const h=Math.imul(i+1,2654435761)>>>0;return T[i]>=2&&T[i]<=5&&((h^(h>>>13))%97===0)?80+((h>>>8)%120):0})};log('Hư vô tan biến, thế giới ra đời (seed: '+seed+'). Hãy gieo mầm sự sống!');renderResumeSpeed=silentRender?0:(W.sp||2);W.sp=0;const job=renderJob;requestAnimationFrame(()=>renderChunk(job))}
 // ---- pixel art: vẽ địa hình vào canvas ẩn ----
 const S=v=>Math.round(v*C/10),TL=document.createElement('canvas'),tx=TL.getContext('2d');let TD=0,DQ=[],renderRequested=false;
-const SPRITE_CELLS={oak:[1,1],pine:[19,1],birch:[37,1],autumn:[55,1],palm:[1,19],bush:[19,19],flower:[37,19],rock:[55,19],hut:[1,37],cottage:[19,37],farm:[37,37],watchtower:[55,37],castle:[1,55],windmill:[1,73],sawmill:[19,73],quarry:[37,73],granary:[55,73],temple:[73,73],market:[91,73],barracks:[1,91],wall:[19,91],library:[37,91],forge:[55,91],harbor:[73,91],hospital:[91,91],factory:[1,109],infantry:[1,127],archer:[19,127],cavalry:[37,127],cannon:[55,127],tank:[73,127],plane:[91,127],ship:[1,145],sailboat:[19,145],migration:[37,145],missile:[55,145]};
+const SPRITE_CELLS={oak:[1,1],pine:[19,1],birch:[37,1],autumn:[55,1],palm:[1,19],bush:[19,19],flower:[37,19],rock:[55,19],hut:[1,37],cottage:[19,37],farm:[37,37],watchtower:[55,37],castle:[1,55],windmill:[1,73],sawmill:[19,73],quarry:[37,73],granary:[55,73],temple:[73,73],market:[91,73],barracks:[1,91],wall:[19,91],library:[37,91],forge:[55,91],harbor:[73,91],hospital:[91,91],factory:[1,109],infantry:[1,127],archer:[19,127],cavalry:[37,127],cannon:[55,127],tank:[73,127],plane:[91,127],ship:[1,145],sailboat:[19,145],migration:[37,145],missile:[55,145],deer:[1,163],wolf:[19,163],bear:[37,163],rabbit:[55,163],cow:[73,163],sheep:[91,163],boar:[1,181],fox:[19,181],chicken:[37,181],bird:[55,181]};
 function drawAtlasSprite(g,key,x,y,size){
  if(!spriteAtlasReady||!SPRITE_CELLS[key])return false;
  const [sx,sy]=SPRITE_CELLS[key];g.save();g.imageSmoothingEnabled=false;
@@ -397,6 +397,24 @@ function drawUnitFallback(g,key,x,y,size){
  else{p(6,2,4,4,c[1]);p(4,6,8,5,c[0]);p(5,11,2,4,'#263849');p(9,11,2,4,'#263849');}
 }
 function drawUnit(g,key,x,y,size){if(!drawAtlasSprite(g,key,x,y,size))drawUnitFallback(g,key,x,y,size);}
+function drawWildlife(sc){
+ if(!W||!spriteAtlasReady||sc<.55||C<5)return;
+ const size=Math.max(8,Math.min(17,C*.92)),total=N*H;
+ for(let i=0;i<total;i++){
+  const terrain=T[i];if(terrain!==3&&terrain!==4&&terrain!==5&&terrain!==6)continue;
+  const h=(Math.imul(i+173,2246822519)^Math.imul(i+29,3266489917))>>>0;
+  const chance=terrain===3?430:terrain===4?570:terrain===5?1450:1900;
+  if(h%chance!==0)continue;
+  const variant=(h>>>9)%100;
+  let species;
+  if(terrain===3)species=['rabbit','cow','sheep','boar','chicken','fox'][variant%6];
+  else if(terrain===4)species=['deer','wolf','bear','fox','boar','bird'][variant%6];
+  else species=['wolf','bear','bird','rabbit'][variant%4];
+  const x=(i%N+.5)*C,y=((i/N|0)+.5)*C;
+  cx.save();cx.globalAlpha=.94;drawUnit(cx,species,x,y,size);cx.restore();
+ }
+}
+
 const TOOL_ART={for:'oak',jungle:'palm',autumn:'autumn',hill:'rock',rockhill:'rock',mtn:'rock',human:'infantry',elf:'archer',dwarf:'cannon',orc:'cavalry',house:'hut',farm:'farm',sawmill:'sawmill',quarry:'quarry',granary:'granary',temple:'temple',market:'market',barracks:'barracks',wall:'wall',library:'library',forge:'forge',harbor:'harbor',palace:'castle',hospital:'hospital',factory:'factory',c_city:'cottage',c_cap:'castle',g_mine:'quarry'};
 function paintToolPreviews(){
  document.querySelectorAll('canvas.px-tool').forEach(el=>{
@@ -672,7 +690,7 @@ function draw(){if(RQ)return;RQ=1;requestAnimationFrame(()=>{RQ=0;paint()})}
 function paint(){renderT();if(OLVER!==VER){if(updOL())VER++;OLVER=VER}const sc=(cv.clientWidth/cv.width)||.5,V=VER+'|'+N+'|'+C;
  cx.drawImage(TL,0,0);cx.drawImage(layer('ol'),0,0);if(W.oil){const oil=lyr('oil',W.seed+'|'+N+'|'+H,()=>{for(let i=0;i<W.oil.length;i++)if(W.oil[i]>0){const x=(i%N+.5)*C,y=((i/N|0)+.5)*C;cx.fillStyle='#252525';cx.beginPath();cx.arc(x,y,Math.max(1.2,C*.16),0,Math.PI*2);cx.fill();cx.fillStyle='#f5c542';cx.fillRect(x-1,y-1,2,2)}},1000);cx.globalAlpha=.9;cx.drawImage(oil,0,0);cx.globalAlpha=1}
  if(CBon)cx.drawImage(lyr('cb',V,drawCB,150),0,0);
- cx.drawImage(lyr('rd',V,drawRoads,150),0,0);drawTrade();drawArmies(sc);
+ cx.drawImage(lyr('rd',V,drawRoads,150),0,0);drawWildlife(sc);drawTrade();drawArmies(sc);
  const at=warSet();if(at.size){const wl=lyr('wl',V,()=>{cx.fillStyle='#ff1e1e';for(let i=0;i<N*H;i++){const o=O[i];if(!o||!at.has(o))continue;const kw=K(o).war,xi=i%N,yi=i/N|0,x=xi*C,y=yi*C,E2=j=>O[j]&&O[j]!==o&&kw[O[j]];
    if(xi<N-1&&E2(i+1))cx.fillRect(x+C-3,y,3,C);if(xi>0&&E2(i-1))cx.fillRect(x,y,3,C);if(yi<H-1&&E2(i+N))cx.fillRect(x,y+C-3,C,3);if(yi>0&&E2(i-N))cx.fillRect(x,y,C,3)}},120);
   cx.globalAlpha=.55+.45*(.5+.5*Math.sin(Date.now()/150));cx.drawImage(wl,0,0);cx.globalAlpha=1}
