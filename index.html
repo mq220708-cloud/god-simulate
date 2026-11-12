@@ -380,7 +380,23 @@ function gen(seed,silentRender=false){seed=(seed||'').trim()||Math.random().toSt
  W={year:0,month:0,mana:80,ks:[],factions:[],log:[],sel:0,sp:2,seed,oil:Array.from({length:N*H},(_,i)=>{const h=Math.imul(i+1,2654435761)>>>0;return T[i]>=2&&T[i]<=5&&((h^(h>>>13))%97===0)?80+((h>>>8)%120):0})};log('Hư vô tan biến, thế giới ra đời (seed: '+seed+'). Hãy gieo mầm sự sống!');renderResumeSpeed=silentRender?0:(W.sp||2);W.sp=0;const job=renderJob;requestAnimationFrame(()=>renderChunk(job))}
 // ---- pixel art: vẽ địa hình vào canvas ẩn ----
 const S=v=>Math.round(v*C/10),TL=document.createElement('canvas'),tx=TL.getContext('2d');let TD=0,DQ=[],renderRequested=false;
-const SPRITE_CELLS={oak:[1,1],pine:[19,1],birch:[37,1],autumn:[55,1],palm:[1,19],bush:[19,19],flower:[37,19],rock:[55,19],hut:[1,37],cottage:[19,37],farm:[37,37],watchtower:[55,37],castle:[1,55],windmill:[1,73],sawmill:[19,73],quarry:[37,73],granary:[55,73],temple:[73,73],market:[91,73],barracks:[1,91],wall:[19,91],library:[37,91],forge:[55,91],harbor:[73,91],hospital:[91,91],factory:[1,109]};
+const SPRITE_CELLS={oak:[1,1],pine:[19,1],birch:[37,1],autumn:[55,1],palm:[1,19],bush:[19,19],flower:[37,19],rock:[55,19],hut:[1,37],cottage:[19,37],farm:[37,37],watchtower:[55,37],castle:[1,55],windmill:[1,73],sawmill:[19,73],quarry:[37,73],granary:[55,73],temple:[73,73],market:[91,73],barracks:[1,91],wall:[19,91],library:[37,91],forge:[55,91],harbor:[73,91],hospital:[91,91],factory:[1,109],infantry:[1,127],archer:[19,127],cavalry:[37,127],cannon:[55,127],tank:[73,127],plane:[91,127],ship:[1,145],sailboat:[19,145],migration:[37,145],missile:[55,145]};
+function drawAtlasSprite(g,key,x,y,size){
+ if(!spriteAtlasReady||!SPRITE_CELLS[key])return false;
+ const [sx,sy]=SPRITE_CELLS[key];g.save();g.imageSmoothingEnabled=false;
+ g.drawImage(spriteAtlas,sx,sy,16,16,Math.round(x-size/2),Math.round(y-size/2),Math.ceil(size),Math.ceil(size));
+ g.restore();return true;
+}
+function drawUnitFallback(g,key,x,y,size){
+ const u=Math.max(1,Math.round(size/16)),p=(a,b,w,h,col)=>{g.fillStyle=col;g.fillRect(Math.round(x-size/2+a*u),Math.round(y-size/2+b*u),Math.max(1,w*u),Math.max(1,h*u))};
+ const colors={infantry:['#a9473b','#e4d3a0'],archer:['#4d8b42','#e4d3a0'],cavalry:['#a9473b','#79502f'],cannon:['#79502f','#d5b54d'],tank:['#4d8b42','#526a7b'],plane:['#9daeb8','#d9e5ed'],ship:['#79502f','#d9e5ed'],sailboat:['#79502f','#d9e5ed'],migration:['#79502f','#e4d3a0'],missile:['#a9473b','#d9e5ed']};
+ const c=colors[key]||colors.infantry;
+ if(key==='ship'||key==='sailboat'){p(2,9,12,3,c[0]);p(5,6,6,3,c[1]);p(7,2,1,7,'#263849');p(8,3,4,5,c[1]);}
+ else if(key==='tank'||key==='cannon'){p(2,8,12,4,c[0]);p(4,5,8,4,c[1]);p(1,12,3,2,'#263849');p(12,12,3,2,'#263849');}
+ else if(key==='plane'||key==='missile'){p(7,1,2,13,c[0]);p(2,6,12,3,c[1]);}
+ else{p(6,2,4,4,c[1]);p(4,6,8,5,c[0]);p(5,11,2,4,'#263849');p(9,11,2,4,'#263849');}
+}
+function drawUnit(g,key,x,y,size){if(!drawAtlasSprite(g,key,x,y,size))drawUnitFallback(g,key,x,y,size);}
 const spriteAtlas=new Image();let spriteAtlasReady=false;
 spriteAtlas.onload=()=>{spriteAtlasReady=true;if(typeof T!=='undefined'&&T.length){for(let i=0;i<N*H;i++)if(T[i]===3||T[i]===4||T[i]===5)tileMicroDetail(i)}if(typeof W!=='undefined'&&W)draw()};
 spriteAtlas.src='assets/pixel-art/atlas-v2.svg';
@@ -480,11 +496,11 @@ function flagCanvas(k){const f=flagOf(k),key=JSON.stringify(f);if(FLC[key])retur
 const agk=k=>k.aggr||(k.aggr={});
 function roles(k){const atk=[],def=[],unk=[];for(const o of W.ks){if(!o.alive||o===k||!k.war[o.id])continue;if(k.aggr&&k.aggr[o.id])atk.push(o);else if(o.aggr&&o.aggr[k.id])def.push(o);else unk.push(o)}return{atk,def,unk}}
 const roleIc=k=>{const r=roles(k);return(r.atk.length?'🗡️':'')+(r.def.length?'🛡️':'')+(r.unk.length?'⚔️':'')};
-function drawMechanized(sc){if(!W||sc<.72)return;const fz=Math.max(14,Math.min(25,18/sc));for(const k of W.ks){if(!k.alive||!k.eq)continue;const tanks=k.eq.s?.tank||0;if(tanks<.12)continue;const x=(k.cap%N+.5)*C,y=(Math.floor(k.cap/N)+.5)*C-C*.85;cx.globalAlpha=Math.min(.98,.55+tanks*.25);E(cx,tanks>=.65?'🚜':'🚙',x,y,fz);cx.globalAlpha=1;}}
+function drawMechanized(sc){if(!W||sc<.72)return;const fz=Math.max(14,Math.min(25,18/sc));for(const k of W.ks){if(!k.alive||!k.eq)continue;const tanks=k.eq.s?.tank||0;if(tanks<.12)continue;const x=(k.cap%N+.5)*C,y=(Math.floor(k.cap/N)+.5)*C-C*.85;cx.globalAlpha=Math.min(.98,.55+tanks*.25);drawUnit(cx,'tank',x,y,fz);cx.globalAlpha=1;}}
 function drawShips(sc){const now=Date.now(),fz=Math.min(30,Math.max(14,16/sc)),D=1800;
  for(const v of SH){if(!v.ship)continue;const e=now-v.t0;if(e<0||e>D)continue;const f=e/D,n=v.pts.length-1;if(n<1)continue;const pos=f*n,ix=Math.min(n-1,pos|0),u=pos-ix,A=v.pts[ix],B=v.pts[ix+1],px=(A%N+(B%N-A%N)*u+.5)*C,py=((A/N|0)+((B/N|0)-(A/N|0))*u+.5)*C;
   for(let w=1;w<=4;w++){const bp=Math.max(0,pos-w*.5),bi=Math.min(n-1,bp|0),bf=bp-bi,a2=v.pts[bi],b2=v.pts[bi+1];cx.globalAlpha=.55-w*.12;cx.fillStyle='#fff';cx.beginPath();cx.arc((a2%N+(b2%N-a2%N)*bf+.5)*C,((a2/N|0)+((b2/N|0)-(a2/N|0))*bf+.5)*C,Math.max(1,C*.25)*(1+w*.15),0,7);cx.fill()}
-  cx.globalAlpha=Math.min(1,e/200,(D-e)/300+.3);E(cx,'⛵',px,py+Math.sin(now/120)*fz*.06,fz);cx.globalAlpha=1}}
+  cx.globalAlpha=Math.min(1,e/200,(D-e)/300+.3);drawUnit(cx,'ship',px,py+Math.sin(now/120)*fz*.06,fz*1.15);cx.globalAlpha=1}}
 // ---- Hoạt ảnh hành quân trên bản đồ ----
 function queueMarchPath(k,pts,kind){
  if(!pts||pts.length<2)return;
@@ -519,10 +535,10 @@ function drawArmies(sc){
    const pos=Math.min(n-.001,a.p*n),ix=Math.min(n-1,Math.floor(pos)),u=pos-ix,A=a.pts[ix],B=a.pts[ix+1];
    const x=(A%N+(B%N-A%N)*u+.5)*C,y=((A/N|0)+((B/N|0)-(A/N|0))*u+.5)*C;
    cx.globalAlpha=.28;cx.fillStyle='#101820';cx.beginPath();cx.arc(x+1,y+1,Math.max(3,C*.38)+2,0,Math.PI*2);cx.fill();
-   cx.globalAlpha=1;E(cx,'🧳',x,y,unitSize*1.12);continue;
+   cx.globalAlpha=1;drawUnit(cx,'migration',x,y,unitSize*1.12);continue;
   }
   const eq=k.eq?.s||{};
-  const at=(progress,icon,side=0,lift=0)=>{
+  const at=(progress,sprite,side=0,lift=0)=>{
    if(progress<=0)return;
    const pos=Math.min(n-.001,progress*n),ix=Math.min(n-1,Math.floor(pos)),u=pos-ix,A=a.pts[ix],B=a.pts[ix+1];
    const dx=(B%N-A%N),dy=((B/N|0)-(A/N|0)),len=Math.hypot(dx,dy)||1;
@@ -530,16 +546,16 @@ function drawArmies(sc){
    const y=((A/N|0)+dy*u+.5)*C+(dx/len)*side*C*.48-lift*unitSize;
    cx.globalAlpha=.28;cx.fillStyle='#101820';cx.beginPath();cx.arc(x+1,y+1,Math.max(2.8,C*.34)+2,0,Math.PI*2);cx.fill();
    cx.globalAlpha=.95;cx.fillStyle=k.col||'#ffe082';cx.beginPath();cx.arc(x,y,Math.max(2.8,C*.34)+1.5,0,Math.PI*2);cx.fill();
-   cx.globalAlpha=1;E(cx,icon,x,y,unitSize);
+   cx.globalAlpha=1;drawUnit(cx,sprite,x,y,unitSize);
   };
   // Bộ binh là lực lượng nòng cốt của mọi đội quân hành quân.
-  for(let unit=3;unit>=0;unit--)at(a.p-unit*.075,unit%2===0?'🪖':'⚔️',(unit%2?1:-1)*.35,0);
+  for(let unit=3;unit>=0;unit--)at(a.p-unit*.075,unit%2===0?'infantry':'archer',(unit%2?1:-1)*.35,0);
   // Kỵ binh cơ động, pháo binh yểm trợ và thiết giáp chỉ xuất hiện khi đã được phát triển.
-  if((eq.horse||0)>.12)at(a.p-.12,'🐎',1.15,0);
-  if((eq.cannon||0)+(eq.catapult||0)>.12)at(a.p-.2,'💣',-1.15,0);
-  if((eq.tank||0)>.12)at(a.p-.28,(eq.tank||0)>=.65?'🚜':'🚙',0,1.05);
-  if((eq.plane||0)>.12)at(a.p-.08,'✈️',0,1.85);
-  if((eq.missile||0)>.12)at(a.p-.36,'🚀',1.2,1.65);
+  if((eq.horse||0)>.12)at(a.p-.12,'cavalry',1.15,0);
+  if((eq.cannon||0)+(eq.catapult||0)>.12)at(a.p-.2,'cannon',-1.15,0);
+  if((eq.tank||0)>.12)at(a.p-.28,'tank',0,1.05);
+  if((eq.plane||0)>.12)at(a.p-.08,'plane',0,1.85);
+  if((eq.missile||0)>.12)at(a.p-.36,'missile',1.2,1.65);
   cx.globalAlpha=1;
  }
 }
@@ -549,8 +565,8 @@ function drawTrade(){const t=Date.now()/1000,fz=Math.max(13,C*1.5);cx.font=fz+'p
  for(const r of RD){if(!r.s||r.cut||r.p<r.n||r.pts.length<2)continue;const n=r.pts.length-1,sp=2.4;
   for(let q=0;q<2;q++){const ph=(t*sp+q*n+((r.a*7)%n))%(2*n),pos=ph<n?ph:2*n-ph,dir=ph<n?1:-1,ix=Math.min(n-1,Math.floor(pos)),f=pos-ix,A=r.pts[ix],B=r.pts[ix+1],x=((A%N)+(B%N-A%N)*f+.5)*C,y=((A/N|0)+((B/N|0)-(A/N|0))*f+.5)*C;
    for(let w=1;w<=3;w++){const bp=Math.max(0,Math.min(n-.001,pos-dir*w*.45)),bi=Math.min(n-1,Math.floor(bp)),bf=bp-bi,a2=r.pts[bi],b2=r.pts[bi+1];cx.globalAlpha=.5-w*.12;cx.fillStyle='#fff';cx.beginPath();cx.arc(((a2%N)+(b2%N-a2%N)*bf+.5)*C,((a2/N|0)+((b2/N|0)-(a2/N|0))*bf+.5)*C,Math.max(1,C*.22)*(1+w*.15),0,7);cx.fill()}
-   cx.globalAlpha=1;cx.fillText(q?'⛵':'🚢',x,y);
-   if(pos<.5||pos>n-.5){const up=(pos<.5?pos:n-pos)/.5;cx.globalAlpha=Math.max(0,1-up);cx.fillText('💰',x,y-fz*(.8+up*.8));cx.globalAlpha=1}}}}
+   cx.globalAlpha=1;drawUnit(cx,q?'sailboat':'ship',x,y,fz);
+   if(pos<.5||pos>n-.5){const up=(pos<.5?pos:n-pos)/.5;cx.globalAlpha=Math.max(0,1-up);cx.fillStyle='#e6c15c';cx.fillRect(x-2,y-fz*(.8+up*.8)-2,4,4);cx.fillRect(x+2,y-fz*(.8+up*.8),3,3);cx.globalAlpha=1}}}}
 function drawNames(){const sc=(cv.clientWidth/cv.width)||.5,st={};
  cx.textAlign='center';cx.textBaseline='middle';
  // Công trình đô thị được vẽ bằng hình học pixel riêng, không dùng emoji/icon font.
