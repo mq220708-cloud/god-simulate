@@ -42,3 +42,5 @@
 
 ## Non-negotiable art rule
 A tree must look like a tree because its pixels were drawn for this game. A house must look like a house because its sprite was drawn for this game. Never substitute a pre-made icon or emoji.
+
+- Military visualization milestone: marching armies now use a staggered three-row formation with hand-authored atlas sprites for infantry, archers, cavalry and researched equipment. Active war borders show lightweight animated pixel clashes between opposing infantry. Occupation, landing and surrender map effects use hand-drawn pixel primitives rather than emoji glyphs.
