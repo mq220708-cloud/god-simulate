@@ -401,11 +401,10 @@ let WILD_CACHE=[],WILD_CACHE_KEY='';
 function drawResidents(sc){
  if(!W||!spriteAtlasReady||sc<.72||C<6)return;
  const now=Date.now(),frame=(Math.floor(now/190)&1)+1;
- const race=['human','elf','dwarf','orc'];
  let budget=96;
  for(const k of W.ks){
   if(!k.alive||!Array.isArray(k.cities)||!k.cities.length)continue;
-  const rk=race[k.rid]||'human';
+  const rk=R[k.rid]?k.rid:'human';
   for(let ci=0;ci<k.cities.length&&budget>0;ci++){
    const city=k.cities[ci],tile=city.i;
    if(!Number.isInteger(tile)||tile<0||tile>=N*H)continue;
@@ -2031,5 +2030,5 @@ document.addEventListener('fullscreenchange',()=>{
 });
 $('#goretry').onclick=()=>showRoleplaySetup();
 $('#gowatch').onclick=()=>{if(!W)return;W.spectator=true;$('#gameover').hidden=true;W.sp=Math.max(1,Math.min(5,W.defeatResumeSpeed||1));document.querySelectorAll('[data-s]').forEach(b=>b.classList.toggle('on',+b.dataset.s===W.sp));toast('🌍 Bạn đang ở chế độ quan sát. Thế giới sẽ tiếp tục phát triển.');run();};
-wpUI();gen(undefined,true);draw();ui();setInterval(()=>{if(W&&(W.sel||FX.length||SH.length||AR.length||warSet().size||seaOn()))draw()},N*H>90000?130:N*H>40000?105:80);
+wpUI();gen(undefined,true);draw();ui();setInterval(()=>{if(W&&(W.sel||FX.length||SH.length||AR.length||warSet().size||seaOn()||(W.ks.some(k=>k.alive&&k.cities&&k.cities.length)&&((cv.clientWidth/cv.width)||.5)>.72)))draw()},N*H>90000?130:N*H>40000?105:80);
 </script></body></html>
