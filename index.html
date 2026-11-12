@@ -1821,6 +1821,30 @@ function civilizationTick(){
   }
  }
 }
+function siegeTick(){
+ // Công thành theo từng tháng: pháo binh chỉ gây sát thương lên tường của đối thủ đang giao chiến.
+ const damage=new Map(),active=[];
+ for(const k of W.ks){if(!k.alive)continue;const q=eqOf(k),power=(q.s.catapult||0)+(q.s.cannon||0)+(q.s.missile||0);if(power<.12)continue;
+  for(const id in k.war){const enemy=K(id);if(!k.war[id]||!enemy||!enemy.alive||!enemy.war[k.id])continue;
+   for(const wall of BL){if(wall.t!=='wall'||wall.p<wall.n||wall.h<=0||O[wall.i]!==enemy.id)continue;
+    if(!nb(wall.i).some(j=>O[j]===k.id))continue;
+    const key=wall.i,amount=Math.min(7,1.1+Math.sqrt(power)*1.35);
+    damage.set(key,Math.max(damage.get(key)||0,amount));active.push({wall,k,enemy});
+   }
+  }
+ }
+ const hit=new Set();
+ for(const entry of active){const wall=entry.wall;if(hit.has(wall.i))continue;hit.add(wall.i);
+  const amount=damage.get(wall.i)||0,old=wall.h;wall.h=Math.max(0,wall.h-amount);
+  if(old>0&&wall.h<=0){log('💥 Pháo binh '+title(entry.k)+' phá sập tường thành của '+title(entry.enemy)+'!');FX.push([wall.i,12,2]);}
+ }
+ // Tường thành được sửa chữa chậm khi quốc gia không còn chiến tranh.
+ for(const wall of BL){if(wall.t!=='wall'||wall.p<wall.n||wall.h<=0||wall.h>=100)continue;
+  const owner=K(O[wall.i]);if(!owner||!owner.alive)continue;
+  const atWar=Object.keys(owner.war).some(id=>owner.war[id]&&K(id)?.alive);
+  if(!atWar)wall.h=Math.min(100,wall.h+.35);
+ }
+}
 function step(){W.month=(W.month|0)+1;if(W.month>=12){W.month=0;W.year++}civilizationTick();updateFactions();diplomacyTick();for(let i=FX.length;i--;)if(--FX[i][1]<=0)FX.splice(i,1);for(let i=SH.length;i--;)if(--SH[i].l<=0)SH.splice(i,1);DBL=BL.filter(b=>b.p>=b.n&&bd(b.t)[10]==='d');const fe=new Float64Array(W.ks.length+1),n=new Uint32Array(W.ks.length+1),pr=new Map(),BP=new Map(),tl={};let tp=0;const rb=[],sc=[];
  for(let i=0;i<N*H;i++){const a=O[i];if(!a)continue;n[a]=(n[a]||0)+1;(tl[a]||(tl[a]=[])).push(i);fe[a]=(fe[a]||0)+fer(i)*(K(a).race.pt.includes(T[i])?1.4:1);
   const j=i%N<N-1?i+1:-1;if(j>=0){const b=O[j];if(b&&b!==a){const q=Math.min(a,b)*1000+Math.max(a,b);pr.set(q,[a,b]);if(K(a).war[b]){let l=BP.get(q);if(!l)BP.set(q,l=[]);l.push(i,j)}}}const d=i+N;if(d<N*H){const b=O[d];if(b&&b!==a){const q=Math.min(a,b)*1000+Math.max(a,b);pr.set(q,[a,b]);if(K(a).war[b]){let l=BP.get(q);if(!l)BP.set(q,l=[]);l.push(i,d)}}}}
@@ -1835,7 +1859,7 @@ function step(){W.month=(W.month|0)+1;if(W.month>=12){W.month=0;W.year++}civiliz
  if(!(W.scd>0)){const n0=W.ks.length;if(rb.length)rebel(rb[Math.random()*rb.length|0]);else if(sc.length){const a=rnd(sc);secede(a[0],a[1])}if(W.ks.length>n0)W.scd=12}else W.scd--;
  for(const[pk,[a,b]]of pr){const A=K(a),B=K(b);if(!A.alive||!B.alive)continue;if(A.war[b])front(A,B,BP.get(pk));else{if(A.ideo&&B.ideo)sr(A,B,A.ideo===B.ideo?1:-1.2);if(Math.random()<.14)event(A,B,A.rel[b]||0)}}
  for(const k of W.ks)if(k.alive)for(const id in k.war){const o=K(id);if(!k.war[id]||!o||!o.alive||k.id>o.id)continue;if(!pr.has(k.id*1000+o.id))remoteWar(k,o)}remoteContact(pr);
- fillTerritoryHoles();BL=BL.filter(b=>b.h>0&&O[b.i]&&T[b.i]>=2);roads();checkWorldConquest();if(Math.random()<.2)randDis();W.mana=Math.min(200,W.mana+1.5+tp/40);VER++;if(W.playerId)checkPlayerIdeology();if(checkRoleplayGameOver())return}
+ siegeTick();fillTerritoryHoles();BL=BL.filter(b=>b.h>0&&O[b.i]&&T[b.i]>=2);roads();checkWorldConquest();if(Math.random()<.2)randDis();W.mana=Math.min(200,W.mana+1.5+tp/40);VER++;if(W.playerId)checkPlayerIdeology();if(checkRoleplayGameOver())return}
 function card(k){const ws=Object.keys(k.war).filter(i=>k.war[i]&&K(i).alive),lc=k.loy<30?'#e53935':k.loy<55?'#f9a825':'#43a047';
  return '<div class="card'+(W.sel===k.id?' on':'')+'" data-sel="'+k.id+'"><div class="hd">'+flagSVG(k,16)+'<b>'+k.race.e+' '+k.name+bsvg(k.ideo,14)+'</b><span class="st">👥'+fmt(k.pop*100)+' <i style="color:'+lc+';font-style:normal">❤'+(k.loy|0)+'</i></span><span class="mu">›</span></div></div>'}
 function detail(k){const g=k.king,a=k.pol&&pol(k.pol.id),ws=Object.keys(k.war).filter(i=>k.war[i]&&K(i).alive),lc=k.loy<30?'#e53935':k.loy<55?'#f9a825':'#43a047';
