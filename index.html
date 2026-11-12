@@ -398,28 +398,57 @@ function drawUnitFallback(g,key,x,y,size){
 }
 function drawUnit(g,key,x,y,size){if(!drawAtlasSprite(g,key,x,y,size))drawUnitFallback(g,key,x,y,size);}
 let WILD_CACHE=[],WILD_CACHE_KEY='';
+function drawResidentRole(g,role,x,y,size){
+ const p=Math.max(1,Math.round(size/10)),px=Math.round(x-size*.5),py=Math.round(y-size*.48);
+ const rect=(dx,dy,w,h,color)=>{g.fillStyle=color;g.fillRect(px+Math.round(dx*p),py+Math.round(dy*p),Math.max(1,Math.round(w*p)),Math.max(1,Math.round(h*p)))};
+ // Phu kien pixel ve bang primitive, khong dung emoji/icon.
+ if(role==='farmer'){rect(5,-1,6,2,'#d6b45c');rect(10,1,1,4,'#79502f');rect(12,7,2,5,'#a8793e');rect(11,11,4,1,'#d7c18b')}
+ else if(role==='builder'){rect(5,-2,7,2,'#b9824d');rect(11,1,2,5,'#8b633d');rect(10,1,4,2,'#c5cbd0')}
+ else if(role==='merchant'){rect(12,5,4,5,'#9a6335');rect(13,6,2,3,'#d9b75e');rect(11,5,2,1,'#e6d2a4')}
+ else if(role==='guard'){rect(12,3,2,8,'#c5cbd0');rect(11,2,4,2,'#e1e7e8');rect(3,5,2,5,'#b9824d')}
+ else if(role==='craftsman'){rect(12,3,2,7,'#8b633d');rect(11,2,4,2,'#c5cbd0');rect(12,10,3,2,'#d7b85c')}
+ else {rect(5,-1,6,1,'#d9d1b7')}
+}
 function drawResidents(sc){
  if(!W||!spriteAtlasReady||sc<.72||C<6)return;
  const now=Date.now(),frame=(Math.floor(now/190)&1)+1;
  let budget=96;
  for(const k of W.ks){
-  if(!k.alive||!Array.isArray(k.cities)||!k.cities.length)continue;
+  if(!k.alive||!Array.isArray(k.cities))continue;
   const rk=R[k.rid]?k.rid:'human';
-  for(let ci=0;ci<k.cities.length&&budget>0;ci++){
-   const city=k.cities[ci],tile=city.i;
-   if(!Number.isInteger(tile)||tile<0||tile>=N*H)continue;
-   const population=Math.max(1,Math.min(4,1+Math.floor(Math.log2(Math.max(1,k.pop/Math.max(1,k.cities.length))))));
-   const count=Math.min(3,population);
+  const settlements=[[k.cap,k.cname,1],...k.cities.map(c=>[c.i,c.n,0])];
+  for(let ci=0;ci<settlements.length&&budget>0;ci++){
+   const [tile,,isCapital]=settlements[ci];
+   if(!Number.isInteger(tile)||tile<0||tile>=N*H||O[tile]!==k.id)continue;
+   const buildings=BL.filter(b=>b.c===tile&&b.p>=b.n&&b.h>0);
+   const jobs=[];
+   for(const b of buildings){
+    if(b.t==='farm')jobs.push({role:'farmer',target:b.i});
+    else if(b.t==='barracks')jobs.push({role:'guard',target:b.i});
+    else if(b.t==='market')jobs.push({role:'merchant',target:b.i});
+    else if(['sawmill','quarry','forge'].includes(b.t))jobs.push({role:'craftsman',target:b.i});
+    else if(['house','granary','temple','library','hospital','factory'].includes(b.t))jobs.push({role:'builder',target:b.i});
+   }
+   const popShare=Math.max(1,k.pop/Math.max(1,settlements.length));
+   const count=Math.min(3,Math.max(1,1+Math.floor(Math.log2(Math.max(1,popShare)))));
    for(let j=0;j<count&&budget>0;j++,budget--){
     const seed=(Math.imul(k.id*97+ci*31+j*13,2654435761)>>>0);
-    const phase=(now/3200+seed/4294967296+j*.37)%1,angle=phase*Math.PI*2;
-    const rx=1.45+(seed%120)/100,ry=1.05+((seed>>>8)%90)/100;
-    const x=(tile%N+.5+Math.cos(angle)*rx)*C;
-    const y=((tile/N|0)+.5+Math.sin(angle)*ry)*C;
+    const job=jobs.length?jobs[(j+(seed%jobs.length))%jobs.length]:{role:'civilian',target:tile};
+    const phase=(now/4200+seed/4294967296+j*.37)%1;
+    const wave=phase<.5?phase*2:(1-phase)*2;
+    const tx=job.target%N,ty=job.target/N|0,sx=tile%N,sy=tile/N|0;
+    const dx=tx-sx,dy=ty-sy,len=Math.max(1,Math.hypot(dx,dy));
+    const side=Math.sin(phase*Math.PI*4+(seed%7))*.24;
+    const lateralX=-dy/len*side,lateralY=dx/len*side;
+    const orbit=(Math.PI*2*phase)+(seed%13)*.2;
+    const ox=jobs.length?dx*wave+Math.cos(orbit)*.18+lateralX:Math.cos(orbit)*(1.1+(seed%90)/100);
+    const oy=jobs.length?dy*wave+Math.sin(orbit)*.18+lateralY:Math.sin(orbit)*(.8+((seed>>>8)%80)/100);
+    const x=(sx+.5+ox)*C,y=(sy+.5+oy)*C;
     const size=Math.max(8,Math.min(15,C*.72));
     cx.save();cx.globalAlpha=.96;
     cx.fillStyle='rgba(15,24,18,.32)';cx.fillRect(Math.round(x-size*.22),Math.round(y+size*.34),Math.max(2,Math.round(size*.44)),Math.max(1,Math.round(size*.12)));
     drawUnit(cx,'race_'+rk+'_walk'+frame,x,y,size);
+    drawResidentRole(cx,job.role,x,y,size);
     cx.restore();
    }
   }
