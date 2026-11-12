@@ -647,11 +647,55 @@ function drawSettlementLife(sc){
   cx.restore();
  }
 }
-function drawMechanized(sc){if(!W||sc<.72)return;const fz=Math.max(14,Math.min(25,18/sc));for(const k of W.ks){if(!k.alive||!k.eq)continue;const tanks=k.eq.s?.tank||0;if(tanks<.12)continue;const x=(k.cap%N+.5)*C,y=(Math.floor(k.cap/N)+.5)*C-C*.85;cx.globalAlpha=Math.min(.98,.55+tanks*.25);E(cx,tanks>=.65?'🚜':'🚙',x,y,fz);cx.globalAlpha=1;}}
+// ---- Sprite atlas quân đội pixel art (16x16, crisp edges) ----
+const MILITARY_SPRITES={infantry:[1,127],archer:[19,127],cavalry:[37,127],cannon:[55,127],tank:[73,127],plane:[91,127],ship:[1,145],sailboat:[19,145],migration:[37,145],missile:[55,145]};
+const militaryAtlas=new Image();let militaryAtlasReady=false;
+militaryAtlas.onload=()=>{militaryAtlasReady=true;if(typeof W!=='undefined'&&W)draw()};
+militaryAtlas.src='assets/pixel-art/atlas-v2.svg';
+function drawUnit(g,key,x,y,size){
+ const cell=MILITARY_SPRITES[key];
+ if(militaryAtlasReady&&cell){g.save();g.imageSmoothingEnabled=false;g.drawImage(militaryAtlas,cell[0],cell[1],16,16,Math.round(x-size/2),Math.round(y-size/2),Math.ceil(size),Math.ceil(size));g.restore();return;}
+ const u=Math.max(1,size/16),ox=x-size/2,oy=y-size/2;
+ const p=(a,b,w,h,col)=>{g.fillStyle=col;g.fillRect(Math.round(ox+a*u),Math.round(oy+b*u),Math.max(1,Math.round(w*u)),Math.max(1,Math.round(h*u)));};
+ const c={infantry:['#a9473b','#e4d3a0'],archer:['#4d8b42','#e4d3a0'],cavalry:['#a9473b','#79502f'],cannon:['#79502f','#d5b54d'],tank:['#4d8b42','#526a7b'],plane:['#9daeb8','#d9e5ed'],ship:['#79502f','#d9e5ed'],sailboat:['#79502f','#d9e5ed'],migration:['#79502f','#e4d3a0'],missile:['#a9473b','#d9e5ed']}[key]||['#a9473b','#e4d3a0'];
+ if(key==='ship'||key==='sailboat'){p(2,9,12,3,c[0]);p(5,6,6,3,c[1]);p(7,2,1,7,'#263849');p(8,3,4,5,c[1]);}
+ else if(key==='tank'||key==='cannon'){p(2,8,12,4,c[0]);p(4,5,8,4,c[1]);p(1,12,3,2,'#263849');p(12,12,3,2,'#263849');}
+ else if(key==='plane'||key==='missile'){p(7,1,2,13,c[0]);p(2,6,12,3,c[1]);}
+ else{p(6,2,4,4,c[1]);p(4,6,8,5,c[0]);p(5,11,2,4,'#263849');p(9,11,2,4,'#263849');}
+}
+function drawFrontlineClashes(sc){
+ if(!W||sc<.58)return;const active=warSet();if(!active.size)return;
+ const now=Date.now(),limit=30;let shown=0;
+ for(let i=0;i<N*H&&shown<limit;i++){
+  const owner=O[i];if(!owner||!active.has(owner))continue;const k=K(owner);if(!k)continue;
+  const x=i%N,y=i/N|0,neighbors=[x<N-1?i+1:-1,y<H-1?i+N:-1,x>0?i-1:-1,y>0?i-N:-1];let enemy=-1,edge=0;
+  for(let d=0;d<4;d++){const j=neighbors[d];if(j>=0&&O[j]&&O[j]!==owner&&k.war[O[j]]){enemy=j;edge=d;break}}
+  if(enemy<0)continue;
+  const pulse=(now/260+i*17)%Math.PI*2,dx=[1,0,-1,0][edge],dy=[0,1,0,-1][edge],mx=(x+.5+dx*.5)*C,my=(y+.5+dy*.5)*C,ox=-dy*C*.22,oy=dx*C*.22,unit=Math.max(12,Math.min(21,C*.9));
+  cx.save();cx.globalAlpha=.95;const foe=K(O[enemy]);cx.fillStyle=k.col||'#f3d27a';cx.beginPath();cx.arc(mx-ox,my-oy,Math.max(2,C*.16),0,Math.PI*2);cx.fill();cx.fillStyle=foe?.col||'#e66b62';cx.beginPath();cx.arc(mx+ox,my+oy,Math.max(2,C*.16),0,Math.PI*2);cx.fill();
+  drawUnit(cx,'infantry',mx-ox,my-oy,unit);drawUnit(cx,'infantry',mx+ox,my+oy,unit);
+  const flash=Math.max(0,Math.sin(pulse));cx.globalAlpha=.45+flash*.55;cx.fillStyle='#fff0a0';cx.fillRect(Math.round(mx-1),Math.round(my-5-flash*2),2,Math.max(3,Math.round(5+flash*3)));cx.fillRect(Math.round(mx-4-flash*2),Math.round(my-1),Math.max(3,Math.round(5+flash*3)),2);cx.restore();shown++;
+ }
+}
+function drawSiegeVisuals(sc){
+ if(!W||sc<.62)return;const now=Date.now(),active=warSet();if(!active.size)return;let shown=0;
+ for(let i=0;i<N*H&&shown<18;i++){
+  const owner=O[i];if(!owner||!active.has(owner))continue;const attacker=K(owner);if(!attacker)continue;
+  const eq=attacker.eq?.s||{},siege=(eq.catapult||0)+(eq.cannon||0)+(eq.missile||0);if(siege<.12)continue;
+  const x=i%N,y=i/N|0,near=[];
+  for(const j of [x<N-1?i+1:-1,y<H-1?i+N:-1,x>0?i-1:-1,y>0?i-N:-1]){if(j<0||!O[j]||O[j]===owner||!attacker.war[O[j]])continue;const wall=BL.find(b=>b.i===j&&b.t==='wall'&&b.h>0);if(wall)near.push({j,wall});}
+  if(!near.length)continue;const target=near[0],tx=(target.j%N+.5)*C,ty=((target.j/N|0)+.5)*C,ox=x-target.j%N,oy=y-(target.j/N|0),len=Math.max(1,Math.hypot(ox,oy)),sx=tx+ox/len*C*1.7,sy=ty+oy/len*C*1.7,size=Math.max(14,Math.min(22,C*.95));
+  cx.save();drawUnit(cx,'cannon',sx,sy,size);const phase=(now/1250+i*.37)%1,arc=Math.sin(phase*Math.PI),px=sx+(tx-sx)*phase,py=sy+(ty-sy)*phase-arc*C*1.8;
+  cx.fillStyle='#25201b';cx.fillRect(Math.round(px-2),Math.round(py-2),4,4);cx.fillStyle='#e7b45b';cx.fillRect(Math.round(px-1),Math.round(py-1),2,2);
+  if(phase>.92){const pulse=(phase-.92)/.08;cx.globalAlpha=pulse;cx.fillStyle='#ffe39a';cx.fillRect(Math.round(tx-2),Math.round(ty-2),4,4);cx.fillStyle='#bd5135';cx.fillRect(Math.round(tx-4),Math.round(ty+2),8,2)}cx.restore();
+  cx.save();cx.fillStyle='#352b25';cx.fillRect(tx-C*.35,ty+C*.42,C*.7,Math.max(2,C*.07));cx.fillStyle='#d45a42';cx.fillRect(tx-C*.35,ty+C*.42,C*.7*Math.max(0,target.wall.h)/100,Math.max(2,C*.07));cx.restore();shown++;
+ }
+}
+function drawMechanized(sc){if(!W||sc<.72)return;const fz=Math.max(14,Math.min(25,18/sc));for(const k of W.ks){if(!k.alive||!k.eq)continue;const tanks=k.eq.s?.tank||0;if(tanks<.12)continue;const x=(k.cap%N+.5)*C,y=(Math.floor(k.cap/N)+.5)*C-C*.85;cx.globalAlpha=Math.min(.98,.55+tanks*.25);drawUnit(cx,'tank',x,y,fz);cx.globalAlpha=1;}}
 function drawShips(sc){const now=Date.now(),fz=Math.min(30,Math.max(14,16/sc)),D=1800;
  for(const v of SH){if(!v.ship)continue;const e=now-v.t0;if(e<0||e>D)continue;const f=e/D,n=v.pts.length-1;if(n<1)continue;const pos=f*n,ix=Math.min(n-1,pos|0),u=pos-ix,A=v.pts[ix],B=v.pts[ix+1],px=(A%N+(B%N-A%N)*u+.5)*C,py=((A/N|0)+((B/N|0)-(A/N|0))*u+.5)*C;
   for(let w=1;w<=4;w++){const bp=Math.max(0,pos-w*.5),bi=Math.min(n-1,bp|0),bf=bp-bi,a2=v.pts[bi],b2=v.pts[bi+1];cx.globalAlpha=.55-w*.12;cx.fillStyle='#fff';cx.beginPath();cx.arc((a2%N+(b2%N-a2%N)*bf+.5)*C,((a2/N|0)+((b2/N|0)-(a2/N|0))*bf+.5)*C,Math.max(1,C*.25)*(1+w*.15),0,7);cx.fill()}
-  cx.globalAlpha=Math.min(1,e/200,(D-e)/300+.3);E(cx,'⛵',px,py+Math.sin(now/120)*fz*.06,fz);cx.globalAlpha=1}}
+  cx.globalAlpha=Math.min(1,e/200,(D-e)/300+.3);drawUnit(cx,'ship',px,py+Math.sin(now/120)*fz*.06,fz*1.15);cx.globalAlpha=1}}
 // ---- Hoạt ảnh hành quân trên bản đồ ----
 function queueMarchPath(k,pts,kind){
  if(!pts||pts.length<2)return;
@@ -686,10 +730,10 @@ function drawArmies(sc){
    const pos=Math.min(n-.001,a.p*n),ix=Math.min(n-1,Math.floor(pos)),u=pos-ix,A=a.pts[ix],B=a.pts[ix+1];
    const x=(A%N+(B%N-A%N)*u+.5)*C,y=((A/N|0)+((B/N|0)-(A/N|0))*u+.5)*C;
    cx.globalAlpha=.28;cx.fillStyle='#101820';cx.beginPath();cx.arc(x+1,y+1,Math.max(3,C*.38)+2,0,Math.PI*2);cx.fill();
-   cx.globalAlpha=1;E(cx,'🧳',x,y,unitSize*1.12);continue;
+   cx.globalAlpha=1;drawUnit(cx,'migration',x,y,unitSize*1.12);continue;
   }
   const eq=k.eq?.s||{};
-  const at=(progress,icon,side=0,lift=0)=>{
+  const at=(progress,sprite,side=0,lift=0)=>{
    if(progress<=0)return;
    const pos=Math.min(n-.001,progress*n),ix=Math.min(n-1,Math.floor(pos)),u=pos-ix,A=a.pts[ix],B=a.pts[ix+1];
    const dx=(B%N-A%N),dy=((B/N|0)-(A/N|0)),len=Math.hypot(dx,dy)||1;
@@ -697,16 +741,16 @@ function drawArmies(sc){
    const y=((A/N|0)+dy*u+.5)*C+(dx/len)*side*C*.48-lift*unitSize;
    cx.globalAlpha=.28;cx.fillStyle='#101820';cx.beginPath();cx.arc(x+1,y+1,Math.max(2.8,C*.34)+2,0,Math.PI*2);cx.fill();
    cx.globalAlpha=.95;cx.fillStyle=k.col||'#ffe082';cx.beginPath();cx.arc(x,y,Math.max(2.8,C*.34)+1.5,0,Math.PI*2);cx.fill();
-   cx.globalAlpha=1;E(cx,icon,x,y,unitSize);
+   cx.globalAlpha=1;drawUnit(cx,sprite,x,y,unitSize);
   };
   // Bộ binh là lực lượng nòng cốt của mọi đội quân hành quân.
-  for(let unit=3;unit>=0;unit--)at(a.p-unit*.075,unit%2===0?'🪖':'⚔️',(unit%2?1:-1)*.35,0);
+  for(let unit=3;unit>=0;unit--)at(a.p-unit*.075,unit%2===0?'infantry':'archer',(unit%2?1:-1)*.35,0);
   // Kỵ binh cơ động, pháo binh yểm trợ và thiết giáp chỉ xuất hiện khi đã được phát triển.
-  if((eq.horse||0)>.12)at(a.p-.12,'🐎',1.15,0);
-  if((eq.cannon||0)+(eq.catapult||0)>.12)at(a.p-.2,'💣',-1.15,0);
-  if((eq.tank||0)>.12)at(a.p-.28,(eq.tank||0)>=.65?'🚜':'🚙',0,1.05);
-  if((eq.plane||0)>.12)at(a.p-.08,'✈️',0,1.85);
-  if((eq.missile||0)>.12)at(a.p-.36,'🚀',1.2,1.65);
+  if((eq.horse||0)>.12)at(a.p-.12,'cavalry',1.15,0);
+  if((eq.cannon||0)+(eq.catapult||0)>.12)at(a.p-.2,'cannon',-1.15,0);
+  if((eq.tank||0)>.12)at(a.p-.28,'tank',0,1.05);
+  if((eq.plane||0)>.12)at(a.p-.08,'plane',0,1.85);
+  if((eq.missile||0)>.12)at(a.p-.36,'missile',1.2,1.65);
   cx.globalAlpha=1;
  }
 }
@@ -792,7 +836,7 @@ function paint(){renderT();if(OLVER!==VER){if(updOL())VER++;OLVER=VER}const sc=(
  cx.drawImage(lyr('rd',V,drawRoads,150),0,0);drawTrade();drawArmies(sc);
  const at=warSet();if(at.size){const wl=lyr('wl',V,()=>{cx.fillStyle='#ff1e1e';for(let i=0;i<N*H;i++){const o=O[i];if(!o||!at.has(o))continue;const kw=K(o).war,xi=i%N,yi=i/N|0,x=xi*C,y=yi*C,E2=j=>O[j]&&O[j]!==o&&kw[O[j]];
    if(xi<N-1&&E2(i+1))cx.fillRect(x+C-3,y,3,C);if(xi>0&&E2(i-1))cx.fillRect(x,y,3,C);if(yi<H-1&&E2(i+N))cx.fillRect(x,y+C-3,C,3);if(yi>0&&E2(i-N))cx.fillRect(x,y,C,3)}},120);
-  cx.globalAlpha=.55+.45*(.5+.5*Math.sin(Date.now()/150));cx.drawImage(wl,0,0);cx.globalAlpha=1}
+  cx.globalAlpha=.55+.45*(.5+.5*Math.sin(Date.now()/150));cx.drawImage(wl,0,0);cx.globalAlpha=1}drawFrontlineClashes(sc);drawSiegeVisuals(sc);
  for(let q=Math.max(0,FX.length-150);q<FX.length;q++){const f=FX[q];cx.globalAlpha=Math.min(1,f[1]/2);E(cx,f[2]||'💥',(f[0]%N+.5)*C,((f[0]/N|0)+.5)*C,16)}cx.globalAlpha=1;
  const sid=W.sel,sk=sid&&K(sid);if(!W.playerId&&sk&&sk.alive){const SV=sid+'|'+V,yl=lyr('sy',SV,()=>{const fz=sk.n>=30?new Set(farInfo(sk).far.map(f=>f[0])):null;for(const i of tilesOf(sk)){const xi=i%N,yi=i/N|0,x=xi*C,y=yi*C;if(fz&&fz.has(i)){cx.fillStyle='rgba(120,0,0,.4)';cx.fillRect(x,y,C,C)}cx.fillStyle='#ffe066';if(xi===0||O[i-1]!==sid)cx.fillRect(x,y,2.5,C);if(xi===N-1||O[i+1]!==sid)cx.fillRect(x+C-2.5,y,2.5,C);if(yi===0||O[i-N]!==sid)cx.fillRect(x,y,C,2.5);if(yi===H-1||O[i+N]!==sid)cx.fillRect(x,y+C-2.5,C,2.5)}},120),
    wh=lyr('sw',SV,()=>{cx.fillStyle='#fff';for(const i of tilesOf(sk))cx.fillRect(i%N*C,(i/N|0)*C,C,C)},120);cx.globalAlpha=territoryAlpha*(.14+.12*Math.sin(Date.now()/230));cx.drawImage(wh,0,0);cx.globalAlpha=territoryAlpha;cx.drawImage(yl,0,0);cx.globalAlpha=1}
