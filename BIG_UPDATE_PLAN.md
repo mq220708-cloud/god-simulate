@@ -32,6 +32,7 @@
 - Added 10 hand-authored 16×16 unit sprites for infantry, archers, cavalry, cannon, tanks, aircraft, ships, sailboats, migration groups, and missiles.
 - Replaced emoji rendering in marching armies, mechanized units, migrating groups, naval transport, and sea trade with crisp sprite-atlas rendering and pixel-drawn fallbacks.
 - Added per-tool canvas previews to the terrain/creature/power/building toolbar; previews use original atlas sprites or hand-drawn pixel terrain/effect swatches, and leading emoji labels are stripped.
+- Added 10 hand-authored wildlife sprites (deer, wolf, bear, rabbit, cow, sheep, boar, fox, chicken, bird) and a deterministic terrain-aware ambient wildlife renderer. Wildlife placement is cached by world seed and map dimensions to avoid rescanning the entire map every frame.
 - Removed emoji city markers; city appearance now changes with city level.
 - Main branch remains untouched; work is isolated on `big-update/pixel-art-worldbox-ui`.
 
