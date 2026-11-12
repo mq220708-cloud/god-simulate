@@ -27,6 +27,8 @@
 - Integrated the compact atlas into forest tiles and city-level building rendering; atlas sprites use crisp nearest-neighbor drawing and pixel primitives remain as a loading fallback.
 - Added sparse, deterministic flower/bush sprites to suitable grassland tiles and small rock sprites to hills.
 - Fixed atlas onload refresh so all atlas-backed terrain details are drawn after asynchronous image loading.
+- Added original sprites for all 15 existing building types and replaced emoji construction markers on the map with crisp sprite rendering.
+- Added custom pixel scaffolding for buildings under construction and a durability bar for damaged structures.
 - Removed emoji city markers; city appearance now changes with city level.
 - Main branch remains untouched; work is isolated on `big-update/pixel-art-worldbox-ui`.
 
