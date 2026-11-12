@@ -1836,7 +1836,7 @@ function siegeTick(){
  const hit=new Set();
  for(const entry of active){const wall=entry.wall;if(hit.has(wall.i))continue;hit.add(wall.i);
   const amount=damage.get(wall.i)||0,old=wall.h;wall.h=Math.max(0,wall.h-amount);
-  if(old>0&&wall.h<=0){log('💥 Pháo binh '+title(entry.k)+' phá sập tường thành của '+title(entry.enemy)+'!');FX.push([wall.i,12,2]);}
+  if(old>0&&wall.h<=0){log('💥 Pháo binh '+title(entry.k)+' phá sập tường thành của '+title(entry.enemy)+'!');}
  }
  // Tường thành được sửa chữa chậm khi quốc gia không còn chiến tranh.
  for(const wall of BL){if(wall.t!=='wall'||wall.p<wall.n||wall.h<=0||wall.h>=100)continue;
