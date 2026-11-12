@@ -712,7 +712,8 @@ function drawNames(){const sc=(cv.clientWidth/cv.width)||.5,st={};
   if(lv>=3){px(-5,-1,1,4,'#b9c7d2');px(4,-1,1,4,'#b9c7d2');px(-5,-2,1,1,roof);px(4,-2,1,1,roof);px(-1,-5,2,2,'#e8d7a5');px(-1,-6,2,1,'#d8b45e')}
  };
  for(const k of W.ks)if(k.alive)for(const c of k.cities){const lv=cd(c.i).lv;drawCitySprite(cx,lv,(c.i%N+.5)*C,((c.i/N|0)+.5)*C+1,Math.min(22,Math.max(13,9/sc)))}
- drawLocalStreets(cx,sc);\n drawBL(sc);
+ drawLocalStreets(cx,sc);
+ drawBL(sc);
  for(let i=0;i<N*H;i++){const o=O[i];if(o){const q=st[o]||(st[o]=[0,0,0]);q[0]+=i%N;q[1]+=i/N|0;q[2]++}}
  const fs=Math.min(26,Math.max(10,12/sc));cx.font='700 '+fs+'px system-ui,sans-serif';cx.textAlign='center';cx.textBaseline='middle';cx.lineJoin='round';cx.lineWidth=fs/4;
  for(const id in st){const k=K(id),q=st[id];if(!k||!k.alive)continue;if(Math.sqrt(q[2])*C*sc<k.name.length*5.5)continue;const x=(q[0]/q[2]+.5)*C,y=(q[1]/q[2]+.5)*C+fs*.9;cx.strokeStyle='rgba(0,0,0,.75)';cx.strokeText(k.name,x,y);cx.fillStyle='#fff';cx.fillText(k.name,x,y);{const fl=flagCanvas(k),bw0=cx.measureText(k.name).width,fh=fs*1.2,fw=fh*1.5;cx.drawImage(fl,x-bw0/2-fw-fs*.25,y-fh/2,fw,fh)}const bi=BIMG[k.ideo];if(bi&&bi.complete&&bi.naturalWidth){const bs=fs*1.25,bw=cx.measureText(k.name).width;cx.drawImage(bi,x+bw/2+fs*.2,y-bs/2,bs,bs)}const it=k.intent;if(it&&it.until>TM()){const ic=INTENT_ICONS[it.type]||'💬',iy=y-fs*1.05;cx.font=Math.max(12,fs*.9)+'px system-ui,sans-serif';cx.lineWidth=3;cx.strokeStyle='rgba(0,0,0,.85)';cx.strokeText(ic,x,iy);cx.fillStyle='#fff';cx.fillText(ic,x,iy)}}
