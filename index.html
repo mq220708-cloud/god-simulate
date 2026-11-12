@@ -408,16 +408,16 @@ function tileMicroDetail(i){const t=T[i],xv=X[i];if(t<2||RV[i])return;const x0=i
  const light=autumn?'#e6a04d':evergreen?'#4d9a4d':'#79b957';
  const shine=autumn?'#f2c36a':evergreen?'#83c96a':'#b4dc72';
  // Bóng đổ và thân cây có cạnh bậc thang kiểu pixel.
- P(2,8,6,1,'#244c2d');P(4,5,2,4,bark);P(4,6,1,2,barkHi);
+ P(2,8,'#244c2d',6,1);P(4,5,bark,2,4);P(4,6,barkHi,1,2);
  if(evergreen){
-   P(4,0,2,1,deep);P(3,1,4,2,deep);P(2,3,6,2,deep);P(1,5,8,2,deep);
-   P(4,1,1,1,mid);P(3,2,2,1,mid);P(2,4,3,1,mid);P(2,6,3,1,mid);
-   P(4,1,1,1,shine);P(3,3,1,1,light);P(2,5,2,1,light);
+   P(4,0,deep,2,1);P(3,1,deep,4,2);P(2,3,deep,6,2);P(1,5,deep,8,2);
+   P(4,1,mid,1,1);P(3,2,mid,2,1);P(2,4,mid,3,1);P(2,6,mid,3,1);
+   P(4,1,shine,1,1);P(3,3,light,1,1);P(2,5,light,2,1);
  }else{
-   P(3,1,4,1,deep);P(2,2,6,2,deep);P(1,4,8,2,deep);P(2,6,6,1,deep);
-   P(3,2,3,1,mid);P(2,3,4,1,mid);P(2,5,4,1,mid);
-   P(3,2,2,1,shine);P(2,4,2,1,light);P(5,3,2,1,light);
-   P(6,5,1,1,shine);P(3,6,2,1,light);
+   P(3,1,deep,4,1);P(2,2,deep,6,2);P(1,4,deep,8,2);P(2,6,deep,6,1);
+   P(3,2,mid,3,1);P(2,3,mid,4,1);P(2,5,mid,4,1);
+   P(3,2,shine,2,1);P(2,4,light,2,1);P(5,3,light,2,1);
+   P(6,5,shine,1,1);P(3,6,light,2,1);
  }
  return;
 }if(t===5){const rock=xv===2?'#e7eef4':xv===1?'#d6b36f':'#9da99a',shade=xv===2?'#aebdca':xv===1?'#9a7847':'#626d65';for(let k=0;k<7;k++){const x=rnd()*9|0,y=rnd()*9|0;P(x,y,k%3?rock:shade,rnd()<.3?2:1,1)}P(2,7,shade,3,1);return}if(t===6){const snow=xv===2;for(let k=0;k<8;k++){const x=rnd()*9|0,y=2+(rnd()*7|0);P(x,y,snow?(k%3?'#f7fbff':'#aab9c6'):(k%3?'#aab0b5':'#535b63'),rnd()<.25?2:1,1)}P(3,2,snow?'#fff':'#b7bdc0',3,1);P(2,5,snow?'#b9c7d3':'#4d555c',3,1)}}
