@@ -9,7 +9,7 @@
 ## Atlas đang sử dụng
 File: `atlas-v2.svg`
 - 16×16 pixel cho mỗi sprite, không phóng chi tiết bằng các ô pixel phụ.
-- 13 sprite: sồi, thông, bạch dương, lá vàng, cọ, bụi cây, hoa, đá, nhà gỗ, nhà mái ngói, trang trại, tháp canh, lâu đài.
+- 26 sprite: 13 sprite môi trường/công trình cơ bản và 13 sprite công trình mở rộng (cối xay gió, xưởng gỗ, mỏ đá, kho lương, đền thờ, chợ, doanh trại, tường thành, thư viện, lò rèn, hải cảng, y quán, công xưởng).
 - Mỗi màu dùng một path SVG gộp để giảm kích thước tệp.
 - Atlas v2 được nén từ khoảng 78 KB xuống khoảng 19 KB (giảm 76%) so với bản SVG rect ban đầu.
 - `atlas-v1.svg` là bản thử nghiệm cũ, không còn được renderer tải.
@@ -25,6 +25,7 @@ File: `atlas-v2.svg`
 - Cây sồi, thông, bạch dương và cây lá vàng được dùng cho các ô rừng.
 - Bụi hoa và bụi cây nhỏ xuất hiện thưa trên đồng cỏ phù hợp; đá pixel nhỏ xuất hiện ngẫu nhiên ổn định trên đồi.
 - Nhà gỗ, nhà mái ngói, tháp canh và lâu đài được dùng theo cấp thành phố.
+- Toàn bộ 15 loại công trình xây dựng hiện có được ánh xạ sang sprite Pixel Art riêng khi hiển thị trên bản đồ; công trình đang xây có hiệu ứng giàn giáo tự vẽ và thanh độ bền.
 - Khi atlas tải xong, renderer dựng lại chi tiết cho đồng cỏ, rừng và đồi để tránh thiếu sprite do tải bất đồng bộ.
 - Có fallback pixel primitives nếu atlas chưa tải xong.
 
