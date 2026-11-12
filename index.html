@@ -368,7 +368,7 @@ function mkTerrain(seed){NATVER++;const[n,c0]=SZ[CFG.size];N=H=n;C=c0;const NH=N
  const sn=top(land,i=>-tp[i],CFG.snow/100*.3);sn.forEach(i=>xx[i]=2);
  const ds=top(land.filter(i=>!sn.has(i)&&tt[i]!==6),i=>tp[i]*.34+(1-mo[i])*.46+(1-fn[i])*.20,CFG.desert/100*.3);ds.forEach(i=>xx[i]=1);
  const c2=land.filter(i=>tt[i]===3&&!xx[i]),sp=top(c2,i=>mo[i]*.5+(1-el[i])*.5,CFG.wet/100*.1);sp.forEach(i=>xx[i]=3);
- const fo=top(c2.filter(i=>!sp.has(i)),i=>mo[i]*.62+fn[i]*.23+microForest[i]*.15,CFG.forest/100*.55),jt=qn(land.map(i=>tp[i]),1-(.1+CFG.wet/100*.4));fo.forEach(i=>{tt[i]=4;if(tp[i]>=jt)xx[i]=4});
+ const fo=top(c2.filter(i=>!sp.has(i)),i=>mo[i]*.62+fn[i]*.23+microForest[i]*.15,CFG.forest/100*.65),jt=qn(land.map(i=>tp[i]),1-(.1+CFG.wet/100*.4));fo.forEach(i=>{tt[i]=4;if(tp[i]>=jt)xx[i]=4});
  for(const i of land)if((tt[i]===3||tt[i]===4)&&xx[i]!==2&&el[i]<.3&&nb(i).some(j=>tt[j]<=1)){tt[i]=2;xx[i]=0}
  const lakeAt=(i,z)=>{const qq=[i],seen=new Set([i]);for(let h=0;h<qq.length&&qq.length<z;h++)for(const j of nb(qq[h]))if(!seen.has(j)&&tt[j]>=2&&tt[j]<5){seen.add(j);qq.push(j)}for(const j of qq.slice(0,z)){tt[j]=1;xx[j]=6;rv[j]=0}};
  const fh=new Float32Array(NH);for(let i=0;i<NH;i++)fh[i]=hg[i]+rg[i]*.02;const cands=land.filter(i=>tt[i]>=5&&nb(i).every(j=>tt[j]>=2)),nr=CFG.river?Math.max(1,Math.round(CFG.river/100*land.length/200)):0,src=[];
@@ -377,7 +377,7 @@ function mkTerrain(seed){NATVER++;const[n,c0]=SZ[CFG.size];N=H=n;C=c0;const NH=N
  const nl=Math.round(CFG.river/100*land.length/700);for(let t=0;t<nl;t++)for(let a=0;a<40;a++){const i=land[rr()*land.length|0];if(tt[i]!==3&&tt[i]!==4)continue;let ok=1;for(let dy=-3;dy<=3&&ok;dy++)for(let dx=-3;dx<=3;dx++){const u=i%N+dx,v=(i/N|0)+dy;if(u<0||v<0||u>=N||v>=H||tt[v*N+u]<=1){ok=0;break}}if(ok){lakeAt(i,5+(rr()*10|0));break}}
  for(let i=0;i<NH;i++){if(tt[i]<2)rv[i]=0;else if(!rv[i]&&xx[i]===0&&tt[i]===4&&fn[i]>.68&&mo[i]>.42)xx[i]=5;else if(!rv[i]&&xx[i]===0&&tt[i]===3&&rg[i]>.76&&mo[i]>.46)xx[i]=5;else if(!rv[i]&&xx[i]===0&&(tt[i]===3||tt[i]===5)&&rg[i]<.19&&el[i]>.28)xx[i]=7;}T=tt;X=xx;RV=rv;O=new Uint16Array(NH)}
 function gen(seed,silentRender=false){seed=(seed||'').trim()||Math.random().toString(36).slice(2,8);renderRequested=true;TD=1;renderJob++;renderBusy=true;renderPos=0;renderPhase=0;document.body.classList.toggle('rendering-world',!silentRender);const renderStatus=$('#map-render-status');if(renderStatus){renderStatus.hidden=!!silentRender;if(!silentRender){$('#map-render-fill').style.width='0%';$('#map-render-label').textContent='Đang chuẩn bị thế giới...'}}mkTerrain(seed);TL.width=N*C;TL.height=H*C;cv.width=N*C;cv.height=H*C;TD=1;DQ=[];FX.length=0;SH.length=0;clearN();VER++;OS=null;TLS={};CD={};BL=[];RD=[];LK=0;
- W={year:0,month:0,mana:80,ks:[],factions:[],log:[],sel:0,sp:2,seed,oil:Array.from({length:N*H},(_,i)=>{const h=Math.imul(i+1,2654435761)>>>0;return T[i]>=2&&T[i]<=5&&((h^(h>>>13))%97===0)?80+((h>>>8)%120):0})};log('Hư vô tan biến, thế giới ra đời (seed: '+seed+'). Hãy gieo mầm sự sống!');renderResumeSpeed=silentRender?0:(W.sp||2);W.sp=0;const job=renderJob;requestAnimationFrame(()=>renderChunk(job))}
+ W={year:0,month:0,mana:80,ks:[],factions:[],log:[],sel:0,sp:2,seed,oil:Array.from({length:N*H},(_,i)=>{const h=Math.imul(i+1,2654435761)>>>0;return T[i]>=2&&T[i]<=5&&((h^(h>>>13))%155===0)?60+((h>>>8)%95):0})};log('Hư vô tan biến, thế giới ra đời (seed: '+seed+'). Hãy gieo mầm sự sống!');renderResumeSpeed=silentRender?0:(W.sp||2);W.sp=0;const job=renderJob;requestAnimationFrame(()=>renderChunk(job))}
 // ---- pixel art: vẽ địa hình vào canvas ẩn ----
 const S=v=>Math.round(v*C/10),S2=v=>Math.round(v*C/20),TL=document.createElement('canvas'),tx=TL.getContext('2d');tx.imageSmoothingEnabled=false;let TD=0,DQ=[],renderRequested=false;
 const fer=i=>{const t=T[i],x=X[i];let f=t===3?([1,.1,.12,.35,1,.72,1,.18][x]??1):t===4?(x===4?.75:x===5?.48:.6):t===5?(x===1||x===2||x===7?.2:.5):t===6?.2:FERT[t];if(RV[i])f+=.45;return f};
@@ -437,8 +437,8 @@ function drawNature(){
  };
  for(let i=0;i<N*H;i++){if(T[i]!==4)continue;const x=i%N,y=i/N|0,h=hash(i),r=(h&65535)/65535;let forest=0;
   for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const xx=x+dx,yy=y+dy;if(xx>=0&&yy>=0&&xx<N&&yy<H&&T[yy*N+xx]===4)forest++}
-  const density=forest>=7 ? 0.82 : forest>=4 ? 0.56 : 0.28;if(r>density)continue;
-  let winner=true;for(let dy=-1;dy<=1&&winner;dy++)for(let dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;const xx=x+dx,yy=y+dy;if(xx<0||yy<0||xx>=N||yy>=H)continue;const j=yy*N+xx;if(T[j]!==4)continue;const hj=hash(j);if((hj&65535)<(h&65535)&&((hj>>>18)&3)!==0){winner=false;break}}
+  const density=forest>=7 ? 0.90 : forest>=4 ? 0.70 : 0.40;if(r>density)continue;
+  let winner=true;for(let dy=-1;dy<=1&&winner;dy++)for(let dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;const xx=x+dx,yy=y+dy;if(xx<0||yy<0||xx>=N||yy>=H)continue;const j=yy*N+xx;if(T[j]!==4)continue;const hj=hash(j);if((hj&65535)<(h&65535)&&((hj>>>18)&3)!==0&&((hj>>>20)&1)===0){winner=false;break}}
   if(!winner)continue;const size=((h>>>16)&7)===0?2:((h>>>19)&3)===0?0:1,kind=X[i]===4?1:X[i]===5?2:((h>>>23)&3)===0?3:0,ox=((h>>>8)&7)/7-.5,oy=((h>>>11)&7)/7-.5;
   tree((x+.5+ox*.38)*C,(y+.5+oy*.38)*C,kind,size,h);
  }
