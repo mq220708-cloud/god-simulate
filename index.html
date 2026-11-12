@@ -763,7 +763,7 @@ function drawTrade(){const t=Date.now()/1000,fz=Math.max(13,C*1.5);cx.font=fz+'p
    cx.globalAlpha=1;cx.fillText(q?'⛵':'🚢',x,y);
    if(pos<.5||pos>n-.5){const up=(pos<.5?pos:n-pos)/.5;cx.globalAlpha=Math.max(0,1-up);cx.fillText('💰',x,y-fz*(.8+up*.8));cx.globalAlpha=1}}}}
 function drawNames(){const sc=(cv.clientWidth/cv.width)||.5,st={};
- cx.textAlign='center';cx.textBaseline='middle';cx.font=Math.min(22,Math.max(13,9/sc))+'px serif';for(const k of W.ks)if(k.alive)for(const c of k.cities)E(cx,['🛖','🏘','🏙','🌆'][cd(c.i).lv],(c.i%N+.5)*C,((c.i/N|0)+.5)*C+1,Math.min(22,Math.max(13,9/sc)));drawBL(sc);
+ cx.textAlign='center';cx.textBaseline='middle';
  for(let i=0;i<N*H;i++){const o=O[i];if(o){const q=st[o]||(st[o]=[0,0,0]);q[0]+=i%N;q[1]+=i/N|0;q[2]++}}
  const fs=Math.min(26,Math.max(10,12/sc));cx.font='700 '+fs+'px system-ui,sans-serif';cx.textAlign='center';cx.textBaseline='middle';cx.lineJoin='round';cx.lineWidth=fs/4;
  for(const id in st){const k=K(id),q=st[id];if(!k||!k.alive)continue;if(Math.sqrt(q[2])*C*sc<k.name.length*5.5)continue;const x=(q[0]/q[2]+.5)*C,y=(q[1]/q[2]+.5)*C+fs*.9;cx.strokeStyle='rgba(0,0,0,.75)';cx.strokeText(k.name,x,y);cx.fillStyle='#fff';cx.fillText(k.name,x,y);{const fl=flagCanvas(k),bw0=cx.measureText(k.name).width,fh=fs*1.2,fw=fh*1.5;cx.drawImage(fl,x-bw0/2-fw-fs*.25,y-fh/2,fw,fh)}const bi=BIMG[k.ideo];if(bi&&bi.complete&&bi.naturalWidth){const bs=fs*1.25,bw=cx.measureText(k.name).width;cx.drawImage(bi,x+bw/2+fs*.2,y-bs/2,bs,bs)}const it=k.intent;if(it&&it.until>TM()){const ic=INTENT_ICONS[it.type]||'💬',iy=y-fs*1.05;cx.font=Math.max(12,fs*.9)+'px system-ui,sans-serif';cx.lineWidth=3;cx.strokeStyle='rgba(0,0,0,.85)';cx.strokeText(ic,x,iy);cx.fillStyle='#fff';cx.fillText(ic,x,iy)}}
@@ -840,7 +840,7 @@ function paint(){renderT();if(OLVER!==VER){if(updOL())VER++;OLVER=VER}const sc=(
  for(let q=Math.max(0,FX.length-150);q<FX.length;q++){const f=FX[q];cx.globalAlpha=Math.min(1,f[1]/2);E(cx,f[2]||'💥',(f[0]%N+.5)*C,((f[0]/N|0)+.5)*C,16)}cx.globalAlpha=1;
  const sid=W.sel,sk=sid&&K(sid);if(!W.playerId&&sk&&sk.alive){const SV=sid+'|'+V,yl=lyr('sy',SV,()=>{const fz=sk.n>=30?new Set(farInfo(sk).far.map(f=>f[0])):null;for(const i of tilesOf(sk)){const xi=i%N,yi=i/N|0,x=xi*C,y=yi*C;if(fz&&fz.has(i)){cx.fillStyle='rgba(120,0,0,.4)';cx.fillRect(x,y,C,C)}cx.fillStyle='#ffe066';if(xi===0||O[i-1]!==sid)cx.fillRect(x,y,2.5,C);if(xi===N-1||O[i+1]!==sid)cx.fillRect(x+C-2.5,y,2.5,C);if(yi===0||O[i-N]!==sid)cx.fillRect(x,y,C,2.5);if(yi===H-1||O[i+N]!==sid)cx.fillRect(x,y+C-2.5,C,2.5)}},120),
    wh=lyr('sw',SV,()=>{cx.fillStyle='#fff';for(const i of tilesOf(sk))cx.fillRect(i%N*C,(i/N|0)*C,C,C)},120);cx.globalAlpha=territoryAlpha*(.14+.12*Math.sin(Date.now()/230));cx.drawImage(wh,0,0);cx.globalAlpha=territoryAlpha;cx.drawImage(yl,0,0);cx.globalAlpha=1}
- cx.drawImage(lyr('top',V+'|'+sc.toFixed(2),()=>{for(const k of W.ks)if(k.alive)E(cx,R[k.rid].e,k.cap%N*C+C/2,(k.cap/N|0)*C+C/2+1,18);drawNames()},220),0,0);drawSettlementLife(sc);drawResidents(sc);drawMechanized(sc);drawShips(sc)}
+ const buildingSig=V+'|'+sc.toFixed(2)+'|'+BL.map(b=>b.t+':'+b.i+':'+Math.round(b.p*10)+':'+Math.round(b.h)).join(',');cx.drawImage(lyr('bld',buildingSig,()=>{drawSettlementLandmarks(sc);drawBL(sc)},120),0,0);cx.drawImage(lyr('top',V+'|'+sc.toFixed(2),()=>{for(const k of W.ks)if(k.alive)E(cx,R[k.rid].e,k.cap%N*C+C/2,(k.cap/N|0)*C+C/2+1,18);drawNames()},220),0,0);drawSettlementLife(sc);drawResidents(sc);drawMechanized(sc);drawShips(sc)}
 function livingKingdomCount(){return W.ks.filter(k=>k.alive).length}
 function spawn(id,x,y,suppressIdeology,initialPopulation){if(livingKingdomCount()>=8)return toast('🌍 Thế giới đã đạt giới hạn 8 vương quốc!');const foundingPop=Number.isFinite(initialPopulation)?initialPopulation:3;const k={id:W.ks.length+1,rid:id,race:R[id],name:rnd(SY)+rnd(SY).toLowerCase()+(Math.random()<.5?rnd(SY).toLowerCase():''),col:colFor(W.ks.length),pop:foundingPop,tech:0,era:0,rel:{},ally:{},war:{},alive:1,cap:y*N+x,n:0,army:Number.isFinite(initialPopulation)?0:.6,loy:70,fav:0,inv:[],bld:[],cname:rnd(SY)+rnd(SY).toLowerCase(),cities:[],foundingGrace:Number.isFinite(initialPopulation)?6:0,bf:{food:0,war:0,peace:0}};
  W.ks.push(k);if(!suppressIdeology)foundIdeology(k,null);for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const u=x+dx,v=y+dy;if(u<0||v<0||u>=N||v>=H)continue;const j=v*N+u;if(T[j]>=2&&T[j]!==6&&!O[j])O[j]=k.id}
@@ -977,12 +977,58 @@ function drawPixelBuilding(g,type,x,y,size,complete){
  if(!complete){g.globalAlpha=.8;p(1,1,2,13,'#b48a52');p(13,1,2,13,'#b48a52');p(2,2,12,1,'#d8b77a');p(3,6,10,1,'#d8b77a')}
  g.restore();
 }
+const BUILDING_SPRITES={
+ hut:[1,37],cottage:[19,37],farm:[37,37],watchtower:[55,37],castle:[1,55],
+ sawmill:[19,73],quarry:[37,73],granary:[55,73],temple:[73,73],market:[91,73],
+ barracks:[1,91],wall:[19,91],library:[37,91],forge:[55,91],harbor:[73,91],
+ hospital:[91,91],factory:[1,109]
+};
+const BUILDING_ART={house:'hut',farm:'farm',sawmill:'sawmill',quarry:'quarry',granary:'granary',temple:'temple',market:'market',barracks:'barracks',wall:'wall',library:'library',forge:'forge',harbor:'harbor',palace:'castle',hospital:'hospital',factory:'factory'};
+function drawBuildingSprite(g,type,x,y,size){
+ const cell=BUILDING_SPRITES[type];if(!militaryAtlasReady||!cell)return false;
+ g.save();g.imageSmoothingEnabled=false;
+ g.drawImage(militaryAtlas,cell[0],cell[1],16,16,Math.round(x-size/2),Math.round(y-size/2),Math.ceil(size),Math.ceil(size));
+ g.restore();return true;
+}
+function drawSettlementLandmarks(sc){
+ if(!W||sc<.28)return;
+ for(const k of W.ks){
+  if(!k.alive)continue;
+  const places=[k.cap,...(k.cities||[]).map(c=>c.i)];
+  for(let n=0;n<places.length;n++){
+   const i=places[n];if(!Number.isInteger(i)||i<0||i>=N*H||O[i]!==k.id)continue;
+   const lv=cd(i).lv||0,type=lv>=3?'castle':lv>=2?'watchtower':lv>=1?'cottage':'hut';
+   const x=(i%N+.5)*C,y=((i/N|0)+.5)*C;
+   const size=Math.max(16,Math.min(22,C*1.72));
+   cx.save();cx.globalAlpha=.96;
+   cx.fillStyle='rgba(15,24,18,.38)';cx.fillRect(Math.round(x-size*.34),Math.round(y+size*.30),Math.max(5,Math.round(size*.68)),Math.max(2,Math.round(size*.16)));
+   if(!drawBuildingSprite(cx,type,x,y,size))drawPixelBuilding(cx,lv>=2?'palace':'house',x,y,size,true);
+   // Quốc kỳ nhỏ trên tháp chính để nhận diện khu định cư.
+   if(n===0){cx.fillStyle='#40362b';cx.fillRect(Math.round(x+size*.30),Math.round(y-size*.52),1.5,Math.max(4,size*.32));cx.fillStyle=k.col||'#d9b45c';cx.fillRect(Math.round(x+size*.34),Math.round(y-size*.5),Math.max(4,size*.22),Math.max(3,size*.14));}
+   cx.restore();
+  }
+ }
+}
 function drawBL(sc){
+ if(sc<.28||!BL.length)return;
  for(const b of BL){
-  const v=bd(b.t),x=(b.i%N+.5)*C,y=((b.i/N|0)+.5)*C+1,done=b.p>=b.n;
-  cx.globalAlpha=.16;cx.fillStyle=ZC[v[10]];cx.fillRect(x-C/2,y-C/2-1,C,C);
-  if(sc>.38)drawPixelBuilding(cx,b.t,x,y,Math.min(C*1.28,20),done);
-  if(b.h<70){cx.globalAlpha=1;cx.fillStyle='#6b2925';cx.fillRect(x-C/2,y+C/2-3,C,2);cx.fillStyle='#e45a43';cx.fillRect(x-C/2,y+C/2-3,C*Math.max(0,b.h)/100,2)}
+  if(!Number.isInteger(b.i)||b.i<0||b.i>=N*H||!O[b.i])continue;
+  const x=(b.i%N+.5)*C,y=((b.i/N|0)+.5)*C+1,done=b.p>=b.n;
+  const size=Math.max(16,Math.min(24,C*1.78)),art=BUILDING_ART[b.t]||'hut';
+  cx.save();cx.globalAlpha=done?1:.84;
+  // Bệ và bóng đổ tách công trình khỏi màu nền địa hình.
+  cx.fillStyle='rgba(18,27,22,.42)';cx.fillRect(Math.round(x-size*.39),Math.round(y+size*.30),Math.max(6,Math.round(size*.78)),Math.max(2,Math.round(size*.17)));
+  cx.fillStyle='rgba(224,207,164,.28)';cx.fillRect(Math.round(x-size*.43),Math.round(y+size*.26),Math.max(7,Math.round(size*.86)),Math.max(2,Math.round(size*.09)));
+  if(!drawBuildingSprite(cx,art,x,y,size))drawPixelBuilding(cx,b.t,x,y,size,done);
+  if(!done){
+   cx.globalAlpha=.92;cx.strokeStyle='#e7c17a';cx.lineWidth=Math.max(1,C*.09);cx.strokeRect(x-size*.34,y-size*.34,size*.68,size*.68);
+   cx.beginPath();cx.moveTo(x-size*.3,y-size*.28);cx.lineTo(x+size*.3,y+size*.28);cx.moveTo(x+size*.3,y-size*.28);cx.lineTo(x-size*.3,y+size*.28);cx.stroke();
+  }
+  if(b.h<70){
+   cx.globalAlpha=1;cx.fillStyle='#372722';cx.fillRect(x-C*.48,y+C*.43,C*.96,Math.max(2,C*.10));
+   cx.fillStyle='#e45a43';cx.fillRect(x-C*.48,y+C*.43,C*.96*Math.max(0,b.h)/100,Math.max(2,C*.10));
+  }
+  cx.restore();
  }
  cx.globalAlpha=1;
 }
