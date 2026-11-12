@@ -34,7 +34,8 @@
 - Added per-tool canvas previews to the terrain/creature/power/building toolbar; previews use original atlas sprites or hand-drawn pixel terrain/effect swatches, and leading emoji labels are stripped.
 - Added 10 hand-authored wildlife sprites (deer, wolf, bear, rabbit, cow, sheep, boar, fox, chicken, bird) and a deterministic terrain-aware ambient wildlife renderer. Wildlife placement is cached by world seed and map dimensions to avoid rescanning the entire map every frame.
 - Added four hand-authored 16×16 race sprites for Human, Elf, Dwarf, and Orc. Kingdom capital markers and creature-toolbar previews now use these race-specific sprites instead of emoji or generic unit art.
-- Added eight hand-authored walking frames (two per race) and a lightweight ambient resident renderer. Up to 96 tiny race-specific citizens walk around city centers when zoomed in; their frame animation continues while the simulation is paused.
+- Added eight hand-authored walking frames (two per race) and a lightweight ambient resident renderer. Up to 96 tiny race-specific citizens appear around capitals and cities when zoomed in.
+- Citizens now receive visual jobs based on completed buildings in their own settlement: farmers at farms, guards at barracks, merchants at markets, craftspeople at sawmills/quarries/forges, builders at civic buildings, plus civilians. Profession accessories are hand-drawn with pixel primitives and workers walk between the settlement center and workplace. Animation remains active while simulation is paused.
 - Removed emoji city markers; city appearance now changes with city level.
 - Main branch remains untouched; work is isolated on `big-update/pixel-art-worldbox-ui`.
 
