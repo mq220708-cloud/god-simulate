@@ -42,3 +42,5 @@ File: `atlas-v2.svg`
 2. Bổ sung biến thể theo mùa, cấp độ nhà ở và quốc gia.
 3. Xây dựng bộ tile địa hình, trang trại, tường thành, cầu và hoạt ảnh nước.
 4. Thay dần các glyph/emoji còn lại trong công cụ bản đồ bằng artwork tự vẽ.
+
+- Nâng cấp hiển thị quân đội: đội hình hành quân 3 hàng dùng sprite bộ binh/cung thủ/kỵ binh/khí tài pixel tự vẽ; các điểm giao tranh ở đường biên lãnh thổ có hai nhóm bộ binh đối đầu và tia va chạm pixel động. Hiệu ứng chiếm đất/đổ bộ/đầu hàng được vẽ bằng primitive pixel thay cho ký tự emoji trên bản đồ.
