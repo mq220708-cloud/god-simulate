@@ -1068,7 +1068,7 @@ function reign(k){const g=k.king,d=k.dynasty;g.age+=1/12/k.race.life;if(d){for(c
 function cityHtml(k){const R=rs(k);const ec=econOf(k);let h='<small>📦 🪵'+(R.w|0)+' 🪨'+(R.s|0)+' 💰'+(R.g|0)+' · 🛢️'+ec.oil.toFixed(1)+' · 🛣 '+RD.filter(r=>O[r.a]===k.id&&!r.cut&&r.p>=r.n).length+' tuyến · 🏠 chỗ ở '+fmt((k.hc||0)*100)+' · '+(k.ff<1?'🍂 Đói kém':'🌾 Đủ ăn')+'</small>';
  for(const[ci,nm,cp]of cts(k)){const d=cd(ci),bs=BL.filter(b=>b.c===ci&&O[b.i]===k.id),z={c:0,r:0,p:0,d:0},q=bs.filter(b=>b.p<b.n);bs.forEach(b=>{if(b.p>=b.n)z[bd(b.t)[10]]++});
   d.plan??={priority:'balanced',budget:'normal',layout:'organic'};const pn={balanced:'Cân bằng',commerce:'Thương mại',industry:'Công nghiệp',agriculture:'Nông nghiệp',military:'Quân sự',culture:'Văn hóa'},bn={low:'Tiết kiệm',normal:'Bình thường',high:'Đầu tư mạnh'},ln={organic:'Tự nhiên',compact:'Tập trung',spread:'Mở rộng'};
-  h+='<small>'+(cp?'🏛':'🏘')+' <b>'+nm+'</b> '+LVN[d.lv]+' · 👥'+fmt(d.pop*100)+'/'+fmt(d.cap*100)+' · 🌾'+(d.bal>=0?'+':'')+d.bal.toFixed(1)+' (kho '+(d.f|0)+')'+(d.fam?' ⚠️đói':'')+(lk(ci)?' · 🛣':'')+'<br>⭐'+z.c+' 🏠'+z.r+' ⚒'+z.p+' 🛡'+z.d+(q.length?' · 🚧 '+q.map(b=>bd(b.t)[1]+Math.round(b.p/b.n*100)+'%').join(' '):'')+(bs.some(b=>b.h<70)?' · 🔧 hư hại':'')+'</small>';
+  h+='<small>'+(cp?'🏛':'🏘')+' <b>'+nm+'</b> '+LVN[d.lv]+' · 👥'+fmt(d.pop*100)+'/'+fmt(d.cap*100)+' · 🌾'+(d.bal>=0?'+':'')+d.bal.toFixed(1)+' (kho '+(d.f|0)+')'+(d.fam?' ⚠️đói':'')+(lk(ci)?' · 🛣':'')+'<br>⭐'+z.c+' 🏠'+z.r+' ⚒'+z.p+' 🛡'+z.d+(q.length?' · 🚧 '+q.map(b=>bd(b.t)[1]+Math.round(b.p/b.n*100)+'%').join(' '):'')+(bs.some(b=>b.h<70)?' · 🔧 hư hại':'')+(k.citySiegeState&&k.citySiegeState[ci]?' · ⚔️ Bị vây '+k.citySiegeState[ci].months+' tháng · 🥖 lương '+Math.ceil(k.citySiegeState[ci].food):'')+'</small>';
   h+='<div class="row2"><button class="pb" data-citycfg="priority" data-ci="'+ci+'">🎯 '+pn[d.plan.priority]+'</button><button class="pb" data-citycfg="budget" data-ci="'+ci+'">💰 '+bn[d.plan.budget]+'</button><button class="pb" data-citycfg="layout" data-ci="'+ci+'">🗺 '+ln[d.plan.layout]+'</button></div>'}return h}
 function kingHtml(k){const g=k.king,a=k.pol&&pol(k.pol.id);
  return '<small>👑 '+rt(k)+' '+g.n+' · niên hiệu “'+g.h+'” · '+TR[g.t][0]+' · '+Math.round(g.age*k.race.life)+' tuổi</small><small>📣 '+(a?a.e+' '+a.n+' (còn '+k.pol.l+' lượt)':'Chưa có chính sách')+'</small>'+cityHtml(k)+''+(k.n>=30?(()=>{const fi=farInfo(k);return '<small>📍 Vùng xa kinh đô: '+fi.far.length+' ô (bán kính kiểm soát '+(fi.R0|0)+') · Nguy cơ ly khai '+(risk(k,fi.far)*100|0)+'%/lượt</small>'})():'')+'<small>'+raceInfo(k.race)+'</small><div class="row2">'+POL.map(p=>'<button class="pb" data-p="'+p.id+'" data-k="'+k.id+'">'+p.e+' '+p.n+' ❤'+(p.now>0?'+':'')+p.now+' · '+p.c+'</button>').join('')+'</div>'}
@@ -1821,6 +1821,33 @@ function civilizationTick(){
   }
  }
 }
+function citySiegeTick(){
+ // Bao vây các thành phố (không gồm kinh đô): cắt nguồn tiếp tế, làm suy giảm kho lương và ý chí phòng thủ.
+ for(const defender of W.ks){if(!defender.alive)continue;
+  for(const city of defender.cities||[]){const tile=city.i;if(O[tile]!==defender.id)continue;
+   const attackers=W.ks.filter(a=>a.alive&&a.war?.[defender.id]&&defender.war?.[a.id]&&nb(tile).some(j=>O[j]===a.id));
+   if(!attackers.length)continue;
+   defender.citySiegeState??={};const states=defender.citySiegeState;
+   for(const attacker of attackers){
+    const key=String(tile),st=states[key]||(states[key]={attacker:attacker.id,months:0,food:Math.max(5,cd(tile).f||10)});
+    if(st.attacker!==attacker.id)continue;
+    st.months++;const wall=BL.find(b=>b.i===tile&&b.t==='wall'&&b.h>0);
+    const drain=wall?0.42:0.85;st.food=Math.max(0,st.food-drain);cd(tile).f=Math.max(0,(cd(tile).f||0)-drain);
+    if(st.months===1)log('⚔️ '+title(attacker)+' bắt đầu bao vây thành phố '+city.n+' của '+title(defender)+'.');
+    if(st.months>=4&&st.months%3===1)log('🥖 Thành phố '+city.n+' bị phong tỏa: kho lương còn '+Math.ceil(st.food)+' đơn vị.');
+    const morale=st.months>=6&&st.food<=0;
+    const will=st.months>=9&&defender.loy<25&&st.food<=2;
+    if(!morale&&!will)continue;
+    const ci=defender.cities.findIndex(c=>c.i===tile);if(ci<0)continue;
+    const captured=defender.cities.splice(ci,1)[0];O[tile]=attacker.id;defender.n=Math.max(0,defender.n-1);attacker.n++;
+    if(attacker.cities.length<12)attacker.cities.push(captured);
+    defender.loy=Math.max(-100,defender.loy-7);attacker.loy=Math.min(100,attacker.loy+1);
+    delete states[key];FX.push([tile,6]);log('🏳️ Thành phố '+captured.n+' đầu hàng '+title(attacker)+' sau '+st.months+' tháng bị bao vây vì cạn kiệt tiếp tế.');
+    break;
+   }
+  }
+ }
+}
 function siegeTick(){
  // Công thành theo từng tháng: pháo binh chỉ gây sát thương lên tường của đối thủ đang giao chiến.
  const damage=new Map(),active=[];
@@ -1859,7 +1886,7 @@ function step(){W.month=(W.month|0)+1;if(W.month>=12){W.month=0;W.year++}civiliz
  if(!(W.scd>0)){const n0=W.ks.length;if(rb.length)rebel(rb[Math.random()*rb.length|0]);else if(sc.length){const a=rnd(sc);secede(a[0],a[1])}if(W.ks.length>n0)W.scd=12}else W.scd--;
  for(const[pk,[a,b]]of pr){const A=K(a),B=K(b);if(!A.alive||!B.alive)continue;if(A.war[b])front(A,B,BP.get(pk));else{if(A.ideo&&B.ideo)sr(A,B,A.ideo===B.ideo?1:-1.2);if(Math.random()<.14)event(A,B,A.rel[b]||0)}}
  for(const k of W.ks)if(k.alive)for(const id in k.war){const o=K(id);if(!k.war[id]||!o||!o.alive||k.id>o.id)continue;if(!pr.has(k.id*1000+o.id))remoteWar(k,o)}remoteContact(pr);
- siegeTick();fillTerritoryHoles();BL=BL.filter(b=>b.h>0&&O[b.i]&&T[b.i]>=2);roads();checkWorldConquest();if(Math.random()<.2)randDis();W.mana=Math.min(200,W.mana+1.5+tp/40);VER++;if(W.playerId)checkPlayerIdeology();if(checkRoleplayGameOver())return}
+ siegeTick();citySiegeTick();fillTerritoryHoles();BL=BL.filter(b=>b.h>0&&O[b.i]&&T[b.i]>=2);roads();checkWorldConquest();if(Math.random()<.2)randDis();W.mana=Math.min(200,W.mana+1.5+tp/40);VER++;if(W.playerId)checkPlayerIdeology();if(checkRoleplayGameOver())return}
 function card(k){const ws=Object.keys(k.war).filter(i=>k.war[i]&&K(i).alive),lc=k.loy<30?'#e53935':k.loy<55?'#f9a825':'#43a047';
  return '<div class="card'+(W.sel===k.id?' on':'')+'" data-sel="'+k.id+'"><div class="hd">'+flagSVG(k,16)+'<b>'+k.race.e+' '+k.name+bsvg(k.ideo,14)+'</b><span class="st">👥'+fmt(k.pop*100)+' <i style="color:'+lc+';font-style:normal">❤'+(k.loy|0)+'</i></span><span class="mu">›</span></div></div>'}
 function detail(k){const g=k.king,a=k.pol&&pol(k.pol.id),ws=Object.keys(k.war).filter(i=>k.war[i]&&K(i).alive),lc=k.loy<30?'#e53935':k.loy<55?'#f9a825':'#43a047';
