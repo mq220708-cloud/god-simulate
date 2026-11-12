@@ -22,8 +22,9 @@
 6. **Optimization and QA:** sprite atlas batching, mobile performance, save/load regression tests, and visual checks.
 
 ## Current branch work
-- Added a hand-authored SVG sprite atlas with 13 isolated sprites, including oak, pine, birch, autumn trees, houses, farm, watchtower, and castle.
-- Integrated atlas cropping into the map renderer for forest tiles and city-level buildings, with hand-drawn pixel primitives as a loading fallback.
+- Added a simplified 16×16 sprite atlas with 13 original sprites: four tree variants, palm, bush, flower, rock, hut, cottage, farm, watchtower, and castle.
+- Compressed the atlas SVG from about 78 KB to about 19 KB by grouping pixels into color paths (76% smaller).
+- Integrated the compact atlas into forest tiles and city-level building rendering; atlas sprites use crisp nearest-neighbor drawing and pixel primitives remain as a loading fallback.
 - Removed emoji city markers; city appearance now changes with city level.
 - Main branch remains untouched; work is isolated on `big-update/pixel-art-worldbox-ui`.
 
