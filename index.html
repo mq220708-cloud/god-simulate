@@ -673,7 +673,7 @@ let LOCAL_STREET_CACHE={key:'',paths:[]};
 function drawLocalStreets(g,sc){
  if(!W||sc<.28)return;
  const settlements=W.ks.filter(k=>k.alive).flatMap(k=>[[k,k.cap],...k.cities.map(c=>[k,c.i])]);
- const key=[W.seed,N,H,BL.length,RD.length,settlements.map(a=>a[1]).join(',')].join('|');
+ const key=[W.seed,N,H,RD.length,settlements.map(a=>a[1]).join(',') ,BL.map(b=>b.t+':'+b.i+':'+b.c+':'+Math.floor(b.h)).join(';')].join('|');
  if(LOCAL_STREET_CACHE.key!==key){
   const paths=[];
   for(const[k,ci]of settlements){
