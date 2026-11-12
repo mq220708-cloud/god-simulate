@@ -1826,10 +1826,9 @@ function citySiegeTick(){
  for(const defender of W.ks){if(!defender.alive)continue;
   for(const city of defender.cities||[]){const tile=city.i;if(O[tile]!==defender.id)continue;
    const attackers=W.ks.filter(a=>a.alive&&a.war?.[defender.id]&&defender.war?.[a.id]&&nb(tile).some(j=>O[j]===a.id));
-   if(!attackers.length)continue;
-   defender.citySiegeState??={};const states=defender.citySiegeState;
+   defender.citySiegeState??={};const states=defender.citySiegeState;if(!attackers.length){delete states[String(tile)];continue;}
    for(const attacker of attackers){
-    const key=String(tile),st=states[key]||(states[key]={attacker:attacker.id,months:0,food:Math.max(5,cd(tile).f||10)});
+    const key=String(tile),st=states[key]||(states[key]={attacker:attacker.id,months:0,food:Math.max(5,cd(tile).f??10)});
     if(st.attacker!==attacker.id)continue;
     st.months++;const wall=BL.find(b=>b.i===tile&&b.t==='wall'&&b.h>0);
     const drain=wall?0.42:0.85;st.food=Math.max(0,st.food-drain);cd(tile).f=Math.max(0,(cd(tile).f||0)-drain);
