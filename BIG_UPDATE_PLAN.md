@@ -31,6 +31,7 @@
 - Added custom pixel scaffolding for buildings under construction and a durability bar for damaged structures.
 - Added 10 hand-authored 16×16 unit sprites for infantry, archers, cavalry, cannon, tanks, aircraft, ships, sailboats, migration groups, and missiles.
 - Replaced emoji rendering in marching armies, mechanized units, migrating groups, naval transport, and sea trade with crisp sprite-atlas rendering and pixel-drawn fallbacks.
+- Added per-tool canvas previews to the terrain/creature/power/building toolbar; previews use original atlas sprites or hand-drawn pixel terrain/effect swatches, and leading emoji labels are stripped.
 - Removed emoji city markers; city appearance now changes with city level.
 - Main branch remains untouched; work is isolated on `big-update/pixel-art-worldbox-ui`.
 
