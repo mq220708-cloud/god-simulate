@@ -23,7 +23,9 @@ File: `atlas-v2.svg`
 ## Tình trạng tích hợp
 - Renderer tải atlas v2 bằng `Image` và crop từng sprite 16×16 theo tọa độ nguồn.
 - Cây sồi, thông, bạch dương và cây lá vàng được dùng cho các ô rừng.
+- Bụi hoa và bụi cây nhỏ xuất hiện thưa trên đồng cỏ phù hợp; đá pixel nhỏ xuất hiện ngẫu nhiên ổn định trên đồi.
 - Nhà gỗ, nhà mái ngói, tháp canh và lâu đài được dùng theo cấp thành phố.
+- Khi atlas tải xong, renderer dựng lại chi tiết cho đồng cỏ, rừng và đồi để tránh thiếu sprite do tải bất đồng bộ.
 - Có fallback pixel primitives nếu atlas chưa tải xong.
 
 ## Việc tiếp theo
