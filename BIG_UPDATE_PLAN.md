@@ -37,6 +37,9 @@
 - Added eight hand-authored walking frames (two per race) and a lightweight ambient resident renderer. Up to 96 tiny race-specific citizens appear around capitals and cities when zoomed in.
 - Citizens now receive visual jobs based on completed buildings in their own settlement: farmers at farms, guards at barracks, merchants at markets, craftspeople at sawmills/quarries/forges, builders at civic buildings, plus civilians. Profession accessories are hand-drawn with pixel primitives and workers walk between the settlement center and workplace. Animation remains active while simulation is paused.
 - Added procedural local pixel streets connecting each settlement center to up to seven completed buildings using owned-land pathfinding. Streets render beneath buildings and their route cache invalidates when building positions or damage change.
+- Upgraded world-map rendering density by increasing per-tile pixel resolution while keeping map dimensions bounded across world sizes; zoom uses crisp nearest-neighbor pixel scaling.
+- Expanded deterministic terrain micro-detail: richer grassland and biome textures, varied forest tree silhouettes and undergrowth, layered hill/mountain rock and snow detail, beach grain, shallow-water highlights, wave streaks, and river shimmer.
+- Kept terrain details seed-deterministic and rendered in the existing chunked generation pipeline to avoid changing simulation rules.
 - Removed emoji city markers; city appearance now changes with city level.
 - Main branch remains untouched; work is isolated on `big-update/pixel-art-worldbox-ui`.
 
