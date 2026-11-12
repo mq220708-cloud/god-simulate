@@ -669,6 +669,33 @@ function drawTrade(){const t=Date.now()/1000,fz=Math.max(13,C*1.5);cx.font=fz+'p
    for(let w=1;w<=3;w++){const bp=Math.max(0,Math.min(n-.001,pos-dir*w*.45)),bi=Math.min(n-1,Math.floor(bp)),bf=bp-bi,a2=r.pts[bi],b2=r.pts[bi+1];cx.globalAlpha=.5-w*.12;cx.fillStyle='#fff';cx.beginPath();cx.arc(((a2%N)+(b2%N-a2%N)*bf+.5)*C,((a2/N|0)+((b2/N|0)-(a2/N|0))*bf+.5)*C,Math.max(1,C*.22)*(1+w*.15),0,7);cx.fill()}
    cx.globalAlpha=1;drawUnit(cx,q?'sailboat':'ship',x,y,fz);
    if(pos<.5||pos>n-.5){const up=(pos<.5?pos:n-pos)/.5;cx.globalAlpha=Math.max(0,1-up);cx.fillStyle='#e6c15c';cx.fillRect(x-2,y-fz*(.8+up*.8)-2,4,4);cx.fillRect(x+2,y-fz*(.8+up*.8),3,3);cx.globalAlpha=1}}}}
+let LOCAL_STREET_CACHE={key:'',paths:[]};
+function drawLocalStreets(g,sc){
+ if(!W||sc<.28)return;
+ const settlements=W.ks.filter(k=>k.alive).flatMap(k=>[[k,k.cap],...k.cities.map(c=>[k,c.i])]);
+ const key=[W.seed,N,H,BL.length,RD.length,settlements.map(a=>a[1]).join(',')].join('|');
+ if(LOCAL_STREET_CACHE.key!==key){
+  const paths=[];
+  for(const[k,ci]of settlements){
+   const buildings=BL.filter(b=>b.c===ci&&b.p>=b.n&&b.h>0&&b.i!==ci);
+   let count=0;
+   for(const b of buildings){
+    if(count>=7)break;
+    const path=pathBfs(ci,b.i,j=>O[j]===k.id&&T[j]>=2&&T[j]!==6,500);
+    if(path&&path.length>1){paths.push({pts:path,owner:k.id});count++}
+   }
+  }
+  LOCAL_STREET_CACHE={key,paths};
+ }
+ g.save();g.lineCap='square';g.lineJoin='miter';
+ for(const r of LOCAL_STREET_CACHE.paths){
+  if(r.pts.length<2)continue;
+  g.beginPath();r.pts.forEach((p,j)=>g[j?'lineTo':'moveTo']((p%N+.5)*C,((p/N|0)+.5)*C));
+  g.strokeStyle='rgba(63,48,32,.82)';g.lineWidth=Math.max(2,C*.28);g.setLineDash([]);g.stroke();
+  g.strokeStyle='rgba(194,157,104,.7)';g.lineWidth=Math.max(1,C*.09);g.stroke();
+ }
+ g.restore();
+}
 function drawNames(){const sc=(cv.clientWidth/cv.width)||.5,st={};
  cx.textAlign='center';cx.textBaseline='middle';
  // Công trình đô thị được vẽ bằng hình học pixel riêng, không dùng emoji/icon font.
@@ -685,7 +712,7 @@ function drawNames(){const sc=(cv.clientWidth/cv.width)||.5,st={};
   if(lv>=3){px(-5,-1,1,4,'#b9c7d2');px(4,-1,1,4,'#b9c7d2');px(-5,-2,1,1,roof);px(4,-2,1,1,roof);px(-1,-5,2,2,'#e8d7a5');px(-1,-6,2,1,'#d8b45e')}
  };
  for(const k of W.ks)if(k.alive)for(const c of k.cities){const lv=cd(c.i).lv;drawCitySprite(cx,lv,(c.i%N+.5)*C,((c.i/N|0)+.5)*C+1,Math.min(22,Math.max(13,9/sc)))}
- drawBL(sc);
+ drawLocalStreets(cx,sc);\n drawBL(sc);
  for(let i=0;i<N*H;i++){const o=O[i];if(o){const q=st[o]||(st[o]=[0,0,0]);q[0]+=i%N;q[1]+=i/N|0;q[2]++}}
  const fs=Math.min(26,Math.max(10,12/sc));cx.font='700 '+fs+'px system-ui,sans-serif';cx.textAlign='center';cx.textBaseline='middle';cx.lineJoin='round';cx.lineWidth=fs/4;
  for(const id in st){const k=K(id),q=st[id];if(!k||!k.alive)continue;if(Math.sqrt(q[2])*C*sc<k.name.length*5.5)continue;const x=(q[0]/q[2]+.5)*C,y=(q[1]/q[2]+.5)*C+fs*.9;cx.strokeStyle='rgba(0,0,0,.75)';cx.strokeText(k.name,x,y);cx.fillStyle='#fff';cx.fillText(k.name,x,y);{const fl=flagCanvas(k),bw0=cx.measureText(k.name).width,fh=fs*1.2,fw=fh*1.5;cx.drawImage(fl,x-bw0/2-fw-fs*.25,y-fh/2,fw,fh)}const bi=BIMG[k.ideo];if(bi&&bi.complete&&bi.naturalWidth){const bs=fs*1.25,bw=cx.measureText(k.name).width;cx.drawImage(bi,x+bw/2+fs*.2,y-bs/2,bs,bs)}const it=k.intent;if(it&&it.until>TM()){const ic=INTENT_ICONS[it.type]||'💬',iy=y-fs*1.05;cx.font=Math.max(12,fs*.9)+'px system-ui,sans-serif';cx.lineWidth=3;cx.strokeStyle='rgba(0,0,0,.85)';cx.strokeText(ic,x,iy);cx.fillStyle='#fff';cx.fillText(ic,x,iy)}}
