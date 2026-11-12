@@ -746,7 +746,65 @@ function site(k,ci,v){const r=2+cd(ci).lv*1.5|0,z=v[10],plan=cd(ci).plan||{prior
   else if(plan.layout==='spread')s+=d*.22;
   if(s>bs){bs=s;b=i}}return b}
 function drawRoads(){for(const r of RD){cx.strokeStyle=r.s?'rgba(255,255,255,.85)':'#6d4c1d';cx.lineWidth=r.s?1.6:2.4;cx.globalAlpha=r.cut?.3:r.p<r.n?.55:1;cx.setLineDash(r.s?[4,3]:r.p<r.n?[3,3]:[]);cx.beginPath();r.pts.forEach((p,j)=>cx[j?'lineTo':'moveTo']((p%N+.5)*C,((p/N|0)+.5)*C));cx.stroke()}for(const v of SH){cx.strokeStyle='rgba(255,255,255,.95)';cx.lineWidth=2.2;cx.globalAlpha=Math.min(1,v.l/3);cx.setLineDash([5,4]);cx.beginPath();v.pts.forEach((p,j)=>cx[j?'lineTo':'moveTo']((p%N+.5)*C,((p/N|0)+.5)*C));cx.stroke()}cx.setLineDash([]);cx.globalAlpha=1}
-function drawBL(sc){cx.font='13px serif';for(const b of BL){const v=bd(b.t),x=(b.i%N+.5)*C,y=((b.i/N|0)+.5)*C+1,d=b.p>=b.n;cx.globalAlpha=.5;cx.fillStyle=ZC[v[10]];cx.fillRect(x-C/2,y-C/2-1,C,C);if(sc>.6){cx.globalAlpha=d?1:.6;E(cx,d?v[1]:'🚧',x,y,13)}if(b.h<70){cx.globalAlpha=1;cx.fillStyle='#e53935';cx.fillRect(x-C/2,y+C/2-3,C*Math.max(0,b.h)/100,2)}}cx.globalAlpha=1}
+function drawPixelBuilding(g,type,x,y,size,complete){
+ const u=size/16,ox=x-size/2,oy=y-size/2;
+ const p=(a,b,w,h,col)=>{g.fillStyle=col;g.fillRect(Math.round(ox+a*u),Math.round(oy+b*u),Math.max(1,Math.round((a+w)*u)-Math.round(a*u)),Math.max(1,Math.round((b+h)*u)-Math.round(b*u)))};
+ const pal={
+  house:['#9b6840','#e0bd83','#75452f','#c85f45'],farm:['#8b633b','#c6a05a','#477b3b','#d7bd70'],
+  sawmill:['#765034','#b9824d','#493a2b','#d1a45c'],quarry:['#737d7c','#b0b8ae','#515d5b','#d4d9ce'],
+  granary:['#8b633b','#d2b47a','#68462e','#a77c45'],temple:['#a99a78','#e5dfc9','#77705e','#c7b77e'],
+  market:['#805338','#d8b47a','#63402d','#d05b45'],barracks:['#745037','#b28a5c','#4c382b','#9a4c3e'],
+  wall:['#747e82','#b8c1bf','#525d62','#d8d9ce'],library:['#78523b','#d0b17d','#4d382c','#537c83'],
+  forge:['#665044','#9b6b4b','#403631','#d36c3d'],harbor:['#805b3b','#c4a16c','#4c7180','#e3d1a5'],
+  palace:['#8a603e','#e2c68b','#633e31','#c9a64f'],hospital:['#8b654d','#e4d9c7','#6a4c3c','#b85c53'],
+  factory:['#66777a','#b1b8b1','#46575c','#b66b4b']
+ };
+ const c=pal[type]||pal.house;
+ g.save();g.globalAlpha*=complete?1:.72;
+ p(1,13,14,2,'rgba(24,34,25,.30)');
+ if(type==='farm'){
+  p(1,3,14,11,'#9a7847');p(2,4,12,9,'#6e9b43');
+  for(let r=0;r<4;r++){p(2,5+r*2,12,1,'#b18b4e');for(let q=0;q<6;q++)p(3+q*2,4+r*2,1,2,r%2?'#47783a':'#5c9140')}
+  p(1,2,14,1,'#d4b56d');
+ }else if(type==='wall'){
+  p(0,5,16,9,c[0]);p(0,3,16,3,c[1]);for(let q=0;q<4;q++)p(q*4,1,2,3,c[1]);for(let q=0;q<4;q++)p(q*4+1,8,2,3,c[2]);
+ }else if(type==='harbor'){
+  p(1,10,14,3,'#70513a');p(2,8,12,2,'#b88c56');p(4,2,2,8,c[0]);p(10,4,2,6,c[0]);p(3,3,9,2,c[1]);p(5,5,6,2,'#e3d1a5');
+ }else{
+  const wide=type==='palace'||type==='temple'||type==='factory';
+  p(wide?1:3,7,wide?14:10,7,c[0]);p(wide?2:4,5,wide?12:8,3,c[1]);
+  if(type==='house'||type==='market'||type==='barracks'||type==='hospital'||type==='granary'||type==='library'||type==='sawmill'||type==='forge'){
+   p(2,4,12,2,c[2]);p(3,2,10,3,c[3]);p(7,0,2,3,c[2]);
+  }else if(type==='temple'||type==='palace'){
+   p(3,3,10,2,c[2]);p(5,1,6,3,c[1]);p(7,0,2,4,c[3]);p(7,6,2,6,c[2]);
+  }else if(type==='quarry'){
+   p(2,5,5,5,c[2]);p(8,3,6,7,c[1]);p(4,2,3,3,'#d7d9d1');p(10,1,3,3,'#e4e8df');
+  }else if(type==='factory'){
+   p(2,3,12,4,c[2]);p(3,1,3,4,c[1]);p(10,0,3,5,c[1]);p(11,0,1,2,'#68777a');
+  }
+  if(type!=='quarry'){
+   p(4,9,2,3,'#49372d');p(10,9,2,3,'#49372d');
+   p(5,8,1,2,'#e8d69d');p(10,8,1,2,'#e8d69d');
+  }
+  if(type==='sawmill'){p(1,11,4,2,'#c49a61');p(11,11,4,2,'#c49a61');p(2,10,2,1,'#e0bd83')}
+  if(type==='forge'){p(12,1,2,4,'#4b4140');p(12,0,2,2,'#d16c42')}
+  if(type==='market'){p(2,4,12,2,'#c64f3d');p(3,3,2,2,'#e6c27d');p(7,3,2,2,'#e6c27d');p(11,3,2,2,'#e6c27d')}
+  if(type==='barracks'){p(2,5,12,2,'#8d4a3e');p(7,1,2,3,'#c5c9c4')}
+  if(type==='hospital'){p(7,5,2,5,'#f2e9db');p(5,7,6,2,'#b94e4b')}
+  if(type==='granary'){p(5,1,6,4,'#b98b50');p(6,0,4,2,'#d8b97d')}
+ }
+ if(!complete){g.globalAlpha=.8;p(1,1,2,13,'#b48a52');p(13,1,2,13,'#b48a52');p(2,2,12,1,'#d8b77a');p(3,6,10,1,'#d8b77a')}
+ g.restore();
+}
+function drawBL(sc){
+ for(const b of BL){
+  const v=bd(b.t),x=(b.i%N+.5)*C,y=((b.i/N|0)+.5)*C+1,done=b.p>=b.n;
+  cx.globalAlpha=.16;cx.fillStyle=ZC[v[10]];cx.fillRect(x-C/2,y-C/2-1,C,C);
+  if(sc>.48)drawPixelBuilding(cx,b.t,x,y,Math.min(C*.94,sc<.7?C*.78:C*.94),done);
+  if(b.h<70){cx.globalAlpha=1;cx.fillStyle='#6b2925';cx.fillRect(x-C/2,y+C/2-3,C,2);cx.fillStyle='#e45a43';cx.fillRect(x-C/2,y+C/2-3,C*Math.max(0,b.h)/100,2)}
+ }
+ cx.globalAlpha=1;
+}
 
 /* ---- Tài nguyên: ban phát tài nguyên và mỏ dầu cho các nước (chạm vào lãnh thổ của nước muốn ban) ---- */
 const GF={g_w:['🪵 Gỗ',6,'Ban 40 🪵 gỗ cho nước được chạm (kho có giới hạn theo số thành phố).'],g_s:['🪨 Đá',6,'Ban 40 🪨 đá cho nước được chạm (kho có giới hạn theo số thành phố).'],g_g:['💰 Vàng',8,'Ban 40 💰 vàng dùng để xây dựng, sửa chữa công trình.'],g_c:['🏦 Ngân khố',10,'Ban 25 💰 vào ngân khố quốc gia: chi cho quân đội, khí tài và bù thâm hụt.'],g_f:['🌾 Lương thực',8,'Ban 12 lương thực vào kho của mọi thành phố trong nước được chạm, giúp chống đói.'],g_oil:['🛢️ Dầu',8,'Ban 12 🛢️ dầu vào kho dự trữ của nước được chạm (cho công nghiệp và khí tài cơ giới).'],g_mine:['⛽ Mỏ dầu',12,'Tạo mỏ dầu (+150) ngay trên ô đất được chạm trong lãnh thổ. Có thể chồng thêm, tối đa 400 mỗi ô.']};
