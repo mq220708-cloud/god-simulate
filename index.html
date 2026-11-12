@@ -397,19 +397,28 @@ function drawUnitFallback(g,key,x,y,size){
  else{p(6,2,4,4,c[1]);p(4,6,8,5,c[0]);p(5,11,2,4,'#263849');p(9,11,2,4,'#263849');}
 }
 function drawUnit(g,key,x,y,size){if(!drawAtlasSprite(g,key,x,y,size))drawUnitFallback(g,key,x,y,size);}
+let WILD_CACHE=[],WILD_CACHE_KEY='';
 function drawWildlife(sc){
  if(!W||!spriteAtlasReady||sc<.55||C<5)return;
- const size=Math.max(8,Math.min(17,C*.92)),total=N*H;
- for(let i=0;i<total;i++){
-  const terrain=T[i];if(terrain!==3&&terrain!==4&&terrain!==5&&terrain!==6)continue;
-  const h=(Math.imul(i+173,2246822519)^Math.imul(i+29,3266489917))>>>0;
-  const chance=terrain===3?430:terrain===4?570:terrain===5?1450:1900;
-  if(h%chance!==0)continue;
-  const variant=(h>>>9)%100;
-  let species;
-  if(terrain===3)species=['rabbit','cow','sheep','boar','chicken','fox'][variant%6];
-  else if(terrain===4)species=['deer','wolf','bear','fox','boar','bird'][variant%6];
-  else species=['wolf','bear','bird','rabbit'][variant%4];
+ const cacheKey=String(W.seed)+'|'+N+'|'+H;
+ if(WILD_CACHE_KEY!==cacheKey){
+  WILD_CACHE=[];const total=N*H;
+  for(let i=0;i<total;i++){
+   const terrain=T[i];if(terrain!==3&&terrain!==4&&terrain!==5&&terrain!==6)continue;
+   const h=(Math.imul(i+173,2246822519)^Math.imul(i+29,3266489917))>>>0;
+   const chance=terrain===3?430:terrain===4?570:terrain===5?1450:1900;
+   if(h%chance!==0)continue;
+   const variant=(h>>>9)%100;
+   let species;
+   if(terrain===3)species=['rabbit','cow','sheep','boar','chicken','fox'][variant%6];
+   else if(terrain===4)species=['deer','wolf','bear','fox','boar','bird'][variant%6];
+   else species=['wolf','bear','bird','rabbit'][variant%4];
+   WILD_CACHE.push([i,species]);
+  }
+  WILD_CACHE_KEY=cacheKey;
+ }
+ const size=Math.max(8,Math.min(17,C*.92));
+ for(const [i,species] of WILD_CACHE){
   const x=(i%N+.5)*C,y=((i/N|0)+.5)*C;
   cx.save();cx.globalAlpha=.94;drawUnit(cx,species,x,y,size);cx.restore();
  }
