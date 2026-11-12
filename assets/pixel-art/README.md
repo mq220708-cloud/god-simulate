@@ -18,8 +18,14 @@ File: `atlas-v1.svg`
 - Đá: `#777f87`, `#aeb8bd`
 - Mái và điểm nhấn: đỏ, vàng, tím.
 
+## Tình trạng tích hợp
+- Atlas đã được nạp trong renderer bằng `Image` và crop từng sprite theo tọa độ nguồn.
+- Cây sồi, thông, bạch dương và cây lá vàng được dùng cho các ô rừng.
+- Nhà gỗ, nhà mái ngói, tháp canh và lâu đài được dùng theo cấp thành phố.
+- Có fallback pixel primitives nếu atlas chưa tải xong.
+
 ## Việc tiếp theo
-1. Tách atlas thành sprite độc lập và kiểm tra tỷ lệ trên màn hình điện thoại.
+1. Tách và kiểm tra sprite độc lập trên nhiều kích thước màn hình điện thoại.
 2. Bổ sung biến thể theo mùa, cấp độ nhà ở và quốc gia.
-3. Xây dựng bộ tile địa hình và hoạt ảnh nước.
-4. Chỉ sau khi bộ sprite được duyệt mới tích hợp vào renderer bản đồ.
+3. Xây dựng bộ tile địa hình, trang trại, tường thành, cầu và hoạt ảnh nước.
+4. Thay dần các glyph/emoji còn lại trong công cụ bản đồ bằng artwork tự vẽ.
