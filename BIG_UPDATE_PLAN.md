@@ -46,3 +46,10 @@ A tree must look like a tree because its pixels were drawn for this game. A hous
 - Military visualization milestone: marching armies now use a staggered three-row formation with hand-authored atlas sprites for infantry, archers, cavalry and researched equipment. Active war borders show lightweight animated pixel clashes between opposing infantry. Occupation, landing and surrender map effects use hand-drawn pixel primitives rather than emoji glyphs.
 
 - Siege visualization milestone: wars with researched siege equipment now show a hand-drawn cannon sprite firing a pixel projectile toward an enemy wall building. A compact bar reflects the wall's existing durability. This is a read-only visual layer and does not yet alter combat resolution or wall HP.
+
+## Công thành thực tế
+- Pháo binh (máy bắn đá, đại bác, tên lửa) gây sát thương theo từng tháng lên tường thành hoàn thiện ở ô biên giới của đối thủ đang trong chiến tranh.
+- Sát thương có giới hạn để tránh phá hủy tường quá nhanh; nhiều bên cùng bắn không cộng dồn vô hạn lên một tường trong cùng tháng.
+- Tường bị phá hủy sẽ bị loại khỏi dữ liệu công trình hiện có; hệ thống chiếm đất và di chuyển quân đội vẫn giữ công thức cũ.
+- Khi quốc gia không còn chiến tranh, tường thành còn tồn tại tự hồi phục chậm về 100 HP.
+- Đây là cơ chế phá hủy/sửa chữa tường, chưa bổ sung cổng thành riêng vì dữ liệu công trình hiện tại chưa có loại cổng độc lập.
