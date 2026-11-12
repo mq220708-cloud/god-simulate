@@ -443,6 +443,42 @@ function drawNature(){
   tree((x+.5+ox*.38)*C,(y+.5+oy*.38)*C,kind,size,h);
  }
 }
+
+let AMBIENT_FAUNA=[],AMBIENT_FAUNA_KEY='';
+function drawAmbientWildlife(sc){
+ if(!W||sc<.58||C<5)return;
+ const key=String(W.seed)+'|'+N+'|'+H;
+ if(AMBIENT_FAUNA_KEY!==key){
+  AMBIENT_FAUNA=[];const total=N*H;
+  for(let i=0;i<total;i++){
+   const t=T[i];if(t!==3&&t!==4&&t!==5&&t!==6)continue;
+   const h=(Math.imul(i+173,2246822519)^Math.imul(i+29,3266489917))>>>0;
+   const chance=t===3?470:t===4?610:t===5?1550:2050;
+   if(h%chance)continue;
+   const v=(h>>>9)%100;
+   const pool=t===3?['rabbit','cow','sheep','boar','chicken','fox']:t===4?['deer','wolf','bear','fox','boar','bird']:['wolf','bear','bird','rabbit'];
+   AMBIENT_FAUNA.push([i,pool[v%pool.length],h]);
+  }
+  AMBIENT_FAUNA_KEY=key;
+ }
+ const u=Math.max(1,Math.round(C/12));
+ for(const [i,kind,h] of AMBIENT_FAUNA){
+  const x=Math.round((i%N+.5)*C),y=Math.round(((i/N|0)+.5)*C),flip=(h>>>16)&1;
+  const P=(dx,dy,w,hh,col)=>{cx.fillStyle=col;cx.fillRect(x+Math.round((flip?-dx:dx)*u),y+Math.round(dy*u),Math.max(1,Math.round(w*u)),Math.max(1,Math.round(hh*u)))};
+  const dark='#394333',fur=kind==='fox'?'#bd7138':kind==='deer'?'#a77a4c':kind==='wolf'?'#777d79':kind==='bear'?'#59483a':kind==='rabbit'?'#b9b5a5':kind==='cow'?'#e3dfce':kind==='sheep'?'#d8d1b5':kind==='boar'?'#665044':kind==='chicken'?'#bd9b52':'#526b45';
+  cx.save();cx.globalAlpha=.96;P(-3,3,7,1,'rgba(15,25,17,.28)');
+  if(kind==='bird'){P(-2,-1,4,2,dark);P(1,-2,2,2,fur);P(3,-1,2,1,'#d5b36a');P(-3,0,2,2,fur)}
+  else if(kind==='rabbit'){P(-3,-1,5,3,fur);P(-1,-4,1,3,fur);P(1,-4,1,3,'#d6b7a6');P(2,0,2,1,dark);P(-2,2,1,2,dark);P(1,2,1,2,dark)}
+  else if(kind==='chicken'){P(-2,-2,4,4,fur);P(1,-3,2,2,'#d6bd78');P(2,-1,2,1,'#c65d3c');P(-1,2,1,2,dark);P(1,2,1,2,dark)}
+  else if(kind==='cow'){P(-4,-1,7,4,fur);P(2,-2,3,3,fur);P(3,-3,1,1,'#eee7d5');P(-2,0,2,2,'#554c43');P(-3,3,1,2,dark);P(1,3,1,2,dark)}
+  else if(kind==='sheep'){P(-4,-2,7,5,'#d9d4c4');P(-2,-3,4,2,'#eee9d9');P(2,-1,2,2,'#8b8274');P(-2,3,1,2,dark);P(1,3,1,2,dark)}
+  else if(kind==='deer'){P(-3,-1,6,3,fur);P(2,-3,2,3,fur);P(3,-4,1,2,'#d7c59b');P(4,-4,1,2,'#d7c59b');P(-2,2,1,3,dark);P(2,2,1,3,dark)}
+  else if(kind==='bear'||kind==='boar'){P(-4,-1,7,4,fur);P(2,-2,3,3,fur);P(4,-1,1,1,'#d4c7a5');P(-2,3,2,2,dark);P(2,3,2,2,dark)}
+  else {P(-3,-1,6,3,fur);P(2,-3,3,3,fur);P(4,-2,1,1,'#e8d5b0');P(-2,2,1,3,dark);P(2,2,1,3,dark);if(kind==='fox')P(-4,-2,2,2,'#e9c48b')}
+  cx.restore();
+ }
+}
+
 let renderJob=0,renderPos=0,renderBusy=false,renderPhase=0,renderResumeSpeed=0;function renderChunk(job){if(job!==renderJob)return;const total=N*H,chunk=192,end=Math.min(total,renderPos+chunk);if(renderPhase===0){for(;renderPos<end;renderPos++)tile(renderPos)}else if(renderPhase===1){for(;renderPos<end;renderPos++)tileDetail(renderPos)}else{for(;renderPos<end;renderPos++)tileMicroDetail(renderPos)}const pct=Math.floor((renderPhase*total+renderPos)/(total*3)*100),fill=$('#map-render-fill'),label=$('#map-render-label');if(fill)fill.style.width=pct+'%';if(label)label.textContent=(renderPhase===0?'Đang tạo hình lục địa và địa hình':'Đang khắc họa '+(renderPhase===1?'các quần xã sinh thái':'chi tiết pixel nhỏ, thảm thực vật và vân đá'))+' · '+pct+'%';if(renderPos<total){requestAnimationFrame(()=>renderChunk(job));return}if(renderPhase<2){renderPhase++;renderPos=0;requestAnimationFrame(()=>renderChunk(job));return}TD=0;DQ=[];renderBusy=false;renderRequested=false;renderPhase=0;document.body.classList.remove('rendering-world');const status=$('#map-render-status');if(status)status.hidden=true;if(W){ui();if(renderResumeSpeed>0){W.sp=renderResumeSpeed;renderResumeSpeed=0;run()}}draw()}function renderT(){if(!renderRequested)return;if(TL.width!==N*C||TL.height!==H*C){TL.width=N*C;TL.height=H*C;TD=1}if(TD){if(!renderBusy){renderBusy=true;renderPos=0;renderPhase=0;const job=++renderJob,status=$('#map-render-status'),fill=$('#map-render-fill'),label=$('#map-render-label');if(status)status.hidden=false;if(fill)fill.style.width='0%';if(label)label.textContent='Đang dựng địa hình...';requestAnimationFrame(()=>renderChunk(job))}return}if(DQ.length){const s=new Set();for(const i of DQ){s.add(i);for(const j of nb(i))s.add(j)}s.forEach(tile);DQ=[]}}
 const FX=[],SH=[],AR=[];let VER=1,OS=null,TLS={},RQ=0,DBL=[],OLVER=-1;const LY={},LT={},EC={};
 function warSet(){const s=new Set();for(const k of W.ks)if(k.alive&&Object.keys(k.war).some(i=>k.war[i]&&K(i).alive))s.add(k.id);return s}
@@ -614,7 +650,7 @@ function updOL(){const c=layer('ol'),g=c.g;if(!OS||OS.length!==N*H||LT.ol===0){O
  const d=[];for(let i=0;i<N*H;i++)if(O[i]!==OS[i])d.push(i);if(!d.length)return 0;const q=new Set();for(const i of d){q.add(i);for(const j of nb(i))q.add(j)}q.forEach(i=>{g.clearRect(i%N*C,(i/N|0)*C,C,C);if(O[i])paintO(g,i)});OS.set(O);return 1}
 function draw(){if(RQ)return;RQ=1;requestAnimationFrame(()=>{RQ=0;paint()})}
 function paint(){renderT();if(OLVER!==VER){if(updOL())VER++;OLVER=VER}const sc=(cv.clientWidth/cv.width)||.5,V=VER+'|'+N+'|'+C;
- cx.drawImage(TL,0,0);cx.drawImage(lyr('nat',String(NATVER)+'|'+N+'|'+H+'|'+C,drawNature,250),0,0);cx.drawImage(layer('ol'),0,0);if(W.oil){const oil=lyr('oil',W.seed+'|'+N+'|'+H,()=>{for(let i=0;i<W.oil.length;i++)if(W.oil[i]>0){const x=(i%N+.5)*C,y=((i/N|0)+.5)*C;cx.fillStyle='#252525';cx.beginPath();cx.arc(x,y,Math.max(1.2,C*.16),0,Math.PI*2);cx.fill();cx.fillStyle='#f5c542';cx.fillRect(x-1,y-1,2,2)}},1000);cx.globalAlpha=.9;cx.drawImage(oil,0,0);cx.globalAlpha=1}
+ cx.drawImage(TL,0,0);cx.drawImage(lyr('nat',String(NATVER)+'|'+N+'|'+H+'|'+C,drawNature,250),0,0);drawAmbientWildlife(sc);cx.drawImage(layer('ol'),0,0);if(W.oil){const oil=lyr('oil',W.seed+'|'+N+'|'+H,()=>{for(let i=0;i<W.oil.length;i++)if(W.oil[i]>0){const x=(i%N+.5)*C,y=((i/N|0)+.5)*C;cx.fillStyle='#252525';cx.beginPath();cx.arc(x,y,Math.max(1.2,C*.16),0,Math.PI*2);cx.fill();cx.fillStyle='#f5c542';cx.fillRect(x-1,y-1,2,2)}},1000);cx.globalAlpha=.9;cx.drawImage(oil,0,0);cx.globalAlpha=1}
  if(CBon)cx.drawImage(lyr('cb',V,drawCB,150),0,0);
  cx.drawImage(lyr('rd',V,drawRoads,150),0,0);drawTrade();drawArmies(sc);
  const at=warSet();if(at.size){const wl=lyr('wl',V,()=>{cx.fillStyle='#ff1e1e';for(let i=0;i<N*H;i++){const o=O[i];if(!o||!at.has(o))continue;const kw=K(o).war,xi=i%N,yi=i/N|0,x=xi*C,y=yi*C,E2=j=>O[j]&&O[j]!==o&&kw[O[j]];
