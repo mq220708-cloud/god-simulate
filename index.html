@@ -380,10 +380,10 @@ function gen(seed,silentRender=false){seed=(seed||'').trim()||Math.random().toSt
  W={year:0,month:0,mana:80,ks:[],factions:[],log:[],sel:0,sp:2,seed,oil:Array.from({length:N*H},(_,i)=>{const h=Math.imul(i+1,2654435761)>>>0;return T[i]>=2&&T[i]<=5&&((h^(h>>>13))%97===0)?80+((h>>>8)%120):0})};log('Hư vô tan biến, thế giới ra đời (seed: '+seed+'). Hãy gieo mầm sự sống!');renderResumeSpeed=silentRender?0:(W.sp||2);W.sp=0;const job=renderJob;requestAnimationFrame(()=>renderChunk(job))}
 // ---- pixel art: vẽ địa hình vào canvas ẩn ----
 const S=v=>Math.round(v*C/10),TL=document.createElement('canvas'),tx=TL.getContext('2d');let TD=0,DQ=[],renderRequested=false;
-const SPRITE_CELLS={oak:[2,2],pine:[38,2],birch:[74,2],autumn:[110,2],palm:[2,38],bush:[38,38],flower:[74,38],rock:[110,38],hut:[2,74],cottage:[38,74],farm:[74,74],watchtower:[110,74],castle:[2,110]};
+const SPRITE_CELLS={oak:[1,1],pine:[19,1],birch:[37,1],autumn:[55,1],palm:[1,19],bush:[19,19],flower:[37,19],rock:[55,19],hut:[1,37],cottage:[19,37],farm:[37,37],watchtower:[55,37],castle:[1,55]};
 const spriteAtlas=new Image();let spriteAtlasReady=false;
 spriteAtlas.onload=()=>{spriteAtlasReady=true;if(typeof T!=='undefined'&&T.length){for(let i=0;i<N*H;i++)if(T[i]===4)tileMicroDetail(i)}if(typeof W!=='undefined'&&W)draw()};
-spriteAtlas.src='assets/pixel-art/atlas-v1.svg';
+spriteAtlas.src='assets/pixel-art/atlas-v2.svg';
 const fer=i=>{const t=T[i],x=X[i];let f=t===3?([1,.1,.12,.35,1,.72,1,.18][x]??1):t===4?(x===4?.75:x===5?.48:.6):t===5?(x===1||x===2||x===7?.2:.5):t===6?.2:FERT[t];if(RV[i])f+=.45;return f};
 const tname=i=>{const t=T[i],x=X[i];return t===0?'Đại dương':t===1?(x===6?'Hồ':'Biển nông'):t===2?'Bãi biển':t===3?(['Đồng cỏ','Sa mạc','Vùng tuyết','Đầm lầy','Đồng cỏ lá đỏ','Đồng đá xám'][x]||'Đồng cỏ'):t===4?(x===4?'Rừng rậm':x===5?'Rừng lá đỏ':'Rừng ôn đới'):t===5?(x===2?'Đồi tuyết':x===1?'Đồi khô':x===7?'Đồi đá':'Đồi'):(x===2?'Núi tuyết':'Núi')};
 function tile(i){const xi=i%N,yi=i/N|0,x0=xi*C,y0=yi*C,t=T[i],xv=X[i],h=Math.imul(i+1,2654435761)>>>0,a=h&7,b=h>>3&7,c=h>>6&7,d=h>>9&7,e=h>>12&15;
@@ -407,7 +407,7 @@ function tileMicroDetail(i){const t=T[i],xv=X[i];if(t<2||RV[i])return;const x0=i
  if(spriteAtlasReady){
   const species=xv===4?'pine':xv===5?'autumn':((Math.imul(i+1,2654435761)>>>0)%4===0?'birch':'oak');
   const [sx,sy]=SPRITE_CELLS[species];tx.imageSmoothingEnabled=false;
-  tx.drawImage(spriteAtlas,sx,sy,32,32,x0,y0,C,C);return;
+  tx.drawImage(spriteAtlas,sx,sy,16,16,x0,y0,C,C);return;
  }
  // Thần Giới 2.0 — cây Pixel Art tự vẽ bằng các khối pixel, không dùng icon/font.
  const autumn=xv===5,evergreen=xv===4;
@@ -537,7 +537,7 @@ function drawNames(){const sc=(cv.clientWidth/cv.width)||.5,st={};
  // Công trình đô thị được vẽ bằng hình học pixel riêng, không dùng emoji/icon font.
  const drawCitySprite=(g,lv,x,y,size)=>{
   const u=Math.max(1,Math.round(size/10)),px=(a,b,w,h,col)=>{g.fillStyle=col;g.fillRect(Math.round(x+a*u),Math.round(y+b*u),Math.max(1,w*u),Math.max(1,h*u))};
-  if(spriteAtlasReady){const name=lv>=3?'castle':lv>=2?'watchtower':lv>=1?'cottage':'hut';const [sx,sy]=SPRITE_CELLS[name];g.imageSmoothingEnabled=false;g.drawImage(spriteAtlas,sx,sy,32,32,Math.round(x-size/2),Math.round(y-size/2),Math.ceil(size),Math.ceil(size));return;}
+  if(spriteAtlasReady){const name=lv>=3?'castle':lv>=2?'watchtower':lv>=1?'cottage':'hut';const [sx,sy]=SPRITE_CELLS[name];g.imageSmoothingEnabled=false;g.drawImage(spriteAtlas,sx,sy,16,16,Math.round(x-size/2),Math.round(y-size/2),Math.ceil(size),Math.ceil(size));return;}
   const roof=lv>=2?'#435b91':'#9a4937',roofHi=lv>=2?'#8fb5e8':'#d47a4d';
   px(-4,4,8,1,'#283c2e');
   // Thân nhà và tầng trên thay đổi theo cấp thành phố.
