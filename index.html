@@ -382,7 +382,7 @@ function gen(seed,silentRender=false){seed=(seed||'').trim()||Math.random().toSt
 const S=v=>Math.round(v*C/10),TL=document.createElement('canvas'),tx=TL.getContext('2d');let TD=0,DQ=[],renderRequested=false;
 const SPRITE_CELLS={oak:[1,1],pine:[19,1],birch:[37,1],autumn:[55,1],palm:[1,19],bush:[19,19],flower:[37,19],rock:[55,19],hut:[1,37],cottage:[19,37],farm:[37,37],watchtower:[55,37],castle:[1,55]};
 const spriteAtlas=new Image();let spriteAtlasReady=false;
-spriteAtlas.onload=()=>{spriteAtlasReady=true;if(typeof T!=='undefined'&&T.length){for(let i=0;i<N*H;i++)if(T[i]===4)tileMicroDetail(i)}if(typeof W!=='undefined'&&W)draw()};
+spriteAtlas.onload=()=>{spriteAtlasReady=true;if(typeof T!=='undefined'&&T.length){for(let i=0;i<N*H;i++)if(T[i]===3||T[i]===4||T[i]===5)tileMicroDetail(i)}if(typeof W!=='undefined'&&W)draw()};
 spriteAtlas.src='assets/pixel-art/atlas-v2.svg';
 const fer=i=>{const t=T[i],x=X[i];let f=t===3?([1,.1,.12,.35,1,.72,1,.18][x]??1):t===4?(x===4?.75:x===5?.48:.6):t===5?(x===1||x===2||x===7?.2:.5):t===6?.2:FERT[t];if(RV[i])f+=.45;return f};
 const tname=i=>{const t=T[i],x=X[i];return t===0?'Đại dương':t===1?(x===6?'Hồ':'Biển nông'):t===2?'Bãi biển':t===3?(['Đồng cỏ','Sa mạc','Vùng tuyết','Đầm lầy','Đồng cỏ lá đỏ','Đồng đá xám'][x]||'Đồng cỏ'):t===4?(x===4?'Rừng rậm':x===5?'Rừng lá đỏ':'Rừng ôn đới'):t===5?(x===2?'Đồi tuyết':x===1?'Đồi khô':x===7?'Đồi đá':'Đồi'):(x===2?'Núi tuyết':'Núi')};
